@@ -4,9 +4,9 @@
     ".NETCoreApp,Version=v5.0": {
       "Arbor.App.Extensions": {
         "type": "Direct",
-        "requested": "[0.8.0, )",
-        "resolved": "0.8.0",
-        "contentHash": "/Ice263khR/uoQ6/5E3hisWFEyU7GKRKCzaXfbo+kWt1a2Q4Iyl7vmKL23LBEZllQYsOgIafbmCUmDhVBzl/kg==",
+        "requested": "[0.9.0-build.1620060829, )",
+        "resolved": "0.9.0-build.1620060829",
+        "contentHash": "JaZ9yfA2htpll9HnSkvMaqWybrzWsOFdopT9WxlNayY0pfP2sl6nPFU0dh//undQ1i38JeWV7boJaIqDkeBXGQ==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema": "1.2.0",
@@ -22,7 +22,7 @@
           "Serilog.Sinks.Console": "3.1.1",
           "Serilog.Sinks.Debug": "2.0.0",
           "Serilog.Sinks.File": "4.1.0",
-          "Serilog.Sinks.Seq": "5.0.0",
+          "Serilog.Sinks.Seq": "5.0.1",
           "System.Collections.Immutable": "5.0.0",
           "System.ComponentModel.Annotations": "5.0.0"
         }
@@ -44,9 +44,9 @@
       },
       "Arbor.Tooler": {
         "type": "Direct",
-        "requested": "[0.14.2, )",
-        "resolved": "0.14.2",
-        "contentHash": "E0PqP4Nx9i8EqXszTEIwSM9Zr3fFmZMleRXoAWIQMGuZ++bJa5RJA+v+7pWSI9F2IQBMWM6iRVeJeqzfeL7MPA==",
+        "requested": "[0.15.0-build.1620064855, )",
+        "resolved": "0.15.0-build.1620064855",
+        "contentHash": "KCUIrACkmjiJZn1v/LkQz9L8/r1YVj2AeCQuKqCQBizv7Kg/zc0ACJJPBJx6DnDo3JxHjbDBVYM2fmdH+Bs4Rg==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
           "NewtonSoft.Json": "12.0.1",
@@ -1149,10 +1149,10 @@
       "milou.deployer.bootstrapper.common": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.8.0",
+          "Arbor.App.Extensions": "0.9.0-build.1620060829",
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema": "1.2.0",
-          "Arbor.Tooler": "0.14.2",
+          "Arbor.Tooler": "0.15.0-build.1620064855",
           "JetBrains.Annotations": "2021.1.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
@@ -1167,13 +1167,13 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.8.0",
+          "Arbor.App.Extensions": "0.9.0-build.1620060829",
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
           "Arbor.ModelBinding.Primitives": "2.0.0",
           "Arbor.Processing": "0.6.0",
-          "Arbor.Tooler": "0.14.2",
+          "Arbor.Tooler": "0.15.0-build.1620064855",
           "JetBrains.Annotations": "2021.1.0",
           "MediatR": "9.0.0",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",
@@ -1191,11 +1191,11 @@
       "milou.deployer.web.agent": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.8.0",
+          "Arbor.App.Extensions": "0.9.0-build.1620060829",
           "Arbor.KVConfiguration.Urns": "1.2.0",
           "Arbor.ModelBinding.Primitives": "2.0.0",
           "Arbor.Processing": "0.6.0",
-          "Arbor.Tooler": "0.14.2",
+          "Arbor.Tooler": "0.15.0-build.1620064855",
           "JetBrains.Annotations": "2021.1.0",
           "Microsoft.AspNetCore.SignalR.Client": "5.0.5",
           "Microsoft.CodeAnalysis.CSharp": "3.9.0",

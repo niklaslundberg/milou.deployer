@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -53,7 +54,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var createTarget = new CreateTarget(testTarget.Id.TargetId, testTarget.Name);
             await _mediator.Send(createTarget, cancellationToken);
 
-            string nugetConfigFile = _keyValueConfiguration[ConfigurationConstants.NugetConfigFile];
+            string nugetConfigFile = _keyValueConfiguration[DeployerAppConstants.NugetConfigFile];
 
             var updateDeploymentTarget = new UpdateDeploymentTarget(
                 testTarget.Id,

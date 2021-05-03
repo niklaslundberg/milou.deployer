@@ -10,6 +10,7 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.App.Extensions.IO;
 using FluentFTP;
 using JetBrains.Annotations;
 using Milou.Deployer.Core;
@@ -587,7 +588,7 @@ namespace Milou.Deployer.Ftp
                 if (ruleConfiguration.AppOfflineEnabled)
                 {
                     using var tempFile = TempFile.CreateTempFile("App_Offline", ".htm");
-                    var appOfflinePath = new FtpPath($"/{tempFile.File.Name}", FileSystemType.File);
+                    var appOfflinePath = new FtpPath($"/{tempFile.File!.Name}", FileSystemType.File);
 
                     FtpPath appOfflineFullPath =
                         (_ftpSettings.PublicRootPath ?? _ftpSettings.BasePath ?? FtpPath.Root).Append(

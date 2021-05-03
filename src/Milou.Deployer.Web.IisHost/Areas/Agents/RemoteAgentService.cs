@@ -50,8 +50,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                     return new RemoteDeploymentPackageAgent(_agentHub, _agents, agentId, _logger);
                 }
 
-                _logger.Debug("Waiting for agent to be available for deployment task {DeploymentTaskId}",
+                _logger.Debug("Waiting for agent to be available for deployment task {DeploymentTaskId}, no connection id",
                     deploymentTask.DeploymentTaskId);
+
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             }
 

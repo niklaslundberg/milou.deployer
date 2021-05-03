@@ -56,5 +56,9 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         [Metadata]
         public const string NuGetExeVersion = "urn:milou:deployer:web:nuget:nuget-exe-version";
+
+        public const string NugetConfigFile = "urn:milou:deployer:web:nuget:nuget-config-file";
+
+        public const string NuGetPackageSourceName = "urn:milou:deployer:web:nuget:nuget-source-name";
     }
 }

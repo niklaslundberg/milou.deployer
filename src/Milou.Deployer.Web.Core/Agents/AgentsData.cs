@@ -73,8 +73,11 @@ namespace Milou.Deployer.Web.Core.Agents
                 else
                 {
                     _logger.Error("Could not get agent state for agent id {AgentId}", agentId);
+                    return;
                 }
             }
+
+            _logger.Debug("Agent {AgentId} connected", agentId);
         }
 
         public void AgentDisconnected(AgentDisconnected agentDisconnected)
@@ -109,6 +112,8 @@ namespace Milou.Deployer.Web.Core.Agents
                     _logger.Error("Could not get agent state for agent id {AgentId}", agentId);
                 }
             }
+
+            _logger.Warning("Agent {AgentId} disconnected", agentId);
         }
 
         public void AgentDone(AgentId agentId)

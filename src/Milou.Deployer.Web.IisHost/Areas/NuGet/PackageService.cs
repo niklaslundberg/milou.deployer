@@ -6,12 +6,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
-using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.NuGet;
 using Serilog;
@@ -79,7 +79,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                     $"The nuget.exe path '{_nuGetConfiguration.NugetExePath}' does not exist");
             }
 
-            const string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
+            const string packageSourceAppSettingsKey = DeployerAppConstants.NuGetPackageSourceName;
 
             string? packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 
@@ -95,7 +95,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             }
 
             string? configFile =
-                nugetConfigFile.WithDefault(_keyValueConfiguration[ConfigurationConstants.NugetConfigFile]);
+                nugetConfigFile.WithDefault(_keyValueConfiguration[DeployerAppConstants.NugetConfigFile]);
 
             if (configFile is {} && File.Exists(configFile))
             {
@@ -146,7 +146,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                     packageId,
                     addedPackages);
             }
-            else if (addedPackages.Count > 0 && addedPackages.Count < 20)
+            else if (addedPackages.Count is > 0 and < 20)
             {
                 _logger.Information(
                     "Added {Count} packages for package id {PackageId} {PackageVersions}",

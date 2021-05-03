@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Milou.Deployer.Core\IO\TempFile.cs" Link="TempFile.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />

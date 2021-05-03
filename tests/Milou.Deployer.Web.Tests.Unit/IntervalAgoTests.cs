@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             var deploymentInterval = utcTime.IntervalAgo(new TestClock());
 
-            Assert.Equal(DeploymentInterval.ThisWeek, deploymentInterval);
+            Assert.Equal(RelativeInterval.ThisWeek, deploymentInterval);
         }
     }
 }

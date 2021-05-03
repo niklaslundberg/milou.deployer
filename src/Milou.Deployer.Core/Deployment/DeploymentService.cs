@@ -250,16 +250,15 @@ namespace Milou.Deployer.Core.Deployment
                 return new EnvironmentPackageResult(false);
             }
 
-            const string environmentConfigPrefix = "EF_";
-
             if (matchingFoundEnvironmentPackage.Any())
             {
+                string tempName = deploymentExecutionDefinition.EnvironmentConfig!.Substring(4);
+
                 var tempInstallDirectory =
                     new DirectoryInfo(
                         Path.Combine(
                             tempDirectoryInfo.FullName,
-                            $"{environmentConfigPrefix}tmp",
-                            deploymentExecutionDefinition.EnvironmentConfig!));
+                           "t" + tempName));
 
                 var deploymentDefinition =
                     new DeploymentExecutionDefinition(
@@ -274,8 +273,7 @@ namespace Milou.Deployer.Core.Deployment
                     new DirectoryInfo(
                         Path.Combine(
                             tempDirectoryInfo.FullName,
-                            $"{environmentConfigPrefix}out",
-                            deploymentExecutionDefinition.EnvironmentConfig!));
+                            "o" + tempName));
 
                 var installedEnvironmentPackage =
                     await
@@ -503,13 +501,11 @@ namespace Milou.Deployer.Core.Deployment
                     _logger.Information("Executing deployment execution definition: '{DeploymentExecutionDefinition}'",
                         asJson);
 
-                    const string tempPrefix = "MD-";
-
-                    string uniqueSuffix = DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
+                    const string tempPrefix = "MD";
 
                     string tempPath = Path.Combine(
                         Path.GetTempPath(),
-                        $"{tempPrefix}{uniqueSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
+                        $"{tempPrefix}{DateTime.UtcNow.Ticks.ToString().Substring(10)}");
 
                     var tempWorkingDirectory = new DirectoryInfo(tempPath);
                     DirectoryInfo packageInstallTempDirectory = tempWorkingDirectory;

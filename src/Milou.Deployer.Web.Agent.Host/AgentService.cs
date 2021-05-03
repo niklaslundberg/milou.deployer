@@ -219,7 +219,7 @@ namespace Milou.Deployer.Web.Agent.Host
             if (_hubConnection is {})
             {
                 await Task.Delay(new Random().Next(0, 5) * 1000, _stoppingToken);
-                await _hubConnection.StartAsync(_stoppingToken);
+                await Connect();
             }
         }
     }

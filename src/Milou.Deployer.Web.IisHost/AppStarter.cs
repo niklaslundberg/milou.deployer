@@ -11,6 +11,7 @@ using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Cli;
 using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.App.Extensions.IO;
 using Arbor.App.Extensions.Logging;
 using Arbor.AspNetCore.Host;
 using Arbor.KVConfiguration.Core;
@@ -87,6 +88,8 @@ namespace Milou.Deployer.Web.IisHost
                 using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(
                     cancellationTokenSource, args,
                     environmentVariables, scanAssemblies, instances ?? Array.Empty<object>());
+
+                TempPathHelper.SetTempPath(app.Configuration, app.Logger);
 
                 bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
                                     && !Debugger.IsAttached;

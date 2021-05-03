@@ -47,7 +47,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var keys = new List<KeyValue>
             {
-                new(ConfigurationConstants.NugetConfigFile,
+                new(DeployerAppConstants.NugetConfigFile,
                     TestConfiguration.NugetConfigFile.FullName,
                     null),
                 new(ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
@@ -77,10 +77,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Variables.Add(ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
 
-            Variables.Add(ConfigurationConstants.NugetConfigFile,
+            Variables.Add(DeployerAppConstants.NugetConfigFile,
                 TestConfiguration.NugetConfigFile.FullName);
 
-            Variables.Add(ConfigurationConstants.NuGetPackageSourceName,
+            Variables.Add(DeployerAppConstants.NuGetPackageSourceName,
                 milouDeployerWebTestsIntegration);
 
             Variables.Add(
