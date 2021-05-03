@@ -65,7 +65,8 @@ namespace Milou.Deployer.Web.Core.Email
             using CancellationTokenSource cancellationTokenSource =
                 _timeoutHelper.CreateCancellationTokenSource(
                     TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds));
-            DeploymentTarget target =
+
+            DeploymentTarget? target =
                 await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
                     cancellationTokenSource.Token);
 
@@ -85,7 +86,7 @@ namespace Milou.Deployer.Web.Core.Email
             {
                 try
                 {
-                    mimeMessage.To.Add(new MailboxAddress(targetEmailNotificationAddress));
+                    mimeMessage.To.Add(new MailboxAddress("", targetEmailNotificationAddress));
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {

@@ -7,6 +7,7 @@ using Arbor.App.Extensions;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Deployment;
@@ -51,11 +52,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             return View(new MonitoringViewOutputModel(appVersions));
         }
-
-        [HttpGet]
-        [Route(MonitorConstants.MonitorRoute, Name = MonitorConstants.MonitorRouteName)]
-        [Route("")]
-        public IActionResult Status() => View();
 
         [HttpGet]
         [Route("~/api/targets")]
@@ -114,14 +110,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
+        [Route(MonitorConstants.MonitorRoute, Name = MonitorConstants.MonitorRouteName)]
+        [Route("")]
+        public IActionResult Status() => View();
+
+        [HttpGet]
         [Route(TargetConstants.TargetStatusApiRoute, Name = TargetConstants.TargetStatusApiRouteName)]
         public async Task<IActionResult> Status(
-            string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] MonitoringService monitoringService,
             [FromServices] ICustomClock clock)
         {
-            DeploymentTarget deploymentTarget =
+            DeploymentTarget? deploymentTarget =
                 await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
@@ -139,7 +140,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return Json(DeployStatus.Unavailable);
             }
 
-            AppVersion appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
+            AppVersion? appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
+
+            if (appVersion is null)
+            {
+                return Json(DeployStatus.Unavailable);
+            }
 
             var deploymentInterval = appVersion.DeployedAtUtc.IntervalAgo(clock);
 
@@ -150,6 +156,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                                item.Version == appVersion.SemanticVersion,
                     Index = index
                 }).SingleOrDefault(t => t.Selected)?.Index ?? -1;
+
+            if (appVersion?.Status is null)
+            {
+                return StatusCode(500, new {Message = "App version status is missing"});
+            }
+
             return Json(new
             {
                 displayName = appVersion.Status.DisplayName,

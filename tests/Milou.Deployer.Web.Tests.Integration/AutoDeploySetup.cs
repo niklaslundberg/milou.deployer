@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Tests.Integration.TestData;
 using Xunit.Abstractions;
 
 namespace Milou.Deployer.Web.Tests.Integration
@@ -38,14 +37,9 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)
         {
-            TestConfiguration = await TestPathHelper.CreateTestConfigurationAsync(CancellationToken.None);
-
-            var portPoolRange = new PortPoolRange(5200, 100);
-            TestSiteHttpPort = new TestHttpPort(TcpHelper.GetAvailablePort(portPoolRange));
-
-            Environment.SetEnvironmentVariable("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
-            Environment.SetEnvironmentVariable("TestDeploymentUri",
-                $"http://localhost:{TestSiteHttpPort.Port.Port + 1}");
+            Variables.Add("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
+            Variables.Add("TestDeploymentUri",
+                $"http://localhost:{ServerEnvironmentTestSiteConfiguration.Port.Port + 1}");
 
             string deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
 
@@ -53,12 +47,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var keys = new List<KeyValue>
             {
-                new KeyValue(ConfigurationKeys.NuGetSource, milouDeployerWebTestsIntegration, null),
-                new KeyValue(ConfigurationConstants.NugetConfigFile,
+                new(ConfigurationConstants.NugetConfigFile,
                     TestConfiguration.NugetConfigFile.FullName,
                     null),
-                new KeyValue(ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
-                new KeyValue(ConfigurationKeys.LogLevel, "Verbose", null)
+                new(ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
+                new(ConfigurationKeys.LogLevel, "Verbose", null)
             }.ToImmutableArray();
 
             string serializedConfigurationItems =
@@ -72,7 +65,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var integrationTestProjectDirectory = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
                 "tests",
-                milouDeployerWebTestsIntegration));
+                milouDeployerWebTestsIntegration, "TestData", "Packages"));
 
             FileInfo[] nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
 
@@ -82,32 +75,27 @@ namespace Milou.Deployer.Web.Tests.Integration
                     $"Could not find nuget test packages located in {integrationTestProjectDirectory.FullName}");
             }
 
-            foreach (FileInfo nugetPackage in nugetPackages)
-            {
-                nugetPackage.CopyTo(Path.Combine(TestConfiguration.NugetPackageDirectory.FullName, nugetPackage.Name));
-            }
+            Variables.Add(ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
 
-            Environment.SetEnvironmentVariable(ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
-
-            Environment.SetEnvironmentVariable(ConfigurationConstants.NugetConfigFile,
+            Variables.Add(ConfigurationConstants.NugetConfigFile,
                 TestConfiguration.NugetConfigFile.FullName);
 
-            Environment.SetEnvironmentVariable(ConfigurationConstants.NuGetPackageSourceName,
+            Variables.Add(ConfigurationConstants.NuGetPackageSourceName,
                 milouDeployerWebTestsIntegration);
 
-            Environment.SetEnvironmentVariable(
+            Variables.Add(
                 $"{DeployerAppConstants.AutoDeployConfiguration}:default:StartupDelayInSeconds",
                 "0");
 
-            Environment.SetEnvironmentVariable(
+            Variables.Add(
                 $"{DeployerAppConstants.AutoDeployConfiguration}:default:afterDeployDelayInSeconds",
                 "1");
 
-            Environment.SetEnvironmentVariable(
+            Variables.Add(
                 $"{DeployerAppConstants.AutoDeployConfiguration}:default:MetadataTimeoutInSeconds",
                 "10");
 
-            Environment.SetEnvironmentVariable(
+            Variables.Add(
                 $"{DeployerAppConstants.AutoDeployConfiguration}:default:enabled",
                 "true");
 

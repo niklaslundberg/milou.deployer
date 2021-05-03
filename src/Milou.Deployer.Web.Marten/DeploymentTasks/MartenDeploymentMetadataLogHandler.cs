@@ -24,11 +24,12 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
                 PackageId = notification.DeploymentTask.PackageId,
                 Version = notification.DeploymentTask.SemanticVersion.ToNormalizedString(),
                 DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
-                DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
+                DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId.TargetId,
                 Id = $"deploymentTaskMetadata/{notification.DeploymentTask.DeploymentTaskId}",
                 StartedAtUtc = notification.Result.StartedAtUtc,
                 FinishedAtUtc = notification.Result.FinishedAtUtc,
                 Metadata = notification.Result.Metadata,
+                Status = notification.DeploymentTask.Status.Status,
                 ExitCode = notification.Result.ExitCode.Code
             };
 

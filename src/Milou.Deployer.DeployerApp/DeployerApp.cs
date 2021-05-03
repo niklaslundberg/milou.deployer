@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
+using Milou.Deployer.Core;
 using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
@@ -49,7 +50,7 @@ namespace Milou.Deployer.DeployerApp
 
         public void Dispose()
         {
-            Logger?.Verbose("Disposing deployer app");
+            Logger.Verbose("Disposing deployer app");
 
             if (Logger is IDisposable disposableLogger)
             {
@@ -63,7 +64,7 @@ namespace Milou.Deployer.DeployerApp
                 disposableSettings.Dispose();
             }
 
-            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource.Dispose();
             _cancellationTokenSource = null!;
         }
 
@@ -89,7 +90,7 @@ namespace Milou.Deployer.DeployerApp
             PrintEnvironmentVariables(args);
 
             string[] parameterArgs =
-                args.Where(arg => arg.IndexOf("=", StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
+                args.Where(arg => arg.Contains("=", StringComparison.OrdinalIgnoreCase)).ToArray();
 
             string[] nonFlagArgs =
                 args.Where(arg => !arg.StartsWith("-", StringComparison.OrdinalIgnoreCase))
@@ -143,7 +144,7 @@ namespace Milou.Deployer.DeployerApp
                                 fallbackManifestPath);
                         }
 
-                        exitCode = await ExecuteAsync(manifestFile, semanticVersion, cancellationToken)
+                        exitCode = await ExecuteAsync(manifestFile, semanticVersion!, cancellationToken)
                             .ConfigureAwait(false);
                     }
                 }
@@ -175,7 +176,7 @@ namespace Milou.Deployer.DeployerApp
 
             var fvi = FileVersionInfo.GetVersionInfo(location);
 
-            string fileVersion = fvi.FileVersion;
+            string? fileVersion = fvi.FileVersion;
 
             Type type = typeof(DeployerApp);
 
@@ -188,7 +189,7 @@ namespace Milou.Deployer.DeployerApp
         }
 
         private async Task<ExitCode> ExecuteAsync(string file,
-            SemanticVersion version,
+            SemanticVersion? version,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(file))
@@ -233,11 +234,19 @@ namespace Milou.Deployer.DeployerApp
                 Logger.Debug("Found one definition without version and no version has been explicitly set");
                 Console.WriteLine(
                     "Version is missing in manifest and no version has been set in command line args. Enter a semantic version, eg. 1.2.3");
+                string? inputVersion = null;
 
-                string inputVersion = Console.ReadLine();
+                if (Environment.UserInteractive && !Debugger.IsAttached && !UnitTestDetector.HasUnitTestInAppDomain)
+                {
+                    inputVersion = Console.ReadLine();
+                }
 
-                if (!string.IsNullOrWhiteSpace(inputVersion) &&
-                    SemanticVersion.TryParse(inputVersion, out SemanticVersion semanticInputVersion))
+                if (string.IsNullOrWhiteSpace(inputVersion))
+                {
+                    throw new InvalidOperationException("Missing version");
+                }
+
+                if (SemanticVersion.TryParse(inputVersion, out SemanticVersion semanticInputVersion))
                 {
                     version = semanticInputVersion;
                     Logger.Debug("Using interactive version from user: {Version}",

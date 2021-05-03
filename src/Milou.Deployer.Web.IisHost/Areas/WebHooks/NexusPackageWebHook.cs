@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             string content,
             CancellationToken cancellationToken)
         {
-            if (request.ContentType is null)
+            if (request.ContentType.IsNullOrWhiteSpace())
             {
                 return null;
             }
@@ -64,12 +64,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             NexusConfig nexusConfig = await GetSignatureKeyAsync(cancellationToken);
 
-            if (nexusConfig is null)
-            {
-                _logger.Warning("{Config} is null, cannot process Nexus web hook request", nameof(NexusConfig));
-                return null;
-            }
-
             if (string.IsNullOrWhiteSpace(nexusConfig.HmacKey))
             {
                 _logger.Warning("HMAC Key for {Config} is empty, cannot process Nexus web hook request",
@@ -87,7 +81,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 return null;
             }
 
-            NexusWebHookNotification webHookNotification =
+            NexusWebHookNotification? webHookNotification =
                 JsonConvert.DeserializeObject<NexusWebHookNotification>(content);
 
             if (string.IsNullOrWhiteSpace(webHookNotification?.Audit?.Attributes?.Name))
@@ -135,7 +129,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
         private HMACSHA1 GetSignatureKey(NexusConfig nexusConfig)
         {
-            byte[] key = Encoding.UTF8.GetBytes(nexusConfig.HmacKey);
+            byte[] key = Encoding.UTF8.GetBytes(nexusConfig.HmacKey ?? throw new InvalidOperationException(
+                $"{nameof(nexusConfig.HmacKey)} is required"));
 
             return new HMACSHA1(key);
         }

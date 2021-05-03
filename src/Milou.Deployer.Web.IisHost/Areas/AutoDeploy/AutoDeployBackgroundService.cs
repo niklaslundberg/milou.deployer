@@ -112,8 +112,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 foreach (DeploymentTarget deploymentTarget in targetsWithUrl)
                 {
-                    AppVersion appVersion = appVersions.SingleOrDefault(version =>
-                        version.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
+                    AppVersion? appVersion = appVersions.SingleOrDefault(version =>
+                        version.Target.Id == deploymentTarget.Id);
+
+                    if (appVersion?.SemanticVersion is null)
+                    {
+                        _logger.Verbose("No semantic version was found for target {Target}, {Url}", deploymentTarget.Id, deploymentTarget.Url);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(appVersion?.PackageId))
+                    {
+                        _logger.Verbose("No package id was found for target {Target}, {Url}", deploymentTarget.Id, deploymentTarget.Url);
+                    }
 
                     if (appVersion?.SemanticVersion is null || string.IsNullOrWhiteSpace(appVersion.PackageId))
                     {
@@ -136,7 +146,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     if (filteredPackages.IsEmpty)
                     {
                         _logger.Debug(
-                            "Found no auto deploy versions for target {TargetId} allowing pre-release {AllowPreRelease}",
+                            "Found no auto deploy versions of package {Package} for target {TargetId} allowing pre-release {AllowPreRelease}",
+                            deploymentTarget.PackageId,
                             deploymentTarget.Id, deploymentTarget.AllowPreRelease);
                         continue;
                     }
@@ -147,7 +158,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                             && package.Version > appVersion.SemanticVersion)
                         .ToImmutableHashSet();
 
-                    PackageVersion packageToDeploy = newerPackages
+                    PackageVersion? packageToDeploy = newerPackages
                         .OrderByDescending(package => package.Version)
                         .FirstOrDefault();
 
@@ -161,7 +172,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                             packageToDeploy,
                             deploymentTarget.Id);
 
-                        _deploymentWorkerService.Enqueue(task);
+                        await _deploymentWorkerService.Enqueue(task);
                     }
                     else
                     {
@@ -182,21 +193,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         {
             try
             {
-                ImmutableHashSet<PackageVersion> packageVersions;
-                using (CancellationTokenSource packageVersionCancellationTokenSource =
+                var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
+
+                using CancellationTokenSource packageVersionCancellationTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(
-                        TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
-                {
-                    using var linked =
-                        CancellationTokenSource.CreateLinkedTokenSource(
-                            stoppingToken,
-                            packageVersionCancellationTokenSource.Token);
-                    packageVersions =
-                        (await _packageService.GetPackageVersionsAsync(
-                            deploymentTarget.PackageId,
-                            cancellationToken: linked.Token))
-                        .ToImmutableHashSet();
-                }
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds));
+
+                using var linked =
+                    CancellationTokenSource.CreateLinkedTokenSource(
+                        stoppingToken,
+                        packageVersionCancellationTokenSource.Token);
+
+                var packageVersions = (await _packageService.GetPackageVersionsAsync(
+                        deploymentTarget.PackageId,
+                        nugetConfigFile: deploymentTarget.NuGet.NuGetConfigFile.WithDefault(applicationSettings.DefaultNuGetConfig.NuGetConfig),
+                        nugetPackageSource: deploymentTarget.NuGet.NuGetPackageSource.WithDefault(applicationSettings.DefaultNuGetConfig.NuGetSource),
+                        cancellationToken: linked.Token))
+                    .ToImmutableHashSet();
 
                 return packageVersions;
             }
@@ -213,21 +226,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         {
             try
             {
-                AppVersion[] appVersions;
-                using (CancellationTokenSource cancellationTokenSource =
+                using CancellationTokenSource cancellationTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(
-                        TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds)))
-                {
-                    using var linkedCancellationTokenSource =
-                        CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
-                    var cancellationToken = linkedCancellationTokenSource.Token;
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds));
+                using var linkedCancellationTokenSource =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
+                var cancellationToken = linkedCancellationTokenSource.Token;
 
-                    IEnumerable<Task<AppVersion>> tasks = targetsWithUrl.Select(
-                        target =>
-                            _monitoringService.GetAppMetadataAsync(target, cancellationToken));
+                IEnumerable<Task<AppVersion?>> tasks = targetsWithUrl.Select(
+                    target =>
+                        _monitoringService.GetAppMetadataAsync(target, cancellationToken));
 
-                    appVersions = await Task.WhenAll(tasks);
-                }
+                AppVersion[] appVersions = (await Task.WhenAll(tasks)).NotNull().ToArray();
 
                 return appVersions;
             }

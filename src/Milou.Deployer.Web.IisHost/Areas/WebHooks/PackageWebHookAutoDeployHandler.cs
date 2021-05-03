@@ -56,7 +56,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             if (packageIdentifier is null)
             {
-                throw new ArgumentNullException(nameof(packageIdentifier));
+                throw new ArgumentException(nameof(packageIdentifier));
             }
 
             _logger.Information("Received hook for package {Package}", packageIdentifier);
@@ -98,20 +98,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                         if (allowDeployment)
                         {
-                            AppVersion metadata = await _monitoringService.GetAppMetadataAsync(
+                            AppVersion? metadata = await _monitoringService.GetAppMetadataAsync(
                                 deploymentTarget,
                                 cancellationToken);
 
-                            if (metadata.SemanticVersion is {})
+                            if (metadata?.SemanticVersion is {})
                             {
-                                if (packageIdentifier.Version > metadata.SemanticVersion)
+                                if (packageIdentifier.Version > metadata!.SemanticVersion)
                                 {
                                     _logger.Information(
                                         "Auto deploying package {PackageIdentifier} to target {Name} from web hook",
                                         packageIdentifier,
                                         deploymentTarget.Name);
 
-                                    _deploymentService.Enqueue(
+                                    await _deploymentService.Enqueue(
                                         new DeploymentTask(
                                             packageIdentifier,
                                             deploymentTarget.Id,

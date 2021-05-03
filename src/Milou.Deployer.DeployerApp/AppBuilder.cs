@@ -116,7 +116,6 @@ namespace Milou.Deployer.DeployerApp
                     Arbor.App.Extensions.Logging.LogEventLevelExtensions.ParseOrDefault(
                         environmentLogLevel.WithDefault(configurationLogLevel));
 
-
                 levelSwitch.MinimumLevel = logLevel;
 
                 LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
@@ -161,7 +160,7 @@ namespace Milou.Deployer.DeployerApp
                         && configuration[ConfigurationKeys.ForceAllowPreRelease]
                             .ParseAsBooleanOrDefault());
 
-                string nuGetExePath = configuration[ConfigurationKeys.NuGetExePath];
+                string? nuGetExePath = configuration[ConfigurationKeys.NuGetExePath];
 
                 if (string.IsNullOrWhiteSpace(nuGetExePath))
                 {
@@ -257,7 +256,7 @@ namespace Milou.Deployer.DeployerApp
             return LoggingConstants.DefaultFormat;
         }
 
-        private static string? GetMachineSettingsFile(DirectoryInfo currentDirectory)
+        private static string? GetMachineSettingsFile(DirectoryInfo? currentDirectory)
         {
             if (currentDirectory is null)
             {
@@ -273,7 +272,7 @@ namespace Milou.Deployer.DeployerApp
 
             try
             {
-                FileInfo file = currentDirectory.GetFiles($"{Environment.MachineName}.settings.json").SingleOrDefault();
+                FileInfo? file = currentDirectory.GetFiles($"{Environment.MachineName}.settings.json").SingleOrDefault();
 
                 if (file is null)
                 {

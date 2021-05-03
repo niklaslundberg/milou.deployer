@@ -37,18 +37,18 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
         }
 
         public async Task<ExitCode> RunAsync(string deploymentTaskId,
-            string deploymentTargetId,
+            DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
             _logger.Information("Received deployment task {DeploymentTaskId}", deploymentTaskId);
 
-            IHttpClient client = _logHttpClientFactory.CreateClient(deploymentTaskId, deploymentTargetId);
+            IHttpClient client = _logHttpClientFactory.CreateClient(deploymentTaskId, deploymentTargetId, AgentId, _logger);
 
             Logger logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
                 .WriteTo.Logger(_logger)
                 .WriteTo.DurableHttpUsingTimeRolledBuffers(AgentConstants.DeploymentTaskLogRoute,
-                    period: TimeSpan.FromSeconds(1), httpClient: client)
+                    period: TimeSpan.FromMilliseconds(100), httpClient: client)
                 .CreateLogger(); //TODO create job logger in agent
 
             ExitCode exitCode;
@@ -79,18 +79,11 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
                     return ExitCode.Failure;
                 }
 
-                if (string.IsNullOrWhiteSpace(deploymentTaskPackage.DeploymentTargetId))
-                {
-                    _logger.Error(
-                        "Deployment task package for deployment task id {DeploymentTaskId} is missing deployment target id",
-                        deploymentTaskId);
-
-                    return ExitCode.Failure;
-                }
-
                 exitCode =
                     await _deploymentPackageHandler.RunAsync(deploymentTaskPackage, logger,
                         cancellationTokenSource.Token);
+
+                logger.Dispose();
             }
             catch (Exception ex) when (!ex.IsFatal())
             {

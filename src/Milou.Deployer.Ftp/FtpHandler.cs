@@ -721,16 +721,16 @@ namespace Milou.Deployer.Ftp
             switch (level)
             {
                 case FtpTraceLevel.Info:
-                    _logger?.Debug(messageTemplate, message);
+                    _logger.Debug(messageTemplate, message);
                     break;
                 case FtpTraceLevel.Error:
-                    _logger?.Warning(messageTemplate, message);
+                    _logger.Warning(messageTemplate, message);
                     break;
                 case FtpTraceLevel.Verbose:
-                    _logger?.Debug(messageTemplate, message);
+                    _logger.Debug(messageTemplate, message);
                     break;
                 case FtpTraceLevel.Warn:
-                    _logger?.Warning(messageTemplate, message);
+                    _logger.Warning(messageTemplate, message);
                     break;
             }
         }
@@ -765,6 +765,14 @@ namespace Milou.Deployer.Ftp
                 fullUri = builder.Uri;
             }
 
+            return await Create(fullUri, ftpSettings, credentials, logger);
+        }
+
+        public static async Task<FtpHandler> Create(Uri fullUri, FtpSettings? ftpSettings = null, NetworkCredential? credentials = null,
+            ILogger? logger = default)
+        {
+            logger ??= Logger.None;
+
             var ftpClient = new FtpClient(fullUri.Host, credentials)
             {
                 SocketPollInterval = 1000,
@@ -776,7 +784,7 @@ namespace Milou.Deployer.Ftp
                 Port = fullUri.Port
             };
 
-            if (ftpSettings.IsSecure)
+            if (ftpSettings?.IsSecure ?? false)
             {
                 logger.Debug("Using secure FTP connection");
                 ftpClient.EncryptionMode = FtpEncryptionMode.Explicit;

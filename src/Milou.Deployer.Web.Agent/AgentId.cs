@@ -1,56 +1,31 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Arbor.ModelBinding.Primitives;
+using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Agent
 {
-    public class AgentId : IEquatable<AgentId>
+    [StringValueType(StringComparison.OrdinalIgnoreCase)]
+    public partial class AgentId
     {
-        public bool Equals(AgentId? other)
+        public static AgentId Parse([JetBrains.Annotations.NotNull] string? value)
         {
-            if (ReferenceEquals(null, other))
+            if (string.IsNullOrWhiteSpace(value))
             {
-                return false;
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
             }
 
-            if (ReferenceEquals(this, other))
+            bool parsed = TryParse(value, out AgentId? agentId);
+
+            if (!parsed)
             {
-                return true;
+                throw new FormatException($"Invalid agent id {value}");
             }
 
-            return string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
+            return agentId!;
         }
 
-        public override bool Equals(object? obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj.GetType() != this.GetType())
-            {
-                return false;
-            }
-
-            return Equals((AgentId) obj);
-        }
-
-        public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
-
-        public static bool operator ==(AgentId? left, AgentId? right) => Equals(left, right);
-
-        public static bool operator !=(AgentId? left, AgentId? right) => !Equals(left, right);
-
-        public AgentId(string value) => Value = value;
-
-        public string Value { get; }
-
-        public static bool TryParse(string value, [NotNullWhen(true)] out AgentId? agentId)
+        public static bool TryParse(string? value, [NotNullWhen(true)] out AgentId? agentId)
         {
             if (string.IsNullOrWhiteSpace(value))
             {

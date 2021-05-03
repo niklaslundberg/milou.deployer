@@ -139,14 +139,19 @@ td, th { padding: 5px; }
     text-transform: capitalize;
 }
 
-.failure {
+.failed, .failure {
     background-color: red;
     color: white;
 }
 
-.success {
+.success, .done {
     background-color: green;
     color: white;
+}
+
+.unknown {
+    background-color: yellow;
+    color: black;
 }
 
 .action-link {
@@ -300,6 +305,7 @@ fieldset {
     display: inline-block;
     margin: 0;
     padding: 5px;
+    cursor: pointer;
 }
 
 .tab a:link, .tab a:visited, .tab a:active, .tab a:hover {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Configuration;
 using Arbor.AspNetCore.Host;
 using Arbor.Docker;
 using JetBrains.Annotations;
@@ -11,15 +12,21 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Docker
 {
+    [RegistrationOrder(0)]
     [UsedImplicitly]
     public class DockerDeveloperModule : IPreStartModule, IAsyncDisposable
     {
+        private readonly DeveloperConfiguration _developerConfiguration;
         private readonly ILogger _logger;
-        private DockerContext _dockerContext;
+        private DockerContext? _dockerContext;
         private bool _isDisposed;
         private bool _isDisposing;
 
-        public DockerDeveloperModule(ILogger logger) => _logger = logger;
+        public DockerDeveloperModule(ILogger logger, DeveloperConfiguration developerConfiguration)
+        {
+            _developerConfiguration = developerConfiguration;
+            _logger = logger;
+        }
 
         public async ValueTask DisposeAsync()
         {
@@ -30,7 +37,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
             _isDisposing = true;
 
-            await _dockerContext.DisposeAsync();
+            if (_dockerContext is { })
+            {
+                await _dockerContext.DisposeAsync();
+            }
 
             _logger.Information("Disposed DockerContext");
 
@@ -40,6 +50,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
+            if (!_developerConfiguration.DockerEnabled)
+            {
+                _logger.Debug("Developer Docker is disabled");
+                return;
+            }
+
             var dockerArgs = new List<ContainerArgs>();
 
             var smtp4Dev = CreateSmtp4Dev();
@@ -54,6 +70,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var redis = CreateRedis();
             dockerArgs.Add(redis);
 
+            dockerArgs.Add(CreatePgAdmin());
+
             _dockerContext = await DockerContext.CreateContextAsync(dockerArgs, _logger);
 
             await _dockerContext.ContainerTask;
@@ -62,31 +80,33 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
         }
 
-        private ContainerArgs CreateRedis()
-        {
-            var portMappings = new[] {PortMapping.MapSinglePort(26379, 6379)};
-            var redis = new ContainerArgs(
-                "redis",
-                "redistest",
-                portMappings,
-                args: new[] {"-v", "cachedata:/data"},
-                entryPoint: new[] {"redis-server", "--appendonly yes"}
-            );
+        private ContainerArgs CreatePgAdmin() =>
+            new("dpage/pgadmin4",
+                "pgadmin", new[] {PortMapping.MapSinglePort(4000, 80)},
+                new Dictionary<string, string>
+                {
+                    ["PGADMIN_DEFAULT_EMAIL"] = "info@dev.local", ["PGADMIN_DEFAULT_PASSWORD"] = "dev",
+                });
 
-            return redis;
-        }
+        public int Order { get; } = 0;
 
         private static ContainerArgs CreateFtp()
         {
-            var ftpVariables = new Dictionary<string, string> {["FTP_USER"] = "testuser", ["FTP_PASS"] = "testpw"};
+            var passivePorts = new PortRange(start: 23100, end: 23100);
 
-            var passivePorts = new PortRange(21100, 21110);
+            var ftpVariables = new Dictionary<string, string>
+            {
+                ["FTP_USER"] = "testuser",
+                ["FTP_PASS"] = "testpw",
+                ["PASV_MIN_PORT"] = passivePorts.Start.ToString(),
+                ["PASV_MAX_PORT"] = passivePorts.End.ToString(),
+            };
 
             var ftpPorts = new List<PortMapping>
             {
-                PortMapping.MapSinglePort(20, 20),
-                PortMapping.MapSinglePort(21, 21),
-                new PortMapping(passivePorts, passivePorts)
+                PortMapping.MapSinglePort(hostPort: 20, containerPort: 20),
+                PortMapping.MapSinglePort(hostPort: 21, containerPort: 21),
+                new(passivePorts, passivePorts)
             };
 
             var ftp = new ContainerArgs(
@@ -95,6 +115,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 ftpPorts,
                 ftpVariables
             );
+
             return ftp;
         }
 
@@ -107,11 +128,27 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var postgres = new ContainerArgs(
                 "postgres",
                 "postgres-deploy",
-                new List<PortMapping> {PortMapping.MapSinglePort(5433, 5432)},
+                new List<PortMapping> {PortMapping.MapSinglePort(hostPort: 5433, containerPort: 5432)},
                 postgresVariables,
                 postgresArgs
             );
+
             return postgres;
+        }
+
+        private ContainerArgs CreateRedis()
+        {
+            var portMappings = new[] {PortMapping.MapSinglePort(hostPort: 26379, containerPort: 6379)};
+
+            var redis = new ContainerArgs(
+                "redis",
+                "redistest",
+                portMappings,
+                args: new[] {"-v", "cachedata:/data"},
+                entryPoint: new[] {"redis-server", "--appendonly yes"}
+            );
+
+            return redis;
         }
 
         private static ContainerArgs CreateSmtp4Dev()
@@ -119,9 +156,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             var smtp4Dev = new ContainerArgs(
                 "rnwood/smtp4dev:linux-amd64-v3",
                 "smtp4devtest",
-                new List<PortMapping> {PortMapping.MapSinglePort(3125, 80), PortMapping.MapSinglePort(2526, 25)},
+                new List<PortMapping>
+                {
+                    PortMapping.MapSinglePort(hostPort: 3125, containerPort: 80),
+                    PortMapping.MapSinglePort(hostPort: 2526, containerPort: 25)
+                },
                 new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
             );
+
             return smtp4Dev;
         }
     }

@@ -4,7 +4,6 @@ using System.Linq;
 using Arbor.App.Extensions.Application;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
-using Milou.Deployer.Web.Marten;
 using Milou.Deployer.Web.Marten.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
@@ -22,8 +21,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             string[] assemblyNameStartsWith = {"Milou"};
             var filteredAssemblies =
-                ApplicationAssemblies.FilteredAssemblies(useCache: false,
-                    assemblyNameStartsWith: assemblyNameStartsWith);
+                ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith: assemblyNameStartsWith,
+useCache: false);
             var assemblies = filteredAssemblies
                 .Where(assembly =>
                 {

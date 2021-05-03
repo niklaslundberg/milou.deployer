@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
@@ -34,7 +35,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return new BadRequestResult();
             }
 
-            DeploymentTaskPackage deploymentTaskPackage =
+            DeploymentTaskPackage? deploymentTaskPackage =
                 await deploymentTaskPackageStore.GetDeploymentTaskPackageAsync(
                     deploymentTaskId, CancellationToken.None);
 
@@ -48,7 +49,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         {
             //TODO check deploymentTargetId and deploymentTaskId belongs together
 
-            string? agentId = User.Identity.Name!;
+            string? agentId = User.Identity?.Name;
+
+            if (string.IsNullOrWhiteSpace(agentId))
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
 
             await Task.Delay(TimeSpan.FromSeconds(2));
 

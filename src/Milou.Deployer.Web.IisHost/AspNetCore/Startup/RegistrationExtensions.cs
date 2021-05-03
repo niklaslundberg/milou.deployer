@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.AspNetCore.Host.Hosting;
-using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
+using Arbor.AspNetCore.Host.Mvc;
+using Arbor.AspNetCore.Mvc.Formatting.HtmlForms;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,18 +19,16 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Http;
 using Microsoft.IdentityModel.Tokens;
 using Milou.Deployer.Web.Core.Json;
-using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Security;
-using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.Areas.Startup;
 using Newtonsoft.Json;
 using Serilog;
+using Serilog.Events;
 using MessageReceivedContext = Microsoft.AspNetCore.Authentication.JwtBearer.MessageReceivedContext;
 using TokenValidatedContext = Microsoft.AspNetCore.Authentication.JwtBearer.TokenValidatedContext;
 
@@ -36,31 +36,12 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 {
     public static class RegistrationExtensions
     {
-        public static IServiceCollection AddDeploymentHttpClients(
-            this IServiceCollection services,
-            [NotNull] HttpLoggingConfiguration httpLoggingConfiguration)
-        {
-            if (httpLoggingConfiguration is null)
-            {
-                throw new ArgumentNullException(nameof(httpLoggingConfiguration));
-            }
-
-            services.AddHttpClient();
-
-            if (!httpLoggingConfiguration.Enabled)
-            {
-                services.Replace(ServiceDescriptor.Singleton<IHttpMessageHandlerBuilderFilter, CustomLoggingFilter>());
-            }
-
-            return services;
-        }
-
         public static IServiceCollection AddDeploymentAuthentication(
             this IServiceCollection serviceCollection,
-            CustomOpenIdConnectConfiguration openIdConnectConfiguration,
-            MilouAuthenticationConfiguration milouAuthenticationConfiguration,
             ILogger logger,
-            EnvironmentConfiguration environmentConfiguration)
+            EnvironmentConfiguration environmentConfiguration,
+            MilouAuthenticationConfiguration? milouAuthenticationConfiguration = null,
+            CustomOpenIdConnectConfiguration? openIdConnectConfiguration = null)
         {
             AuthenticationBuilder authenticationBuilder = serviceCollection
                 .AddAuthentication(
@@ -93,7 +74,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         openIdConnectOptions.Scope.Add("email");
                         openIdConnectOptions.TokenValidationParameters.ValidIssuer = openIdConnectConfiguration.Issuer;
 
-                        openIdConnectOptions.TokenValidationParameters.IssuerValidator = (issuer, token, parameters) =>
+                        openIdConnectOptions.TokenValidationParameters.IssuerValidator = (issuer, _, __) =>
                         {
                             if (string.Equals(issuer, openIdConnectConfiguration.Issuer, StringComparison.Ordinal))
                             {
@@ -120,6 +101,15 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                             if (!string.IsNullOrWhiteSpace(environmentConfiguration.PublicHostname))
                             {
                                 builder.Host = environmentConfiguration.PublicHostname;
+
+                                if (logger.IsEnabled(LogEventLevel.Verbose))
+                                {
+                                    logger.Verbose("Using redirect from environment public host name {HostName}", environmentConfiguration.PublicHostname);
+                                }
+                            }
+                            else if (logger.IsEnabled(LogEventLevel.Verbose))
+                            {
+                                logger.Verbose("Using default redirect for OpenId Connect");
                             }
 
                             if (environmentConfiguration.PublicPortIsHttps == true)
@@ -139,33 +129,36 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             {
                 authenticationBuilder.AddMilouAuthentication(
                     MilouAuthenticationConstants.MilouAuthenticationScheme,
-                    "Milou",
-                    options => { });
+                    "Milou", _ => { });
             }
 
             if (milouAuthenticationConfiguration?.BearerTokenEnabled == true
                 && !string.IsNullOrWhiteSpace(milouAuthenticationConfiguration.BearerTokenIssuerKey))
             {
+                logger.Information("Bearer token authentication is enabled");
+
                 authenticationBuilder.AddJwtBearer(options =>
                 {
                     byte[] bytes = Convert.FromBase64String(milouAuthenticationConfiguration.BearerTokenIssuerKey);
 
-                    var tokenValidationParameters = new TokenValidationParameters
+                    options.TokenValidationParameters = new ()
                     {
                         IssuerSigningKeys = new List<SecurityKey> {new SymmetricSecurityKey(bytes)},
                         ValidateAudience = false,
                         ValidateIssuer = false
                     };
 
-                    options.TokenValidationParameters = tokenValidationParameters;
-
-                    options.Events = new JwtBearerEvents
+                    options.Events = new ()
                     {
                         OnMessageReceived = OnMessageReceived,
                         OnChallenge = OnChallenge,
                         OnTokenValidated = OnTokenValidated
                     };
                 });
+            }
+            else
+            {
+                logger.Information("Bearer token authentication is disabled");
             }
 
             return serviceCollection;
@@ -180,13 +173,17 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
         public static IServiceCollection AddDeploymentMvc(this IServiceCollection services,
             EnvironmentConfiguration environmentConfiguration,
             IKeyValueConfiguration configuration,
-            ILogger logger)
+            ILogger logger,
+            IApplicationAssemblyResolver applicationAssemblyResolver)
         {
+            ViewAssemblyLoader.LoadViewAssemblies(logger);
+            var filteredAssemblies = applicationAssemblyResolver.GetAssemblies();
             IMvcBuilder mvcBuilder = services.AddMvc(
                     options =>
                     {
                         options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
-                    }).SetCompatibilityVersion(CompatibilityVersion.Latest)
+                        options.Filters.Add<ModelValidatorFilterAttribute>();
+                    })
                 .AddNewtonsoftJson(
                     options =>
                     {
@@ -194,22 +191,31 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         options.SerializerSettings.Formatting = Formatting.Indented;
                     });
 
-            foreach (Assembly filteredAssembly in ApplicationAssemblies.FilteredAssemblies(useCache: false))
+            foreach (Assembly filteredAssembly in filteredAssemblies)
             {
                 logger.Debug("Adding assembly {Assembly} to MVC application parts", filteredAssembly.FullName);
                 mvcBuilder.AddApplicationPart(filteredAssembly);
             }
 
-            services.AddControllers();
-            IMvcBuilder razorPagesBuilder = services.AddRazorPages();
+            var viewAssemblies = AssemblyLoadContext.Default.Assemblies
+                .Where(assembly => !assembly.IsDynamic && (assembly.GetName().Name?.Contains("View") ?? false))
+                .ToArray();
 
-#if DEBUG
+            foreach (var item in viewAssemblies )
+            {
+                mvcBuilder.AddApplicationPart(item);
+            }
+
             if (environmentConfiguration.ToHostEnvironment().IsDevelopment()
                 || configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled))
             {
-                razorPagesBuilder.AddRazorRuntimeCompilation();
+                mvcBuilder.AddRazorRuntimeCompilation();
             }
-#endif
+
+            mvcBuilder
+                .AddControllersAsServices();
+
+            services.AddAntiforgery();
 
             return services;
         }

@@ -92,7 +92,7 @@ namespace Milou.Deployer.Core.Deployment
                 .Select(file => new
                 {
                     File = file,
-                    RelativePath = file.FullName.Substring(contentDirectory.FullName.Length).TrimStart('\\')
+                    RelativePath = file.FullName[contentDirectory.FullName.Length..].TrimStart('\\')
                 })
                 .ToArray();
 
@@ -104,6 +104,11 @@ namespace Milou.Deployer.Core.Deployment
 
             var fileList = JsonConvert.DeserializeAnonymousType(json,
                 new {files = new[] {new {file = "", sha512Base64Encoded = ""}}});
+
+            if (fileList is null)
+            {
+                throw new InvalidOperationException($"Could not get file list from json {json}");
+            }
 
             _logger.Debug("Verifying file list containing {FileCount} files", fileList.files.Length);
 
@@ -226,9 +231,8 @@ namespace Milou.Deployer.Core.Deployment
                 nugetExePath: deploymentExecutionDefinition.NuGetExePath,
                 timeoutInSeconds: 35,
                 adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled,
-                prefix: deploymentExecutionDefinition.PackageListPrefixEnabled.HasValue &&
-                        deploymentExecutionDefinition.PackageListPrefixEnabled.Value
-                    ? deploymentExecutionDefinition.PackageListPrefix
+                prefix: deploymentExecutionDefinition.PackageListPrefixEnabled == true
+                    ? deploymentExecutionDefinition.PackageListPrefix ?? ""
                     : ""
             );
 
@@ -349,7 +353,7 @@ namespace Milou.Deployer.Core.Deployment
                     expectedVersion.ToNormalizedString());
             }
 
-            SemanticVersion foundPackage = matchingFoundEnvironmentPackage.SingleOrDefault();
+            SemanticVersion? foundPackage = matchingFoundEnvironmentPackage.SingleOrDefault();
 
             return new EnvironmentPackageResult(true, foundPackage);
         }
@@ -445,7 +449,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public Task<ExitCode> DeployAsync(
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
-            SemanticVersion explicitVersion,
+            SemanticVersion? explicitVersion,
             CancellationToken cancellationToken = default)
         {
             if (!deploymentExecutionDefinitions.Any())
@@ -474,7 +478,7 @@ namespace Milou.Deployer.Core.Deployment
 
         private async Task<ExitCode> InternalDeployAsync(
             ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
-            SemanticVersion explicitVersion,
+            SemanticVersion? explicitVersion,
             CancellationToken cancellationToken = default)
         {
             var tempDirectoriesToClean = new List<DirectoryInfo>();
@@ -565,7 +569,7 @@ namespace Milou.Deployer.Core.Deployment
                         return ExitCode.Failure;
                     }
 
-                    FileInfo contentFilesJson = packageDirectory.GetFiles("contentFiles.json").SingleOrDefault();
+                    FileInfo? contentFilesJson = packageDirectory.GetFiles("contentFiles.json").SingleOrDefault();
 
                     if (contentFilesJson?.Exists == true)
                     {
@@ -763,7 +767,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     if (deploymentExecutionDefinition.PublishType == PublishType.WebDeploy)
                     {
-                        _webDeployHelper.DeploymentTraceEventHandler += (sender, args) =>
+                        _webDeployHelper.DeploymentTraceEventHandler += (_, args) =>
                         {
                             if (string.IsNullOrWhiteSpace(args.Message))
                             {
@@ -893,6 +897,11 @@ namespace Milou.Deployer.Core.Deployment
 
                     _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Deploy failed: {Message}", ex.Message);
+                return ExitCode.Failure;
             }
             finally
             {

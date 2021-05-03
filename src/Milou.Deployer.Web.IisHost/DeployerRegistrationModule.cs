@@ -1,43 +1,52 @@
 ﻿using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.Http;
 using Arbor.AspNetCore.Host;
 using Arbor.AspNetCore.Host.Hosting;
 using Arbor.KVConfiguration.Core;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost
 {
+    [UsedImplicitly]
     public class DeployerRegistrationModule : IServiceProviderModule
     {
         public void Register(ServiceProviderHolder serviceProviderHolder)
         {
             IServiceCollection services = serviceProviderHolder.ServiceCollection;
 
-            CustomOpenIdConnectConfiguration openIdConnectConfiguration =
+            CustomOpenIdConnectConfiguration? openIdConnectConfiguration =
                 serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
 
-            HttpLoggingConfiguration httpLoggingConfiguration =
-                serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
+            var applicationAssemblyResolver = serviceProviderHolder.ServiceProvider.GetRequiredService<IApplicationAssemblyResolver>();
 
-            MilouAuthenticationConfiguration milouAuthenticationConfiguration =
+            HttpLoggingConfiguration httpLoggingConfiguration =
+                serviceProviderHolder.ServiceProvider.GetRequiredService<HttpLoggingConfiguration>();
+
+            MilouAuthenticationConfiguration? milouAuthenticationConfiguration =
                 serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
 
             ILogger logger = serviceProviderHolder.ServiceProvider.GetRequiredService<ILogger>();
+
             EnvironmentConfiguration environmentConfiguration =
                 serviceProviderHolder.ServiceProvider.GetRequiredService<EnvironmentConfiguration>();
+
             IKeyValueConfiguration configuration =
                 serviceProviderHolder.ServiceProvider.GetRequiredService<IKeyValueConfiguration>();
 
-            services.AddDeploymentAuthentication(openIdConnectConfiguration, milouAuthenticationConfiguration, logger,
-                    environmentConfiguration)
+            services.AddDeploymentAuthentication(
+                    logger,
+                    environmentConfiguration,
+                    milouAuthenticationConfiguration,
+                    openIdConnectConfiguration)
                 .AddDeploymentAuthorization(environmentConfiguration)
-                .AddDeploymentHttpClients(httpLoggingConfiguration)
+                .AddHttpClientsWithConfiguration(httpLoggingConfiguration)
                 .AddDeploymentSignalR()
                 .AddServerFeatures()
-                .AddDeploymentMvc(environmentConfiguration, configuration, logger);
+                .AddDeploymentMvc(environmentConfiguration, configuration, logger, applicationAssemblyResolver);
         }
     }
 }

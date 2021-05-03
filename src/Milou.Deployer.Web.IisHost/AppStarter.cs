@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Cli;
 using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Logging;
 using Arbor.AspNetCore.Host;
+using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
@@ -23,16 +26,15 @@ namespace Milou.Deployer.Web.IisHost
     public static class AppStarter
     {
         public static async Task<int> StartAsync(
-            string[] args,
-            IReadOnlyDictionary<string, string> environmentVariables,
-            params object[] instances)
+            string[]? args,
+            IReadOnlyDictionary<string, string?> environmentVariables,
+            CancellationTokenSource? cancellationTokenSource = null,
+            IReadOnlyCollection<Assembly>? scanAssemblies = null,
+            object[]? instances = null)
         {
             try
             {
-                if (args is null)
-                {
-                    args = Array.Empty<string>();
-                }
+                args ??= Array.Empty<string>();
 
                 if (args.Length > 0)
                 {
@@ -44,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost
                     }
                 }
 
-                CancellationTokenSource cancellationTokenSource;
+                bool ownsCancellationToken = cancellationTokenSource is null;
 
                 if (int.TryParse(
                     environmentVariables.GetValueOrDefault(ConfigurationConstants.RestartTimeInSeconds),
@@ -52,62 +54,86 @@ namespace Milou.Deployer.Web.IisHost
                 {
                     cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
                 }
-                else
+
+                var types = new[]{ typeof(IKeyValueConfiguration)};
+
+                foreach (var type in types)
                 {
-                    cancellationTokenSource = new CancellationTokenSource();
+                    TempLogger.WriteLine($"Loaded type {type.FullName}");
                 }
 
-                using (cancellationTokenSource)
+                scanAssemblies ??= ApplicationAssemblies.FilteredAssemblies(new[] { "Arbor", "Milou" });
+
+                foreach (var scanAssembly in scanAssemblies)
                 {
-                    cancellationTokenSource.Token.Register(
-                        () => TempLogger.WriteLine("App cancellation token triggered"));
-
-                    using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(
-                        cancellationTokenSource, args,
-                        environmentVariables, instances);
-
-                    bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
-                                        && !Debugger.IsAttached;
-
-                    app.Logger.Information("Starting application {Application}", app.AppInstance);
-
-                    if (intervalInSeconds > 0)
+                    foreach (var referencedAssembly in scanAssembly.GetReferencedAssemblies())
                     {
-                        app.Logger.Debug(
-                            "Restart time is set to {RestartIntervalInSeconds} seconds for {App}",
-                            intervalInSeconds,
-                            app.AppInstance);
+                        try
+                        {
+                            AppDomain.CurrentDomain.Load(referencedAssembly);
+                        }
+                        catch (Exception ex)
+                        {
+                            TempLogger.WriteLine(ex.ToString());
+                        }
                     }
-                    else if (app.Logger.IsEnabled(LogEventLevel.Verbose))
-                    {
-                        app.Logger.Verbose("Restart time is disabled");
-                    }
+                }
 
-                    string[] runArgs;
+                cancellationTokenSource ??= new CancellationTokenSource();
 
-                    if (!args.Contains(ApplicationConstants.RunAsService) && runAsService)
-                    {
-                        runArgs = args
-                            .Concat(new[] {ApplicationConstants.RunAsService})
-                            .ToArray();
-                    }
-                    else
-                    {
-                        runArgs = args;
-                    }
+                cancellationTokenSource.Token.Register(
+                    () => TempLogger.WriteLine("App cancellation token triggered"));
 
-                    await app.RunAsync(runArgs);
+                using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(
+                    cancellationTokenSource, args,
+                    environmentVariables, scanAssemblies, instances ?? Array.Empty<object>());
 
-                    if (!runAsService)
-                    {
-                        app.Logger.Debug("Started {App}, waiting for web host shutdown", app.AppInstance);
+                bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
+                                    && !Debugger.IsAttached;
 
-                        await app.Host.WaitForShutdownAsync(cancellationTokenSource.Token);
-                    }
+                app.Logger.Information("Starting application {Application}", app.AppInstance);
 
-                    app.Logger.Information(
-                        "Stopping application {Application}",
+                if (intervalInSeconds > 0)
+                {
+                    app.Logger.Debug(
+                        "Restart time is set to {RestartIntervalInSeconds} seconds for {App}",
+                        intervalInSeconds,
                         app.AppInstance);
+                }
+                else if (app.Logger.IsEnabled(LogEventLevel.Verbose))
+                {
+                    app.Logger.Verbose("Restart time is disabled");
+                }
+
+                string[] runArgs;
+
+                if (!args.Contains(ApplicationConstants.RunAsService) && runAsService)
+                {
+                    runArgs = args
+                        .Concat(new[] {ApplicationConstants.RunAsService})
+                        .ToArray();
+                }
+                else
+                {
+                    runArgs = args;
+                }
+
+                await app.RunAsync(runArgs);
+
+                if (!runAsService)
+                {
+                    app.Logger.Debug("Started {App}, waiting for web host shutdown", app.AppInstance);
+
+                    await app.Host.WaitForShutdownAsync(cancellationTokenSource.Token);
+                }
+
+                app.Logger.Information(
+                    "Stopping application {Application}",
+                    app.AppInstance);
+
+                if (ownsCancellationToken)
+                {
+                    cancellationTokenSource.SafeDispose();
                 }
 
                 if (int.TryParse(
@@ -123,7 +149,7 @@ namespace Milou.Deployer.Web.IisHost
 
                 string? exceptionLogDirectory = args?.ParseParameter("exceptionDir");
 
-                string logDirectory = (exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory)!;
+                string logDirectory = (exceptionLogDirectory ?? AppContext.BaseDirectory);
 
                 string fatalLogFile = Path.Combine(logDirectory, "Fatal.log");
 

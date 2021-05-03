@@ -12,11 +12,12 @@ namespace Milou.Deployer.Web.Core.Agents
     [UsedImplicitly]
     public class AgentsData
     {
-        private readonly ConcurrentDictionary<AgentId, AgentState> _agents =
-            new ConcurrentDictionary<AgentId, AgentState>();
+        private readonly ConcurrentDictionary<AgentId, AgentState> _agents = new();
 
         private readonly ICustomClock _customClock;
         private readonly ILogger _logger;
+
+        private readonly ConcurrentDictionary<AgentId, string> _unknownAgents = new();
 
         public AgentsData(ICustomClock customClock, ILogger logger)
         {
@@ -24,12 +25,32 @@ namespace Milou.Deployer.Web.Core.Agents
             _logger = logger;
         }
 
-        public ImmutableArray<AgentInfo> Agents => _agents.Select(agent => new AgentInfo(agent.Key,
-            agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId)).ToImmutableArray();
+        public ImmutableDictionary<AgentId, string> UnknownAgents => _unknownAgents.ToImmutableDictionary();
+
+        public ImmutableArray<AgentInfo> Agents => _agents
+            .Select(agent => new AgentInfo(agent.Key,
+                agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId, agent.Value.CurrentDeploymentTargetId))
+            .ToImmutableArray();
+
+        public void AgentAssigned(AgentId agentId, string deploymentTaskId, DeploymentTargetId deploymentTargetId)
+        {
+            if (!_agents.TryGetValue(agentId, out var state))
+            {
+                throw new InvalidOperationException($"The agent {agentId} could not be found");
+            }
+
+            state.CurrentDeploymentTaskId = deploymentTaskId;
+            state.CurrentDeploymentTargetId = deploymentTargetId;
+        }
 
         public void AgentConnected(AgentConnected agentConnected)
         {
             var agentId = agentConnected.AgentId;
+
+            if (agentId is null)
+            {
+                throw new InvalidOperationException("Agent connected without agent id");
+            }
 
             if (!_agents.ContainsKey(agentId))
             {
@@ -56,14 +77,38 @@ namespace Milou.Deployer.Web.Core.Agents
             }
         }
 
-        public void AgentAssigned(AgentId agentId, string deploymentTaskId)
+        public void AgentDisconnected(AgentDisconnected agentDisconnected)
         {
-            if (!_agents.TryGetValue(agentId, out var state))
+            var agentId = agentDisconnected.AgentId;
+
+            if (agentId is null)
             {
-                throw new InvalidOperationException($"The agent {agentId} could not be found");
+                throw new InvalidOperationException("Agent disconnected without agent id");
             }
 
-            state.CurrentDeploymentTaskId = deploymentTaskId;
+            if (!_agents.ContainsKey(agentId))
+            {
+                _agents.TryAdd(agentId,
+                    new AgentState(agentId)
+                    {
+                        ConnectedAt = _customClock.UtcNow(),
+                        IsConnected = false,
+                        ConnectionId = null
+                    });
+            }
+            else
+            {
+                if (_agents.TryGetValue(agentId, out var state))
+                {
+                    state.IsConnected = false;
+                    state.ConnectedAt = _customClock.UtcNow();
+                    state.ConnectionId = null;
+                }
+                else
+                {
+                    _logger.Error("Could not get agent state for agent id {AgentId}", agentId);
+                }
+            }
         }
 
         public void AgentDone(AgentId agentId)
@@ -74,6 +119,10 @@ namespace Milou.Deployer.Web.Core.Agents
             }
 
             state.CurrentDeploymentTaskId = default;
+            state.CurrentDeploymentTargetId = default;
         }
+
+        public void UnknownAgentConnected(UnknownAgentConnected notification) =>
+            _unknownAgents.TryAdd(notification.AgentId, notification.ConnectionId);
     }
 }

@@ -9,8 +9,11 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Tests.Integration;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Startup;
+using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using NuGet.Versioning;
 using Xunit;
 using Xunit.Abstractions;
@@ -25,7 +28,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
-        [Fact(Skip = "Issues with postgresql permissions")]
+        //[Fact(Skip = "NuGet source issues")]
+        [NCrunch.Framework.Timeout(120_000)]
+        [ConditionalFact]
         public async Task ThenNewVersionShouldBeDeployed()
         {
             SemanticVersion? semanticVersion = null;
@@ -37,9 +42,9 @@ namespace Milou.Deployer.Web.Tests.Integration
                 throw new DeployerAppException($"{nameof(WebFixture)} is null");
             }
 
-            if (WebFixture.TestSiteHttpPort is null)
+            if (WebFixture.ServerEnvironmentTestSiteConfiguration is null)
             {
-                throw new DeployerAppException($"{nameof(WebFixture.TestSiteHttpPort)} is null");
+                throw new DeployerAppException($"{nameof(WebFixture.ServerEnvironmentTestSiteConfiguration)} is null");
             }
 
             if (WebFixture is null)
@@ -47,31 +52,43 @@ namespace Milou.Deployer.Web.Tests.Integration
                 throw new DeployerAppException($"{nameof(WebFixture)} is null");
             }
 
-            using (var httpClient = new HttpClient())
+            Output.WriteLine(typeof(StartupModule).FullName);
+
+            Assert.NotNull(WebFixture?.App?.Host?.Services);
+
+            using (var httpClient = WebFixture!.App!.Host!.Services.GetRequiredService<IHttpClientFactory>().CreateClient())
             {
                 using CancellationTokenSource cancellationTokenSource =
-                    WebFixture.App.Host.Services.GetService<CancellationTokenSource>();
+                    WebFixture!.App!.Host!.Services.GetRequiredService<CancellationTokenSource>();
 
-                cancellationTokenSource.Token.Register(() =>
-                {
-                    Debug.WriteLine("Cancellation for app in test");
-                });
+                var lifeTime = WebFixture!.App!.Host!.Services.GetRequiredService<IHostApplicationLifetime>();
+
+                cancellationTokenSource.Token.Register(() => Debug.WriteLine("Cancellation for app in test"));
+
+                lifeTime.ApplicationStopped.Register(() => Debug.WriteLine("Stop for app in test"));
 
                 while (!cancellationTokenSource.Token.IsCancellationRequested
-                       && semanticVersion != expectedVersion)
+                       && semanticVersion != expectedVersion
+                       && !lifeTime.ApplicationStopped.IsCancellationRequested
+                       && !WebFixture!.CancellationToken.IsCancellationRequested)
                 {
                     // ReSharper disable MethodSupportsCancellation
-                    StartupTaskContext startupTaskContext =
-                        WebFixture.App.Host.Services.GetRequiredService<StartupTaskContext>();
+                    StartupTaskContext? startupTaskContext =
+                        WebFixture!.App!.Host!.Services.GetService<StartupTaskContext>();
+
+                    if (startupTaskContext is null)
+                    {
+                        return;
+                    }
 
                     while (!startupTaskContext.IsCompleted &&
                            !cancellationTokenSource.Token.IsCancellationRequested)
                     {
-                        await Task.Delay(TimeSpan.FromMilliseconds(50));
+                        await Task.Delay(TimeSpan.FromMilliseconds(500));
                     }
 
                     var url = new Uri(
-                        $"http://localhost:{WebFixture.TestSiteHttpPort.Port.Port + 1}/applicationmetadata.json");
+                        $"http://localhost:{WebFixture!.ServerEnvironmentTestSiteConfiguration.Port.Port + 1}/applicationmetadata.json");
 
                     string contents;
                     try
@@ -116,6 +133,11 @@ namespace Milou.Deployer.Web.Tests.Integration
                     await Task.Delay(TimeSpan.FromSeconds(1));
                     // ReSharper restore MethodSupportsCancellation
                 }
+            }
+
+            if (WebFixture?.Exception is { } exception)
+            {
+                throw new DeployerAppException("Fixture exception", exception);
             }
 
             Assert.Equal(expectedVersion, semanticVersion);

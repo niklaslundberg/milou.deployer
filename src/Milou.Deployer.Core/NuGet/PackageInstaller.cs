@@ -177,27 +177,26 @@ namespace Milou.Deployer.Core.NuGet
 
             ExitCode? exitCode = default;
 
-            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            try
             {
-                try
-                {
-                    exitCode = await ProcessRunner.ExecuteProcessAsync(
-                        executePath,
-                        arguments,
-                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
-                        (message, category) => _logger.Error("{Category} {Message}", category, message),
-                        (message, category) => _logger.Debug("{Category} {Message}", category, message),
-                        (message, category) => _logger.Verbose("{Category} {Message}", category, message),
-                        debugAction: (message, category) => _logger.Debug(
-                            "{Category} {Message}",
-                            category,
-                            message),
-                        cancellationToken: cancellationTokenSource.Token).ConfigureAwait(false);
-                }
-                catch (TaskCanceledException ex)
-                {
-                    _logger.Error(ex, "NuGet package install timed out");
-                }
+                exitCode = await ProcessRunner.ExecuteProcessAsync(
+                    executePath,
+                    arguments,
+                    (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                    (message, category) => _logger.Error("{Category} {Message}", category, message),
+                    (message, category) => _logger.Debug("{Category} {Message}", category, message),
+                    (message, category) => _logger.Verbose("{Category} {Message}", category, message),
+                    debugAction: (message, category) => _logger.Debug(
+                        "{Category} {Message}",
+                        category,
+                        message),
+                    cancellationToken: cancellationTokenSource.Token).ConfigureAwait(false);
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.Error(ex, "NuGet package install timed out");
             }
 
             if (exitCode?.IsSuccess != true)
@@ -213,9 +212,7 @@ namespace Milou.Deployer.Core.NuGet
                 tempDirectory.EnumerateFiles("*.nupkg", SearchOption.AllDirectories)
                     .Where(
                         file =>
-                            file.Name.IndexOf(
-                                deploymentExecutionDefinition.PackageId,
-                                StringComparison.InvariantCultureIgnoreCase) >= 0)
+                            file.Name.Contains(deploymentExecutionDefinition.PackageId, StringComparison.InvariantCultureIgnoreCase))
                     .ToList();
 
             if (!packageFiles.Any())

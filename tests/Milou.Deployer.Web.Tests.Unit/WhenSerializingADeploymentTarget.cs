@@ -1,4 +1,5 @@
 ﻿using System;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Json;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void ItShouldBeDeserializable()
         {
-            var target = new DeploymentTarget("myid", "myName", "tool");
+            var target = new DeploymentTarget(new DeploymentTargetId("myid"), "myName", "tool");
 
             string json = JsonConvert.SerializeObject(target,
                 Formatting.Indented,
@@ -25,21 +26,21 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             _testOutputHelper.WriteLine(json);
 
-            DeploymentTarget deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
+            DeploymentTarget? deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
 
-            _testOutputHelper.WriteLine(deserialized.ToString());
+            _testOutputHelper.WriteLine(deserialized?.ToString());
 
             Assert.NotNull(deserialized);
 
-            Assert.Null(deserialized.NuGet);
-            Assert.Null(deserialized.NuGet?.NuGetPackageSource);
-            Assert.Null(deserialized.NuGet?.NuGetConfigFile);
+            Assert.NotNull(deserialized!.NuGet);
+            Assert.Null(deserialized.NuGet.NuGetPackageSource);
+            Assert.Null(deserialized.NuGet.NuGetConfigFile);
         }
 
         [Fact]
         public void ItShouldBeDeserializableWithNuget()
         {
-            var target = new DeploymentTarget("myid", "myName", "tool",
+            var target = new DeploymentTarget(new DeploymentTargetId("myid"), "myName", "tool",
                 nuget: new TargetNuGetSettings
                 {
                     NuGetConfigFile = "123",
@@ -53,15 +54,15 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             _testOutputHelper.WriteLine(json);
 
-            DeploymentTarget deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
+            DeploymentTarget? deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
 
-            _testOutputHelper.WriteLine(deserialized.ToString());
+            _testOutputHelper.WriteLine(deserialized?.ToString());
 
             Assert.NotNull(deserialized);
 
-            Assert.NotNull(deserialized.NuGet);
-            Assert.NotNull(deserialized.NuGet?.NuGetPackageSource);
-            Assert.NotNull(deserialized.NuGet?.NuGetConfigFile);
+            Assert.NotNull(deserialized!.NuGet);
+            Assert.NotNull(deserialized.NuGet.NuGetPackageSource);
+            Assert.NotNull(deserialized.NuGet.NuGetConfigFile);
         }
     }
 }

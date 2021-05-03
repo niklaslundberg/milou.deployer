@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
@@ -17,7 +18,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         public TargetHub([NotNull] IMediator mediator) =>
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
-        public override async Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
             await _mediator.Send(new UnsubscribeToDeploymentLog(Context.ConnectionId));
             await base.OnDisconnectedAsync(exception);
@@ -31,7 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
                 return;
             }
 
-            await _mediator.Send(new SubscribeToDeploymentLog(Context.ConnectionId, targetId));
+            await _mediator.Send(new SubscribeToDeploymentLog(Context.ConnectionId, new DeploymentTargetId(targetId)));
         }
     }
 }

@@ -22,9 +22,9 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
             CancellationToken cancellationToken =
                 default)
         {
-            if (memoryCache.TryGetValue(CacheKey, out EnvironmentType[] environmentTypes))
+            if (memoryCache.TryGetValue(CacheKey, out EnvironmentType[]? environmentTypes))
             {
-                return environmentTypes.ToImmutableArray();
+                return environmentTypes.SafeToImmutableArray();
             }
 
             using IQuerySession querySession = documentStore.QuerySession();
@@ -32,9 +32,14 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
             IReadOnlyList<EnvironmentTypeData> environmentTypeData = await querySession.Query<EnvironmentTypeData>()
                 .ToListAsync<EnvironmentTypeData>(cancellationToken);
 
-            EnvironmentType[] enumerable = environmentTypeData.Select(EnvironmentTypeData.MapFromData).ToArray();
+            EnvironmentType[] enumerable = environmentTypeData
+                .Select(EnvironmentTypeData.MapFromData)
+                .ToArray();
 
-            memoryCache.SetValue(CacheKey, enumerable);
+            if (enumerable.Length > 0)
+            {
+                memoryCache.SetValue(CacheKey, enumerable);
+            }
 
             return enumerable.ToImmutableArray();
         }
@@ -61,7 +66,7 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                logger.Error(ex, "Could not save environment type {Request}", request);
+                logger.Error(ex, "Could not save environment type {@Request}", request);
                 return EnvironmentTypeData.Empty;
             }
         }

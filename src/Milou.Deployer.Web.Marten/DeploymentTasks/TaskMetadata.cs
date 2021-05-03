@@ -5,9 +5,8 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [MartenData]
     [PublicAPI]
-    public class TaskMetadata
+    public record TaskMetadata
     {
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public string PackageId { get; set; }
 
         public string DeploymentTaskId { get; set; }
@@ -24,7 +23,8 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 
         public int ExitCode { get; set; }
 
+        public string Status { get; set; }
+
         public string Version { get; set; }
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }

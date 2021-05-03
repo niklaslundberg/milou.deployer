@@ -6,8 +6,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public interface IAppHost
     {
-        App<ApplicationPipeline> App { get; }
+        App<ApplicationPipeline>? App { get; }
 
-        Exception Exception { get; }
+        Exception? Exception { get; }
     }
 }

@@ -1,15 +1,19 @@
-﻿namespace Milou.Deployer.Web.Marten.DeploymentTasks
+﻿using System;
+
+namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [MartenData]
-    public class DeploymentTaskPackageData
+    public record DeploymentTaskPackageData
     {
         public string Id { get; set; }
 
         public string DeploymentTargetId { get; set; }
 
-        public string[] ProcessArgs { get; set; }
+        public string[] ProcessArgs { get; set; } = Array.Empty<string>();
 
         public string? NuGetConfigXml { get; set; }
+
+        public string? NuGetSource { get; set; }
 
         public string? ManifestJson { get; set; }
 

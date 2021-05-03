@@ -28,16 +28,14 @@ namespace Milou.Deployer.Web.Marten
         {
             if (_memoryCache.TryGetValue(AppSettings, out ApplicationSettings? applicationSettings))
             {
-                return applicationSettings;
+                return applicationSettings!;
             }
 
-            using (IQuerySession querySession = _documentStore.QuerySession())
-            {
-                ApplicationSettingsData applicationSettingsData =
-                    await querySession.LoadAsync<ApplicationSettingsData>(AppSettings, cancellationToken);
+            using IQuerySession querySession = _documentStore.QuerySession();
+            ApplicationSettingsData? applicationSettingsData =
+                await querySession.LoadAsync<ApplicationSettingsData>(AppSettings, cancellationToken);
 
-                applicationSettings = Map(applicationSettingsData);
-            }
+            applicationSettings = Map(applicationSettingsData ?? new ApplicationSettingsData());
 
             return applicationSettings;
         }
@@ -56,43 +54,68 @@ namespace Milou.Deployer.Web.Marten
                 applicationSettings.ApplicationSettingsCacheTimeout);
         }
 
-        private ApplicationSettings Map(ApplicationSettingsData applicationSettingsData)
+        private ApplicationSettings Map(ApplicationSettingsData? applicationSettingsData)
         {
+            var applicationSettingsCacheTime = TimeSpan.FromSeconds(300);
+
+            var applicationSettingsCacheTimeout = TimeSpan.FromMinutes(10);
+            var metadataCacheTimeout = TimeSpan.FromMinutes(5);
             var applicationSettings = new ApplicationSettings
             {
-                CacheTime = applicationSettingsData?.CacheTime ?? TimeSpan.FromSeconds(300),
+                CacheTime = applicationSettingsData?.CacheTime ?? applicationSettingsCacheTime,
                 NexusConfig = MapFromNexusData(applicationSettingsData?.NexusConfig),
+                DefaultNuGetConfig = MapFromNuGetData(applicationSettingsData?.DefaultNuGetConfig),
                 AutoDeploy = MapAutoDeploy(applicationSettingsData?.AutoDeploy),
                 DefaultMetadataRequestTimeout =
                     applicationSettingsData?.DefaultMetadataTimeout ?? TimeSpan.FromSeconds(30),
                 ApplicationSettingsCacheTimeout =
-                    applicationSettingsData?.ApplicationSettingsCacheTimeout ?? TimeSpan.FromMinutes(10),
-                MetadataCacheTimeout = applicationSettingsData?.MetadataCacheTimeout ?? TimeSpan.FromMinutes(5),
+                    applicationSettingsData?.ApplicationSettingsCacheTimeout ?? applicationSettingsCacheTimeout,
+                MetadataCacheTimeout = applicationSettingsData?.MetadataCacheTimeout ?? metadataCacheTimeout,
                 AgentExe = applicationSettingsData?.AgentExe,
-                HostAgentEnabled = applicationSettingsData?.HostAgentEnabled ?? false
+                HostAgentEnabled = applicationSettingsData?.HostAgentEnabled ?? false,
             };
+
+            if (applicationSettings.CacheTime <= TimeSpan.Zero || applicationSettings.CacheTime.TotalSeconds < 1)
+            {
+                applicationSettings.CacheTime = applicationSettingsCacheTime;
+            }
+
+            if (applicationSettings.ApplicationSettingsCacheTimeout <= TimeSpan.Zero ||
+                applicationSettings.ApplicationSettingsCacheTimeout.TotalSeconds < 1)
+            {
+                applicationSettings.ApplicationSettingsCacheTimeout = metadataCacheTimeout;
+            }
+
+            if (applicationSettings.MetadataCacheTimeout <= TimeSpan.Zero ||
+                applicationSettings.MetadataCacheTimeout.TotalSeconds < 1)
+            {
+                applicationSettings.MetadataCacheTimeout = applicationSettingsCacheTimeout;
+            }
 
             return applicationSettings;
         }
 
         private AutoDeploySettings MapAutoDeploy(AutoDeployData? autoDeploy) =>
-            new AutoDeploySettings
+            new()
             {
                 Enabled = autoDeploy?.Enabled ?? false, PollingEnabled = autoDeploy?.PollingEnabled ?? false
             };
 
         private NexusConfig MapFromNexusData(NexusConfigData? data) =>
-            new NexusConfig {HmacKey = data?.HmacKey, NuGetSource = data?.NuGetSource, NuGetConfig = data?.NuGetConfig};
+            new() {HmacKey = data?.HmacKey, NuGetSource = data?.NuGetSource, NuGetConfig = data?.NuGetConfig};
+
+        private DefaultNuGetConfig MapFromNuGetData(DefaultNuGetConfigData? data) =>
+            new() {NuGetSource = data?.NuGetSource, NuGetConfig = data?.NuGetConfig};
 
         private AutoDeployData MapToAutoDeployData(AutoDeploySettings? autoDeploySettings) =>
-            new AutoDeployData
+            new()
             {
                 Enabled = autoDeploySettings?.Enabled ?? false,
                 PollingEnabled = autoDeploySettings?.PollingEnabled ?? false
             };
 
         private ApplicationSettingsData MapToData(ApplicationSettings applicationSettings) =>
-            new ApplicationSettingsData
+            new()
             {
                 CacheTime = applicationSettings.CacheTime,
                 Id = AppSettings,
@@ -102,15 +125,18 @@ namespace Milou.Deployer.Web.Marten
                 DefaultMetadataTimeout = applicationSettings.DefaultMetadataRequestTimeout,
                 MetadataCacheTimeout = applicationSettings.MetadataCacheTimeout,
                 AgentExe = applicationSettings.AgentExe,
-                HostAgentEnabled = applicationSettings.HostAgentEnabled
+                HostAgentEnabled = applicationSettings.HostAgentEnabled,
+                DefaultNuGetConfig = MapToNuGetData(applicationSettings.DefaultNuGetConfig)
             };
 
+        private DefaultNuGetConfigData MapToNuGetData(DefaultNuGetConfig defaultNuGetConfig) => new() {NuGetSource = defaultNuGetConfig.NuGetSource, NuGetConfig = defaultNuGetConfig.NuGetConfig};
+
         private NexusConfigData MapToNexusData(NexusConfig nexusConfig) =>
-            new NexusConfigData
+            new()
             {
-                HmacKey = nexusConfig?.HmacKey,
-                NuGetSource = nexusConfig?.NuGetSource,
-                NuGetConfig = nexusConfig?.NuGetConfig
+                HmacKey = nexusConfig.HmacKey,
+                NuGetSource = nexusConfig.NuGetSource,
+                NuGetConfig = nexusConfig.NuGetConfig
             };
     }
 }

@@ -69,7 +69,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
             {
                 string configuration = environmentConfiguration.Trim();
 
-                EnvironmentType foundType = environmentTypes.SingleOrDefault(type =>
+                EnvironmentType? foundType = environmentTypes.SingleOrDefault(type =>
                     type.Name.Trim().Equals(configuration,
                         StringComparison.OrdinalIgnoreCase));
 
@@ -86,15 +86,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                 deploymentTarget.Url?.ToString(),
                 deploymentTarget.PackageId,
                 deploymentTarget.IisSiteName,
-                deploymentTarget.NuGet.NuGetPackageSource,
-                deploymentTarget.NuGet.NuGetConfigFile,
+                deploymentTarget.NuGet?.NuGetPackageSource,
+                deploymentTarget.NuGet?.NuGetConfigFile,
                 deploymentTarget.AutoDeployEnabled,
                 deploymentTarget.PublishSettingsXml,
                 deploymentTarget.TargetDirectory,
                 deploymentTarget.WebConfigTransform,
                 deploymentTarget.ExcludedFilePatterns,
                 deploymentTarget.EnvironmentTypeId ?? typeId,
-                deploymentTarget.NuGet.PackageListTimeout?.ToString(),
+                deploymentTarget.NuGet?.PackageListTimeout?.ToString(),
                 deploymentTarget.PublishType?.ToString(),
                 deploymentTarget.FtpPath?.Path,
                 deploymentTarget.MetadataTimeout?.ToString(),

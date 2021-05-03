@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using JetBrains.Annotations;
 
 namespace Milou.Deployer.Waws
 {
@@ -13,22 +12,21 @@ namespace Milou.Deployer.Waws
         private const string PublishData = "publishData";
         private const string PublishProfile = "publishProfile";
         private const string PublishMethod = "publishMethod";
-        private const string MSDeploy = "MSDeploy";
+        private const string MsDeploy = "MSDeploy";
         private const string PublishUrl = "publishUrl";
-        private const string MSDeploySite = "msdeploySite";
+        private const string MsDeploySite = "msdeploySite";
         private const string UserPwd = "userPWD";
         private const string UserName = "userName";
 
-        [CanBeNull]
-        public string SiteName { get; set; }
+        public string? SiteName { get; set; }
 
-        public string ComputerName { get; set; }
+        public string? ComputerName { get; set; }
 
-        public string Username { get; set; }
+        public string? Username { get; set; }
 
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
-        public AuthenticationType AuthenticationType { get; set; }
+        public AuthenticationType? AuthenticationType { get; set; }
 
         public bool AllowUntrusted { get; set; }
 
@@ -45,7 +43,7 @@ namespace Milou.Deployer.Waws
             XDocument document =
                 await XDocument.LoadAsync(File.OpenRead(publishSettingsFile), LoadOptions.None, cancellationToken);
 
-            XElement[] profiles = document?.Element(PublishData)
+            XElement[] profiles = document.Element(PublishData!)
                 ?.Descendants(PublishProfile).ToArray() ?? Array.Empty<XElement>();
 
             if (profiles.Length == 0)
@@ -59,8 +57,7 @@ namespace Milou.Deployer.Waws
             if (profiles.Length > 1)
             {
                 profile =
-                    profiles.FirstOrDefault(
-                        current => current.Attribute(PublishMethod)?.Value.Equals(MSDeploy, StringComparison.Ordinal) ?? false) ?? profiles[0];
+                    Array.Find(profiles, current => current.Attribute(PublishMethod!)?.Value.Equals(MsDeploy, StringComparison.Ordinal) ?? false) ?? profiles[0];
             }
             else
             {
@@ -69,10 +66,10 @@ namespace Milou.Deployer.Waws
 
             return new PublishSettings
             {
-                ComputerName = profile.Attribute(PublishUrl)?.Value,
-                SiteName = profile.Attribute(MSDeploySite)?.Value,
-                Username = profile.Attribute(UserName)?.Value,
-                Password = profile.Attribute(UserPwd)?.Value,
+                ComputerName = profile.Attribute(PublishUrl!)?.Value,
+                SiteName = profile.Attribute(MsDeploySite!)?.Value,
+                Username = profile.Attribute(UserName!)?.Value,
+                Password = profile.Attribute(UserPwd!)?.Value,
                 AuthenticationType = AuthenticationType.Basic
             };
         }

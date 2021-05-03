@@ -4,13 +4,15 @@ using Milou.Deployer.Web.Marten.AutoDeploy;
 namespace Milou.Deployer.Web.Marten.Settings
 {
     [MartenData]
-    public class ApplicationSettingsData
+    public record ApplicationSettingsData
     {
         public TimeSpan? CacheTime { get; set; }
 
         public string Id { get; set; }
 
         public NexusConfigData? NexusConfig { get; set; }
+
+        public DefaultNuGetConfigData? DefaultNuGetConfig { get; set; }
 
         public AutoDeployData AutoDeploy { get; set; }
 

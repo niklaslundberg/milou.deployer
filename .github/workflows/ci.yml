@@ -1,14 +1,20 @@
 name: CI
 
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2019
 
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.x'
     - name: install-tools
       run: |
         dotnet tool install --global Arbor.Tooler.GlobalTool

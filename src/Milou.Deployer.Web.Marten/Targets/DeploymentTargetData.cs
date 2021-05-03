@@ -16,7 +16,7 @@ namespace Milou.Deployer.Web.Marten.Targets
 
         [PublicAPI]
         [ForeignKey(typeof(ProjectData))]
-        public string ProjectId { get; set; }
+        public string? ProjectId { get; set; }
 
         public Uri? Url { get; set; }
 
@@ -40,7 +40,7 @@ namespace Milou.Deployer.Web.Marten.Targets
 
         public bool Enabled { get; set; }
 
-        public NuGetData NuGetData { get; set; }
+        public NuGetData? NuGetData { get; set; }
 
         public TimeSpan? MetadataTimeout { get; set; }
 

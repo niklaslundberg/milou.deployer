@@ -8,10 +8,10 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
-    public class AllowedIpAddressHandler
+    public sealed class AllowedIpAddressHandler
     {
         private static readonly ConcurrentTwoWaySingleValueMap<string, IPAddress> IpAddressMap =
-            new ConcurrentTwoWaySingleValueMap<string, IPAddress>();
+            new();
 
         public AllowedIpAddressHandler(
             [NotNull] IEnumerable<AllowedHostName> hostNames,

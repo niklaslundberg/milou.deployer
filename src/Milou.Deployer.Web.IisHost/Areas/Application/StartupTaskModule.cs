@@ -13,15 +13,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     [UsedImplicitly]
     public class StartupTaskModule : IModule
     {
+        private readonly IApplicationAssemblyResolver _assemblyResolver;
+
+        public StartupTaskModule(IApplicationAssemblyResolver assemblyResolver) => _assemblyResolver = assemblyResolver;
+
         public IServiceCollection Register(IServiceCollection builder)
         {
-            IEnumerable<Type> startupTaskTypes = ApplicationAssemblies.FilteredAssemblies()
+            IEnumerable<Type> startupTaskTypes = _assemblyResolver.GetAssemblies()
                 .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(t => t.IsPublicConcreteTypeImplementing<IStartupTask>());
 
             foreach (Type startupTask in startupTaskTypes)
             {
-                builder.AddSingleton<IStartupTask>(context => context.GetService(startupTask), this);
+                builder.AddSingleton<IStartupTask>(context => context.GetRequiredService(startupTask), this);
 
                 if (builder.Any(serviceDescriptor => serviceDescriptor.ImplementationType == startupTask
                                                      && serviceDescriptor.ServiceType == startupTask))

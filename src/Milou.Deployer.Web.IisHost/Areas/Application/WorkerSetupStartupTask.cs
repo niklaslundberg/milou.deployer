@@ -10,6 +10,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Startup;
@@ -23,7 +24,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         private readonly ICustomClock _clock;
         private readonly IKeyValueConfiguration _configuration;
-        private readonly IServiceProvider _deploymentService;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly ConfigurationInstanceHolder _holder;
         private readonly ILogger _logger;
@@ -37,7 +37,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ILogger logger,
             IDeploymentTargetReadService deploymentTargetReadService,
             ConfigurationInstanceHolder holder,
-            IServiceProvider deploymentService,
             IMediator mediator,
             WorkerConfiguration workerConfiguration,
             TimeoutHelper timeoutHelper,
@@ -48,7 +47,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             _logger = logger;
             _deploymentTargetReadService = deploymentTargetReadService;
             _holder = holder;
-            _deploymentService = deploymentService;
             _mediator = mediator;
             _workerConfiguration = workerConfiguration;
             _timeoutHelper = timeoutHelper;
@@ -62,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         {
             await Task.Yield();
 
-            IReadOnlyCollection<string> targetIds;
+            IReadOnlyCollection<DeploymentTargetId> targetIds;
 
             try
             {
@@ -93,14 +91,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 return;
             }
 
-            foreach (string targetId in targetIds)
+            foreach (var targetId in targetIds)
             {
                 var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _logger, _mediator,
                     _workerConfiguration, _timeoutHelper, _clock, _serviceProvider);
 
                 _holder.Add(new NamedInstance<DeploymentTargetWorker>(
                     deploymentTargetWorker,
-                    targetId));
+                    targetId.TargetId));
 
                 await _mediator.Send(new StartWorker(deploymentTargetWorker), stoppingToken);
             }

@@ -7,17 +7,25 @@ namespace Milou.Deployer.Web.Agent.Host
 {
     public static class ConfigurationExtensions
     {
-        public static AgentId AgentId(this AgentConfiguration configuration)
+        public static AgentId AgentId(this AgentConfiguration? configuration)
         {
-            if (string.IsNullOrWhiteSpace(configuration.AccessToken))
+            if (string.IsNullOrWhiteSpace(configuration?.AccessToken))
             {
-                throw new InvalidOperationException("Could not get agent id from configuration");
+                throw new InvalidOperationException("There is no access token for agent configuration");
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtSecurityToken = tokenHandler.ReadJwtToken(configuration.AccessToken);
+            JwtSecurityToken jwtSecurityToken;
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                jwtSecurityToken = tokenHandler.ReadJwtToken(configuration.AccessToken);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("The access token is invalid", ex);
+            }
 
-            string claimType = JwtRegisteredClaimNames.UniqueName;
+            const string claimType = JwtRegisteredClaimNames.UniqueName;
             string? agentId = jwtSecurityToken.Claims
                 .SingleOrDefault(claim => claim.Type == claimType)
                 ?.Value;

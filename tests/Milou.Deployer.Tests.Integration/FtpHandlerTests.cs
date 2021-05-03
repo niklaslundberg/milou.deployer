@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Docker;
@@ -9,7 +10,6 @@ using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Ftp;
 using Milou.Deployer.Tests.Integration.SkipTests;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Milou.Deployer.Tests.Integration
@@ -22,9 +22,15 @@ namespace Milou.Deployer.Tests.Integration
 
         protected override async IAsyncEnumerable<ContainerArgs> AddContainersAsync()
         {
-            var ftpVariables = new Dictionary<string, string> {["FTP_USER"] = "testuser", ["FTP_PASS"] = "testpw"};
-
             var passivePorts = new PortRange(21100, 21110);
+
+            var ftpVariables = new Dictionary<string, string>
+            {
+                ["FTP_USER"] = "testuser",
+                ["FTP_PASS"] = "testpw",
+                ["PASV_MIN_PORT"] = passivePorts.Start.ToString(),
+                ["PASV_MAX_PORT"] = passivePorts.End.ToString()
+            };
 
             var ftpPorts = new List<PortMapping>
             {
@@ -43,7 +49,7 @@ namespace Milou.Deployer.Tests.Integration
             yield return ftp;
         }
 
-        [Fact(Skip = "Depending on publish settings")]
+        [ConditionalFactAttribute]
         public async Task PublishFilesShouldSyncFiles()
         {
             var logger = Context.Logger;
@@ -55,13 +61,8 @@ namespace Milou.Deployer.Tests.Integration
                 publicRootPath: new FtpPath("/", FileSystemType.Directory),
                 isSecure: false);
 
-            string publishSettingsFile = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "src",
-                typeof(FtpHandlerTests).Namespace!,
-                "ftpdocker.PublishSettings");
-
-            FtpHandler handler = await FtpHandler.CreateWithPublishSettings(
-                publishSettingsFile,
-                ftpSettings);
+            FtpHandler handler = await FtpHandler.Create(new Uri("ftp://127.0.0.1:30021"),
+                ftpSettings, new NetworkCredential("testuser", "testpw"), logger);
 
             var sourceDirectory = new DirectoryInfo(source);
             var ruleConfiguration = new RuleConfiguration {AppOfflineEnabled = true};
@@ -71,7 +72,6 @@ namespace Milou.Deployer.Tests.Integration
             DeploySummary initialSummary = await handler.PublishAsync(ruleConfiguration,
                 deployTargetDirectory,
                 initialCancellationTokenSource.Token);
-
             logger.Information("Initial: {Initial}", initialSummary.ToDisplayValue());
 
             using var cancellationTokenSource =

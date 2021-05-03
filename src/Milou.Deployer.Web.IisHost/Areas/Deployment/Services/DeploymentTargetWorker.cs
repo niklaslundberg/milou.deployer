@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -11,6 +10,7 @@ using DotNext.Threading;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
@@ -25,22 +25,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 #pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly ICustomClock _clock;
         private readonly ILogger _logger;
-        private readonly AsyncManualResetEvent _loggingCompleted = new AsyncManualResetEvent(false);
+        private readonly AsyncManualResetEvent _loggingCompleted = new(false);
         private readonly IMediator _mediator;
-        private readonly BlockingCollection<DeploymentTask> _queue = new BlockingCollection<DeploymentTask>();
-        private readonly AsyncManualResetEvent _serviceAdded = new AsyncManualResetEvent(false);
+        private readonly BlockingCollection<DeploymentTask> _queue = new();
+        private readonly AsyncManualResetEvent _serviceAddedEvent = new(false);
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly ConcurrentDictionary<string, IDeploymentService> _services =
-            new ConcurrentDictionary<string, IDeploymentService>();
+        private readonly ConcurrentDictionary<string, IDeploymentService> _services = new();
 
-        private readonly BlockingCollection<DeploymentTask> _taskQueue = new BlockingCollection<DeploymentTask>();
+        private readonly BlockingCollection<DeploymentTask> _taskQueue = new();
         private readonly TimeoutHelper _timeoutHelper;
         private readonly WorkerConfiguration _workerConfiguration;
         private bool _isDisposed;
 
         public DeploymentTargetWorker(
-            [NotNull] string targetId,
+            [NotNull] DeploymentTargetId targetId,
             [NotNull] ILogger logger,
             [NotNull] IMediator mediator,
             [NotNull] WorkerConfiguration workerConfiguration,
@@ -48,11 +47,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             ICustomClock clock,
             IServiceProvider serviceProvider)
         {
-            if (string.IsNullOrWhiteSpace(targetId))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(targetId));
-            }
-
             TargetId = targetId;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
@@ -62,11 +56,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _serviceProvider = serviceProvider;
         }
 
-        public DeploymentTask CurrentTask { get; private set; }
+        public DeploymentTask? CurrentTask { get; private set; }
 
         public bool IsRunning { get; private set; }
 
-        public string TargetId { get; }
+        public DeploymentTargetId TargetId { get; }
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -96,7 +90,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _queue.SafeDispose();
             _taskQueue.SafeDispose();
             _loggingCompleted.SafeDispose();
-            _serviceAdded.SafeDispose();
+            _serviceAddedEvent.SafeDispose();
         }
 
         private async Task StartTaskMessageHandler(CancellationToken stoppingToken)
@@ -105,7 +99,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 DeploymentTask deploymentTask = _taskQueue.Take(stoppingToken);
 
-                await _serviceAdded.WaitAsync(stoppingToken);
+                await _serviceAddedEvent.WaitAsync(stoppingToken);
 
                 if (!_services.TryGetValue(deploymentTask.DeploymentTaskId, out var deploymentService))
                 {
@@ -119,6 +113,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         out (string Message, WorkTaskStatus Status) valueTuple,
                         TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
                     {
+                        _logger.Information("Message queue for deployment service {Service} for deployment task id {DeploymentTaskId} timed out after {Seconds} seconds", deploymentService, deploymentTask.DeploymentTaskId, _workerConfiguration.MessageTimeOutInSeconds);
                         deploymentService.MessageQueue.CompleteAdding();
                     }
 
@@ -131,8 +126,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
 
                 _loggingCompleted.Set();
-
-                _services.TryRemove(deploymentTask.DeploymentTaskId, out _);
             }
         }
 
@@ -162,7 +155,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             $"Could not add deployment service for deployment task id {deploymentTask.DeploymentTaskId}");
                     }
 
-                    _serviceAdded.Set(false);
+                    _serviceAddedEvent.Set(false);
 
                     deploymentTask.Status = WorkTaskStatus.Started;
                     _taskQueue.Add(deploymentTask, stoppingToken);
@@ -173,7 +166,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                     _logger.Information("Executing deployment task {DeploymentTask}", deploymentTask);
 
-                    using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromHours(1));
+                    using var cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromHours(1));
+
                     using var combinedToken =
                         CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
 
@@ -185,7 +179,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         _logger.Information("Executed deployment task {DeploymentTask}", deploymentTask);
 
                         deploymentTask.Status = WorkTaskStatus.Done;
-                        service.Log("Work task completed");
+                        service.Log($"Work task {deploymentTask.DeploymentTaskId} completed for target {deploymentTask.DeploymentTargetId}");
                     }
                     else
                     {
@@ -195,28 +189,49 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             result.Metadata);
 
                         deploymentTask.Status = WorkTaskStatus.Failed;
-                        service.Log("Work task failed");
+                        service.Log($"Work task {deploymentTask.DeploymentTaskId} failed for target {deploymentTask.DeploymentTargetId}");
                     }
 
                     await _loggingCompleted.WaitAsync(stoppingToken);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
+                    if (ex is OperationCanceledException exception)
+                    {
+                        _logger.Debug(exception, "Taking next deployment task failed due to cancellation");
+                    }
+
                     if (deploymentTask is {})
                     {
                         deploymentTask.Status = WorkTaskStatus.Failed;
-                        _logger.Error(ex, "Failed when executing deployment task {TaskId}",
-                            deploymentTask.DeploymentTaskId);
+
+                        if (ex is OperationCanceledException operationCanceledException)
+                        {
+                            _logger.Error(operationCanceledException, "Deployment Target Worker cancellation was triggered with ongoing task {Task}", deploymentTask.DeploymentTaskId);
+                        }
+                        else
+                        {
+                            _logger.Error(ex, "Failed when executing deployment task {TaskId}",
+                                deploymentTask.DeploymentTaskId);
+                        }
                     }
                     else
                     {
-                        _logger.Error(ex, "Failed when executing deployment");
+                        if (ex is OperationCanceledException operationCanceledException)
+                        {
+                            _logger.Debug(operationCanceledException,
+                                "Deployment Target Worker cancellation was triggered, no ongoing task");
+                        }
+                        else
+                        {
+                            _logger.Error(ex, "Failed when executing deployment");
+                        }
                     }
                 }
                 finally
                 {
                     CurrentTask = null!;
-                    _serviceAdded.Reset();
+                    _serviceAddedEvent.Reset();
                     _loggingCompleted.Reset();
                     service.SafeDispose();
                 }
@@ -242,18 +257,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        public void Enqueue([NotNull] DeploymentTask deploymentTask)
+        public bool Enqueue([NotNull] DeploymentTask deploymentTask)
         {
             CheckDisposed();
 
             if (deploymentTask is null)
             {
                 throw new ArgumentNullException(nameof(deploymentTask));
-            }
-
-            if (string.IsNullOrWhiteSpace(deploymentTask.DeploymentTargetId))
-            {
-                throw new ArgumentNullException(nameof(deploymentTask), "Target id is missing");
             }
 
             try
@@ -275,7 +285,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         deploymentTask.SemanticVersion.ToNormalizedString(),
                         tasksInQueue.Length);
 
-                    return;
+                    return false;
                 }
 
                 if (deploymentTask.StartedBy is {}
@@ -291,12 +301,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             "A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}",
                             CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
 
-                        return;
+                        return false;
                     }
 
                     if (tasksInQueue.Length > 0
                         && tasksInQueue.Any(
-                            queued => queued?.StartedBy?.Equals(
+                            queued => queued.StartedBy?.Equals(
                                 nameof(AutoDeployBackgroundService),
                                 StringComparison.OrdinalIgnoreCase) == true))
                     {
@@ -304,7 +314,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             "A deployment task {TaskId} is already in queue as the new task trying to be added to queue, skipping new task {NewTaskId}",
                             CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
 
-                        return;
+                        return false;
                     }
                 }
 
@@ -316,10 +326,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     "Enqueued deployment task {DeploymentTask}, current queue length {Length}",
                     deploymentTask,
                     tasksInQueue);
+
+                return true;
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(ex, "Failed to enqueue deployment task {DeploymentTask}", deploymentTask);
+                return false;
             }
         }
 
@@ -334,7 +347,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        public IEnumerable<TaskInfo> QueueInfo()
+        public ImmutableArray<TaskInfo> QueueInfo()
         {
             CheckDisposed();
 
@@ -376,10 +389,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CheckDisposed();
 
-            if (_services.TryGetValue(notification.DeploymentTaskId, out var service) &&
-                !string.IsNullOrWhiteSpace(notification.Message))
+            if (_services.TryGetValue(notification.DeploymentTaskId, out var service)
+                && !string.IsNullOrWhiteSpace(notification.Message))
             {
-                service.Log(notification.Message);
+                service.Log(notification.Message, notification.LogEventLevel);
             }
             else
             {
@@ -394,11 +407,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             if (_services.TryGetValue(notification.DeploymentTaskId, out var service))
             {
                 service.TaskDone(notification.DeploymentTaskId);
+
+                Task.Run(() => RemoveServiceFromTask(notification.DeploymentTaskId));
             }
             else
             {
-                _logger.Warning("Could not handle agent task done notification");
+                _logger.Warning("Could not handle agent task done notification {Notification}", notification);
             }
+        }
+
+        private async Task RemoveServiceFromTask(string deploymentTaskId)
+        {
+            _logger.Verbose("Waiting for removing service from deployment task id {DeploymentTaskId}", deploymentTaskId);
+            await Task.Delay(TimeSpan.FromSeconds(10));
+            _services.TryRemove(deploymentTaskId, out _);
+
+            _logger.Verbose("Removed service from deployment task id {DeploymentTaskId}", deploymentTaskId);
         }
 
         public void NotifyDeploymentFailed(AgentDeploymentFailed notification)
@@ -408,10 +432,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             if (_services.TryGetValue(notification.DeploymentTaskId, out var service))
             {
                 service.TaskFailed(notification.DeploymentTaskId);
+
+                Task.Run(() => RemoveServiceFromTask(notification.DeploymentTaskId));
             }
             else
             {
-                _logger.Warning("Could not handle agent failed notification");
+                _logger.Warning("Could not handle agent failed notification {Notification}", notification);
             }
         }
     }

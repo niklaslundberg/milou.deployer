@@ -32,6 +32,11 @@ namespace Milou.Deployer.Core.XmlTransformation
 
             try
             {
+                if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.WebConfigTransformFile))
+                {
+                    return;
+                }
+
                 logger.Debug(
                     "Found web config transformation {Transformation} for deployment execution definition {Deployment}",
                     deploymentExecutionDefinition.WebConfigTransformFile,
@@ -41,7 +46,7 @@ namespace Milou.Deployer.Core.XmlTransformation
 
                 if (transformFile.Exists)
                 {
-                    string tempFileName = Path.GetTempFileName();
+                    string tempFileName = Path.GetRandomFileName();
 
                     var webConfig = new FileInfo(Path.Combine(contentDirectory.FullName, "web.config"));
 

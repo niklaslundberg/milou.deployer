@@ -94,7 +94,7 @@ namespace Milou.Deployer.Tests.Integration
                         new {definitions = Array.Empty<DeploymentExecutionDefinition>()});
 
                     Assert.NotNull(deploymentExecutionDefinition);
-                    Assert.NotNull(deploymentExecutionDefinition.definitions);
+                    Assert.NotNull(deploymentExecutionDefinition!.definitions);
 
                     Assert.Single(deploymentExecutionDefinition.definitions);
 
@@ -117,24 +117,24 @@ namespace Milou.Deployer.Tests.Integration
                         logger?.Dispose();
                     }
 
-                    FileInfo indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
+                    FileInfo? indexHtml = testTargetDirectory.Directory.GetFiles("index.html").SingleOrDefault();
                     Assert.NotNull(indexHtml);
 
-                    DirectoryInfo wwwrootDirectory =
-                        testTargetDirectory.Directory.GetDirectories("wwwroot").SingleOrDefault();
+                    DirectoryInfo? wwwrootDirectory =
+                        testTargetDirectory.Directory?.GetDirectories("wwwroot").SingleOrDefault();
 
                     Assert.NotNull(wwwrootDirectory);
-                    FileInfo applicationMetadata =
-                        wwwrootDirectory.GetFiles("applicationmetadata.json").SingleOrDefault();
+                    FileInfo? applicationMetadata =
+                        wwwrootDirectory!.GetFiles("applicationmetadata.json").SingleOrDefault();
                     Assert.NotNull(applicationMetadata);
 
-                    string text = await File.ReadAllTextAsync(applicationMetadata.FullName, cancellationTokenSource.Token);
+                    string text = await File.ReadAllTextAsync(applicationMetadata!.FullName, cancellationTokenSource.Token);
 
                     var metadata = JsonConvert.DeserializeAnonymousType(
                         text,
                         new {keys = new List<KeyValuePair<string, string>>()});
 
-                    Assert.NotNull(metadata.keys.SingleOrDefault(key =>
+                    Assert.NotNull(metadata?.keys.SingleOrDefault(key =>
                         key.Key.Equals("existingkey", StringComparison.OrdinalIgnoreCase)).Value);
 
                     Assert.Equal(0, exitCode);

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -26,9 +28,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             _deploymentService = deploymentService;
         }
 
+        [ValidateAntiForgeryToken]
         [Route(DeploymentConstants.DeployRoute, Name = DeploymentConstants.DeployRouteName)]
         [HttpPost]
-        public IActionResult Index(DeploymentTaskInput deploymentTaskInput)
+        public async Task<IActionResult> Index(DeploymentTaskInput? deploymentTaskInput)
         {
             if (deploymentTaskInput is null)
             {
@@ -50,12 +53,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            if (string.IsNullOrWhiteSpace(deploymentTaskInput.TargetId))
+            if (deploymentTaskInput.TargetId == DeploymentTargetId.Invalid)
             {
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            PackageVersion packageVersion = new PackageVersion(deploymentTaskInput.PackageId, semanticVersion);
+            PackageVersion packageVersion = new(deploymentTaskInput.PackageId, semanticVersion);
 
             var deploymentTask = new DeploymentTask(packageVersion,
                 deploymentTaskInput.TargetId,
@@ -64,7 +67,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             try
             {
-                _deploymentService.Enqueue(deploymentTask);
+                await _deploymentService.Enqueue(deploymentTask);
 
                 return RedirectToAction(nameof(Status), new {deploymentTask.DeploymentTargetId});
             }
