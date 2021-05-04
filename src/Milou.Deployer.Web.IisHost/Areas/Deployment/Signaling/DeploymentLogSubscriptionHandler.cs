@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -18,17 +17,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         IRequestHandler<SubscribeToDeploymentLog>,
         IRequestHandler<UnsubscribeToDeploymentLog>
     {
-        private static readonly ConcurrentDictionary<DeploymentTargetId, HashSet<string>> TargetMapping = new();
+        private readonly LogSubscribers _logSubscribers;
+
+        public DeploymentLogSubscriptionHandler(LogSubscribers logSubscribers) => _logSubscribers = logSubscribers;
 
         public Task<Unit> Handle(SubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
-            if (TargetMapping.TryGetValue(request.DeploymentTargetId, out var subscribers))
+            if (_logSubscribers.TargetMapping.TryGetValue(request.DeploymentTargetId, out var subscribers))
             {
                 subscribers.Add(request.ConnectionId);
             }
             else
             {
-                TargetMapping.TryAdd(
+                _logSubscribers.TargetMapping.TryAdd(
                     request.DeploymentTargetId,
                     new HashSet<string>(StringComparer.OrdinalIgnoreCase) {request.ConnectionId});
             }
@@ -38,9 +39,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 
         public Task<Unit> Handle(UnsubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
-            HashSet<string>[] hashSets = TargetMapping
-                .Where(pair => pair.Value.Contains(request.ConnectionId))
-                .Select(pair => pair.Value)
+            HashSet<string>[] hashSets = _logSubscribers.TargetMapping.Values
+                .ToImmutableArray()
+                .Where(value => value.Contains(request.ConnectionId))
                 .ToArray();
 
             foreach (HashSet<string> hashSet in hashSets)
@@ -49,19 +50,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
             }
 
             return Task.FromResult(Unit.Value);
-        }
-
-        public static ImmutableHashSet<string> TryGetTargetSubscribers([NotNull] DeploymentTargetId deploymentTargetId)
-        {
-            bool tryGetTargetSubscribers =
-                TargetMapping.TryGetValue(deploymentTargetId, out var subscribers);
-
-            if (!tryGetTargetSubscribers)
-            {
-                return ImmutableHashSet<string>.Empty;
-            }
-
-            return subscribers.SafeToImmutableArray().ToImmutableHashSet();
         }
     }
 }

@@ -4,12 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Tasks;
-using Arbor.Processing;
 using MediatR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Serilog;
+using Serilog.Events;
 
 namespace Milou.Deployer.Web.Agent.Host
 {
@@ -17,14 +17,14 @@ namespace Milou.Deployer.Web.Agent.Host
     {
         private readonly AgentConfiguration? _agentConfiguration;
         private readonly IDeploymentPackageAgent _deploymentPackageAgent;
+        private readonly IHostApplicationLifetime _lifetime;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
-        private readonly IHostApplicationLifetime _lifetime;
+        private AgentId? _agentId;
+        private string _connectionUrl = "";
 
         private HubConnection? _hubConnection;
         private CancellationToken _stoppingToken;
-        private string _connectionUrl = "";
-        private AgentId? _agentId;
 
         public AgentService(
             IDeploymentPackageAgent deploymentPackageAgent,
@@ -48,12 +48,102 @@ namespace Milou.Deployer.Web.Agent.Host
 
                 await _hubConnection.StopAsync(_stoppingToken);
 
-                _logger.Debug("Stopped SignalR in Agent");
+                _logger.Debug("Stopped SignalR in Agent {AgentId}", _agentId);
 
                 await _hubConnection.DisposeAsync();
             }
 
             _hubConnection = null;
+        }
+
+        private async Task<bool> Connect()
+        {
+            if (_hubConnection is null || _agentConfiguration is null)
+            {
+                return false;
+            }
+
+            bool connected = false;
+            try
+            {
+                _logger.Debug("Connecting to server via SignalR {Url}", _connectionUrl);
+                await _hubConnection.StartAsync(_stoppingToken);
+                await _hubConnection.SendAsync("AgentConnect", _stoppingToken);
+                connected = true;
+                _logger.Debug("Connected to server");
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Warning(ex, "Could not connect to server {Url} from agent {Agent}", _connectionUrl, _agentId);
+
+                if (_agentConfiguration.StartupDelay >= TimeSpan.FromMilliseconds(20))
+                {
+                    await Task.Delay(_agentConfiguration.StartupDelay!.Value, _stoppingToken);
+                }
+            }
+
+            return connected;
+        }
+
+        private void CreateSignalRConnection(string connectionUrl)
+        {
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(connectionUrl, options => options.AccessTokenProvider = GetAccessToken)
+                .Build();
+
+            _hubConnection.Closed += HubConnectionOnClosed;
+
+            _hubConnection.On<string, string>(AgentConstants.SignalRDeployCommand, ExecuteDeploymentTask);
+            _hubConnection.On<string>(AgentConstants.SignalRPingCommand, Ping);
+            _hubConnection.On("ServerShuttingDown", ShutDown);
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _stoppingToken = stoppingToken;
+            if (_agentConfiguration is null)
+            {
+                _logger.Fatal("Agent configuration is missing");
+                return;
+            }
+
+            _logger.Debug("Starting Agent service {Service}", nameof(AgentService));
+
+            await Task.Yield();
+
+            _agentId = _agentConfiguration?.AgentId();
+
+            if (_agentId is null)
+            {
+                _logger.Error("Could not find agent id, token length is {TokenLength}",
+                    _agentConfiguration?.AccessToken.Length.ToString(CultureInfo.InvariantCulture) ?? "N/A");
+                return;
+            }
+
+            _connectionUrl = $"{_agentConfiguration!.ServerBaseUri}{AgentConstants.HubRoute}";
+
+            CreateSignalRConnection(_connectionUrl);
+
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+
+                bool connected = false;
+
+                while (!connected && _hubConnection is { } && !stoppingToken.IsCancellationRequested)
+                {
+                    connected = await Connect();
+                }
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex, "Could not connect to server {Url} from agent {Agent}", _connectionUrl, _agentId);
+            }
+
+            _logger.Debug("Agent background service waiting for cancellation");
+            await stoppingToken;
+            _logger.Debug("Cancellation requested in Agent app");
+            _logger.Debug("Stopping SignalR in Agent");
         }
 
         private async Task ExecuteDeploymentTask(string deploymentTaskId, string deploymentTargetId)
@@ -97,99 +187,28 @@ namespace Milou.Deployer.Web.Agent.Host
             await _mediator.Send(deploymentTaskAgentResult, _stoppingToken);
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        private Task<string> GetAccessToken() => Task.FromResult(_agentConfiguration!.AccessToken);
+
+        private async Task HubConnectionOnClosed(Exception arg)
         {
-            _stoppingToken = stoppingToken;
-            if (_agentConfiguration is null)
+            if (_stoppingToken.IsCancellationRequested)
             {
-                _logger.Error("Agent configuration is missing");
                 return;
             }
 
-            _logger.Information("Starting Agent service {Service}", nameof(AgentService));
-
-            await Task.Yield();
-
-            _agentId = _agentConfiguration?.AgentId();
-
-            if (_agentId is null)
+            if (_hubConnection is { })
             {
-                _logger.Error("Could not find agent id, token length is {TokenLength}",
-                    _agentConfiguration?.AccessToken.Length.ToString(CultureInfo.InvariantCulture) ?? "N/A");
-                return;
+                await Task.Delay(new Random().Next(0, 5) * 1000, _stoppingToken);
+                await Connect();
             }
-
-            _connectionUrl = $"{_agentConfiguration!.ServerBaseUri}{AgentConstants.HubRoute}";
-
-            CreateSignalRConnection(_connectionUrl);
-
-            try
-            {
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-
-                bool connected = false;
-
-                while (!connected && _hubConnection is {} && !stoppingToken.IsCancellationRequested)
-                {
-                    connected = await Connect();
-                }
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Error(ex, "Could not connect to server {Url} from agent {Agent}", _connectionUrl, _agentId);
-            }
-
-            _logger.Debug("Agent background service waiting for cancellation");
-            await stoppingToken;
-            _logger.Debug("Cancellation requested in Agent app");
-            _logger.Debug("Stopping SignalR in Agent");
-        }
-
-        private async Task<bool> Connect()
-        {
-            if (_hubConnection is null || _agentConfiguration is null)
-            {
-                return false;
-            }
-
-            bool connected = false;
-            try
-            {
-                _logger.Debug("Connecting to server via SignalR {Url}", _connectionUrl);
-                await _hubConnection.StartAsync(_stoppingToken);
-                await _hubConnection.SendAsync("AgentConnect", _stoppingToken);
-                connected = true;
-                _logger.Debug("Connected to server");
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Error(ex, "Could not connect to server {Url} from agent {Agent}", _connectionUrl, _agentId);
-
-                if (_agentConfiguration.StartupDelay >= TimeSpan.FromMilliseconds(20))
-                {
-                    await Task.Delay(_agentConfiguration.StartupDelay!.Value, _stoppingToken);
-                }
-            }
-
-            return connected;
-        }
-
-        private void CreateSignalRConnection(string connectionUrl)
-        {
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl(connectionUrl, options => options.AccessTokenProvider = GetAccessToken)
-                .Build();
-
-            _hubConnection.Closed += HubConnectionOnClosed;
-
-            _hubConnection.On<string, string>(AgentConstants.SignalRDeployCommand, ExecuteDeploymentTask);
-            _hubConnection.On<string>(AgentConstants.SignalRPingCommand, Ping);
-            _hubConnection.On("ServerShuttingDown", ShutDown);
         }
 
         private Task Ping(string arg)
         {
-            _logger.Verbose("Received ping from server");
+            if (_logger.IsEnabled(LogEventLevel.Verbose))
+            {
+                _logger.Verbose("Received ping from server");
+            }
 
             return Task.CompletedTask;
         }
@@ -204,22 +223,6 @@ namespace Milou.Deployer.Web.Agent.Host
             _lifetime.StopApplication();
 
             return Task.CompletedTask;
-        }
-
-        private Task<string> GetAccessToken() => Task.FromResult(_agentConfiguration!.AccessToken);
-
-        private async Task HubConnectionOnClosed(Exception arg)
-        {
-            if (_stoppingToken.IsCancellationRequested)
-            {
-                return;
-            }
-
-            if (_hubConnection is {})
-            {
-                await Task.Delay(new Random().Next(0, 5) * 1000, _stoppingToken);
-                await Connect();
-            }
         }
     }
 }

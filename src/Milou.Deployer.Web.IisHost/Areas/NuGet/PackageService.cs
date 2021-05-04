@@ -148,7 +148,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             }
             else if (addedPackages.Count is > 0 and < 20)
             {
-                _logger.Information(
+                _logger.Debug(
                     "Added {Count} packages for package id {PackageId} {PackageVersions}",
                     addedPackages.Count,
                     packageId,
@@ -156,7 +156,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             }
             else if (addedPackages.Any())
             {
-                _logger.Information(
+                _logger.Debug(
                     "Added {Count} packages for package id {PackageId}",
                     addedPackages.Count,
                     packageId);

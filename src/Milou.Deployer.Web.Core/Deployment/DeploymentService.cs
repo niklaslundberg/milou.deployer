@@ -336,7 +336,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             var arguments = new List<string>();
 
-            jobLogger.Information("Using manifest file for job {JobId}", jobId);
+            jobLogger.Debug("Using manifest file for job {JobId}", jobId);
 
             var publishSettingsFile = !string.IsNullOrWhiteSpace(deploymentTarget.PublishSettingFile)
                 ? new FileInfo(deploymentTarget.PublishSettingFile)

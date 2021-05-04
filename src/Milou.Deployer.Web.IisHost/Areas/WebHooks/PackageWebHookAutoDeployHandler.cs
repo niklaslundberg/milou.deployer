@@ -48,7 +48,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
         {
             if (!(await _applicationSettingsStore.GetApplicationSettings(cancellationToken)).AutoDeploy.Enabled)
             {
-                _logger.Information("Auto deploy is disabled, skipping package web hook notification");
+                _logger.Debug("Auto deploy is disabled, skipping package web hook notification");
                 return;
             }
 
@@ -59,7 +59,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 throw new ArgumentException(nameof(packageIdentifier));
             }
 
-            _logger.Information("Received hook for package {Package}", packageIdentifier);
+            _logger.Debug("Received hook for package {Package}", packageIdentifier);
 
             IReadOnlyCollection<DeploymentTarget> deploymentTargets =
                 (await _targetSource.GetDeploymentTargetsAsync(stoppingToken: cancellationToken))
@@ -69,7 +69,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             if (!withAutoDeploy.Any())
             {
-                _logger.Information("No target has auto deploy enabled");
+                _logger.Debug("No target has auto deploy enabled");
             }
             else
             {
@@ -106,7 +106,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                             {
                                 if (packageIdentifier.Version > metadata!.SemanticVersion)
                                 {
-                                    _logger.Information(
+                                    _logger.Debug(
                                         "Auto deploying package {PackageIdentifier} to target {Name} from web hook",
                                         packageIdentifier,
                                         deploymentTarget.Name);
@@ -118,7 +118,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                             Guid.NewGuid(),
                                             "Web hook auto deploy"));
 
-                                    _logger.Information(
+                                    _logger.Debug(
                                         "Successfully enqueued package {PackageIdentifier} to target {Name} from web hook",
                                         packageIdentifier,
                                         deploymentTarget.Name);
@@ -133,21 +133,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                             }
                             else
                             {
-                                _logger.Information(
+                                _logger.Debug(
                                     "Auto deployment skipped for {PackageIdentifier} since the target version could not be determined",
                                     packageIdentifier);
                             }
                         }
                         else
                         {
-                            _logger.Information(
+                            _logger.Debug(
                                 "Auto deployment skipped for {PackageIdentifier} since the target does not allow pre-release",
                                 packageIdentifier);
                         }
                     }
                     else
                     {
-                        _logger.Information(
+                        _logger.Debug(
                             "No package id matched {PackageIdentifier} for target {Name}",
                             packageIdentifier,
                             deploymentTarget.Name);

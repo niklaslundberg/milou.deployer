@@ -113,7 +113,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         out (string Message, WorkTaskStatus Status) valueTuple,
                         TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
                     {
-                        _logger.Information("Message queue for deployment service {Service} for deployment task id {DeploymentTaskId} timed out after {Seconds} seconds", deploymentService, deploymentTask.DeploymentTaskId, _workerConfiguration.MessageTimeOutInSeconds);
+                        _logger.Debug("Message queue for deployment service {Service} for deployment task id {DeploymentTaskId} timed out after {Seconds} seconds", deploymentService, deploymentTask.DeploymentTaskId, _workerConfiguration.MessageTimeOutInSeconds);
                         deploymentService.MessageQueue.CompleteAdding();
                     }
 
@@ -160,7 +160,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     deploymentTask.Status = WorkTaskStatus.Started;
                     _taskQueue.Add(deploymentTask, stoppingToken);
 
-                    _logger.Information("Deployment target worker has taken {DeploymentTask}", deploymentTask);
+                    _logger.Debug("Deployment target worker has taken {DeploymentTask}", deploymentTask);
 
                     deploymentTask.Status = WorkTaskStatus.Started;
 
@@ -183,7 +183,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     }
                     else
                     {
-                        _logger.Error(
+                        _logger.Warning(
                             "Failed to deploy task {DeploymentTask}, result {Result}",
                             deploymentTask,
                             result.Metadata);
@@ -198,7 +198,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     if (ex is OperationCanceledException exception)
                     {
-                        _logger.Debug(exception, "Taking next deployment task failed due to cancellation");
+                        _logger.Debug(exception, "Taking next deployment task failed due to cancellation for targetId {DeploymentTargetId}", TargetId);
                     }
 
                     if (deploymentTask is {})
@@ -207,24 +207,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                         if (ex is OperationCanceledException operationCanceledException)
                         {
-                            _logger.Error(operationCanceledException, "Deployment Target Worker cancellation was triggered with ongoing task {Task}", deploymentTask.DeploymentTaskId);
+                            _logger.Warning(operationCanceledException, "Deployment Target Worker cancellation was triggered with ongoing task {Task} for targetId {DeploymentTargetId}", deploymentTask.DeploymentTaskId, TargetId);
                         }
                         else
                         {
-                            _logger.Error(ex, "Failed when executing deployment task {TaskId}",
-                                deploymentTask.DeploymentTaskId);
+                            _logger.Error(ex, "Failed when executing deployment task {TaskId} for targetId {DeploymentTargetId}",
+                                deploymentTask.DeploymentTaskId, TargetId);
                         }
                     }
                     else
                     {
                         if (ex is OperationCanceledException operationCanceledException)
                         {
-                            _logger.Debug(operationCanceledException,
-                                "Deployment Target Worker cancellation was triggered, no ongoing task");
+                            _logger.Warning(operationCanceledException,
+                                "Deployment Target Worker cancellation was triggered, no ongoing task for targetId {DeploymentTargetId}", TargetId);
                         }
                         else
                         {
-                            _logger.Error(ex, "Failed when executing deployment");
+                            _logger.Error(ex, "Failed when executing deployment for targetId {DeploymentTargetId}", TargetId);
                         }
                     }
                 }
@@ -248,16 +248,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     DeploymentTask deploymentTask = _queue.Take();
 
-                    _logger.Debug("Ignored queued deployment task {DeploymentTask}", deploymentTask);
+                    _logger.Debug("Ignored queued deployment task {DeploymentTask} for targetId {DeploymentTargetId}", deploymentTask, TargetId);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    _logger.Error(ex, "Could not clear queue");
+                    _logger.Error(ex, "Could not clear queue for targetId {DeploymentTargetId}", TargetId);
                 }
             }
         }
 
-        public bool Enqueue([NotNull] DeploymentTask deploymentTask)
+        public bool TryEnqueue([NotNull] DeploymentTask deploymentTask, out string? message)
         {
             CheckDisposed();
 
@@ -279,12 +279,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
                             && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
                 {
-                    _logger.Warning(
-                        "A deployment task with package id {PackageId} and version {Version} is already enqueued, skipping task, current queue length {Length}",
-                        deploymentTask.PackageId,
-                        deploymentTask.SemanticVersion.ToNormalizedString(),
-                        tasksInQueue.Length);
+                    string version = deploymentTask.SemanticVersion.ToNormalizedString();
 
+                    int queueLength = tasksInQueue.Length;
+
+                    _logger.Warning(
+                        "A deployment task with package id {PackageId} and version {Version} is already enqueued, skipping task, current queue length {Length} for targetId {DeploymentTargetId}",
+                        deploymentTask.PackageId,
+                        version,
+                        queueLength, TargetId);
+
+                    message =
+                        $"A deployment task with package id {deploymentTask.PackageId} and version {version} is already enqueued, skipping task, current queue length {queueLength} for targetId {deploymentTask.DeploymentTargetId}";
                     return false;
                 }
 
@@ -298,9 +304,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         && CurrentTask.PackageId == deploymentTask.PackageId)
                     {
                         _logger.Warning(
-                            "A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}",
-                            CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
-
+                            "A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId} for targetId {DeploymentTargetId}",
+                            CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId, TargetId);
+                        message =
+                            $"A deployment task {CurrentTask?.DeploymentTaskId} is already executing as the new task trying to be added to queue, skipping new task {deploymentTask.DeploymentTaskId} for targetId {TargetId}";
                         return false;
                     }
 
@@ -311,9 +318,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                                 StringComparison.OrdinalIgnoreCase) == true))
                     {
                         _logger.Warning(
-                            "A deployment task {TaskId} is already in queue as the new task trying to be added to queue, skipping new task {NewTaskId}",
-                            CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
+                            "A deployment task {TaskId} is already in queue as the new task trying to be added to queue, skipping new task {NewTaskId} for targetId {DeploymentTargetId}",
+                            CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId, TargetId);
 
+                        message =
+                            $"A deployment task {CurrentTask?.DeploymentTaskId} is already in queue as the new task trying to be added to queue, skipping new task {deploymentTask.DeploymentTaskId} for targetId {TargetId}";
                         return false;
                     }
                 }
@@ -327,11 +336,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     deploymentTask,
                     tasksInQueue);
 
+                message = default;
                 return true;
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                _logger.Error(ex, "Failed to enqueue deployment task {DeploymentTask}", deploymentTask);
+                _logger.Error(ex, "Failed to enqueue deployment task {DeploymentTask} for targetId {DeploymentTargetId}", deploymentTask, TargetId);
+                message = $"Failed to enqueue deployment task {deploymentTask} for targetId {TargetId}";
                 return false;
             }
         }
@@ -396,7 +407,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             else
             {
-                _logger.Warning("Could not log agent log notification");
+                _logger.Warning("Could not log agent log notification for targetId {DeploymentTargetId}", TargetId);
             }
         }
 
@@ -412,17 +423,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             else
             {
-                _logger.Warning("Could not handle agent task done notification {Notification}", notification);
+                _logger.Warning("Could not handle agent task done notification {Notification} for targetId {DeploymentTargetId}", notification, TargetId);
             }
         }
 
         private async Task RemoveServiceFromTask(string deploymentTaskId)
         {
-            _logger.Verbose("Waiting for removing service from deployment task id {DeploymentTaskId}", deploymentTaskId);
+            _logger.Verbose("Waiting for removing service from deployment task id {DeploymentTaskId} for targetId {DeploymentTargetId}", deploymentTaskId, TargetId);
             await Task.Delay(TimeSpan.FromSeconds(10));
             _services.TryRemove(deploymentTaskId, out _);
 
-            _logger.Verbose("Removed service from deployment task id {DeploymentTaskId}", deploymentTaskId);
+            _logger.Verbose("Removed service from deployment task id {DeploymentTaskId} for targetId {DeploymentTargetId}", deploymentTaskId, TargetId);
         }
 
         public void NotifyDeploymentFailed(AgentDeploymentFailed notification)
@@ -437,7 +448,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             else
             {
-                _logger.Warning("Could not handle agent failed notification {Notification}", notification);
+                _logger.Warning("Could not handle agent failed notification {Notification} for targetId {DeploymentTargetId}", notification, TargetId);
             }
         }
     }

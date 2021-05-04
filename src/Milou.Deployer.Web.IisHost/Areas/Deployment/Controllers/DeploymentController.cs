@@ -14,6 +14,7 @@ using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
+using Milou.Deployer.Web.IisHost.Areas.Caching;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers;
 using Milou.Deployer.Web.IisHost.Controllers;
@@ -76,22 +77,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             [FromServices] CurrentCacheVersion? currentCacheVersion)
         {
             customMemoryCache.Invalidate(invalidateCache.Prefix);
-
-            if (distributedCache is { } && !string.IsNullOrWhiteSpace(invalidateCache.Prefix))
-            {
-                try
-                {
-                    await distributedCache.RemoveAsync(invalidateCache.Prefix);
-                }
-                catch (Exception ex) when (!ex.IsFatal())
-                {
-                    _logger.Warning("Could not remove distributed cache with key {Key}", invalidateCache.Prefix);
-                }
-            }
-            else if (currentCacheVersion is {})
-            {
-                currentCacheVersion.CurrentVersion = new CacheVersion(currentCacheVersion.CurrentVersion.Version + 1);
-            }
+            await distributedCache.Invalidate(currentCacheVersion, invalidateCache, _logger);
 
             return RedirectToAction(nameof(Index));
         }

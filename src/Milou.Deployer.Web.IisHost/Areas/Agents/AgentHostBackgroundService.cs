@@ -42,7 +42,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             if (!applicationSettings.HostAgentEnabled)
             {
-                _logger.Information("Host agent is disabled");
+                _logger.Debug("Host agent is disabled");
                 return;
             }
 
@@ -89,7 +89,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 return;
             }
 
-            _logger.Information("Starting agent as sub-process {Path}", applicationSettings.AgentExe);
+            _logger.Debug("Starting agent as sub-process {Path}", applicationSettings.AgentExe);
             var exitCode = await ProcessRunner.ExecuteProcessAsync(
                 applicationSettings.AgentExe,
                 workingDirectory: new FileInfo(exePath).Directory,
@@ -133,7 +133,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                _logger.Error(ex, "Could not get version from applicationmetadata.json");
+                _logger.Warning(ex, "Could not get version from applicationmetadata.json");
 
                 return default;
             }

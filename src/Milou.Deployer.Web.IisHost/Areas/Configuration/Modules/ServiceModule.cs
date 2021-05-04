@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Credentials;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Settings;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 using Milou.Deployer.Web.IisHost.Areas.NuGet;
 using Serilog;
 
@@ -30,6 +31,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
             builder.AddSingleton<ICredentialReadService, ConfigurationCredentialReadService>(this);
             builder.AddSingleton<NuGetPackageInstaller>();
+            builder.AddSingleton<LogSubscribers>();
 
             return builder;
         }

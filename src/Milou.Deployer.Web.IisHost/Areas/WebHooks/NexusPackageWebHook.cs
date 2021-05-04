@@ -111,7 +111,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             }
 
             var packageVersion = new PackageVersion(name, semanticVersion);
-            _logger.Information("Successfully received Nexus web hook notification for package {Package}",
+            _logger.Debug("Successfully received Nexus web hook notification for package {Package}",
                 packageVersion);
 
             return new PackageUpdatedEvent(packageVersion, nexusConfig.NuGetSource, nexusConfig.NuGetConfig);

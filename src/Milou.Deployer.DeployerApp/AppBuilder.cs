@@ -77,7 +77,7 @@ namespace Milou.Deployer.DeployerApp
 
                 if (!string.IsNullOrWhiteSpace(machineSettings))
                 {
-                    logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
+                    logger.Debug("Using machine specific configuration file '{Settings}'", machineSettings);
                     appSettingsBuilder =
                         appSettingsBuilder.Add(new JsonKeyValueConfiguration(machineSettings, false));
                 }
@@ -87,7 +87,7 @@ namespace Milou.Deployer.DeployerApp
 
                 if (!string.IsNullOrWhiteSpace(configurationFile) && File.Exists(configurationFile))
                 {
-                    logger.Information("Using configuration values from file '{ConfigurationFile}'", configurationFile);
+                    logger.Debug("Using configuration values from file '{ConfigurationFile}'", configurationFile);
                     appSettingsBuilder =
                         appSettingsBuilder.Add(new JsonKeyValueConfiguration(configurationFile, false));
                 }
@@ -140,7 +140,7 @@ namespace Milou.Deployer.DeployerApp
 
                 if (!string.IsNullOrWhiteSpace(machineSettings))
                 {
-                    logger.Information("Using machine specific configuration file '{Settings}'", machineSettings);
+                    logger.Debug("Using machine specific configuration file '{Settings}'", machineSettings);
                 }
 
                 string? nugetSource = args.GetArgumentValueOrDefault("nuget-source");
@@ -233,7 +233,7 @@ namespace Milou.Deployer.DeployerApp
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                logger.Error("Could not build application");
+                logger.Fatal("Could not build application");
                 throw;
             }
         }

@@ -93,7 +93,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                         if (messages.Any(message => ex.Message.Contains(message, StringComparison.OrdinalIgnoreCase)))
                         {
                             await Task.Delay(TimeSpan.FromMilliseconds(50), cancellationToken);
-                            _logger.Debug("Database is not ready");
+                            _logger.Debug("Database is not ready yet");
                         }
                         else
                         {
@@ -115,7 +115,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             if (bool.TryParse(_configuration[DeployerAppConstants.SeedEnabled],
                 out bool seedEnabled) && !seedEnabled)
             {
-                _logger.Information("Seeders disabled");
+                _logger.Debug("Seeders disabled");
                 IsCompleted = true;
                 return;
             }
@@ -136,12 +136,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
                 catch (TaskCanceledException ex)
                 {
-                    _logger.Error(ex, "Could not run seeder {Seeder}, timeout {Timeout} seconds expired",
+                    _logger.Warning(ex, "Could not run seeder {Seeder}, timeout {Timeout} seconds expired",
                         dataSeeder.GetType().Name, seedTimeoutInSeconds);
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Failed to run seeder {Seeder}", dataSeeder.GetType().Name);
+                    _logger.Warning(ex, "Failed to run seeder {Seeder}", dataSeeder.GetType().Name);
                 }
             }
 

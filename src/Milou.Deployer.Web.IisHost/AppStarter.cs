@@ -94,7 +94,7 @@ namespace Milou.Deployer.Web.IisHost
                 bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
                                     && !Debugger.IsAttached;
 
-                app.Logger.Information("Starting application {Application}", app.AppInstance);
+                app.Logger.Debug("Starting application {Application}", app.AppInstance);
 
                 if (intervalInSeconds > 0)
                 {

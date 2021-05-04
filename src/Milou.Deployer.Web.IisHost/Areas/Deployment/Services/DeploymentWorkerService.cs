@@ -203,14 +203,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 _logger.Error("Could not find worker for deployment target id {DeploymentTargetId}",
                     deploymentTask.DeploymentTargetId);
+
+                await _mediator.Publish(new DeploymentTaskNotCreated(deploymentTask,
+                    $"Could not find worker for deployment target id {deploymentTask.DeploymentTargetId}"), _stoppingToken);
+
                 return;
             }
 
-            bool enqueued = foundWorker.Enqueue(deploymentTask);
+            bool enqueued = foundWorker.TryEnqueue(deploymentTask, out string? message);
 
             if (enqueued)
             {
                 await _mediator.Publish(new DeploymentTaskCreated(deploymentTask), _stoppingToken);
+            }
+            else
+            {
+                await _mediator.Publish(new DeploymentTaskNotCreated(deploymentTask, message), _stoppingToken);
             }
         }
 
