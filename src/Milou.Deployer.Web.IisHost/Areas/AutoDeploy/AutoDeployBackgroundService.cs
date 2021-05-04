@@ -6,10 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
+using Arbor.Processing;
 using JetBrains.Annotations;
+using MediatR;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
@@ -31,6 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         private readonly MonitoringService _monitoringService;
         private readonly IPackageService _packageService;
         private readonly TimeoutHelper _timeoutHelper;
+        private readonly IMediator _mediator;
 
         public AutoDeployBackgroundService(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -40,7 +44,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             [NotNull] ILogger logger,
             [NotNull] IPackageService packageService,
             TimeoutHelper timeoutHelper,
-            IApplicationSettingsStore applicationSettingsStore)
+            IApplicationSettingsStore applicationSettingsStore, IMediator mediator)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -53,6 +57,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
             _timeoutHelper = timeoutHelper;
             _applicationSettingsStore = applicationSettingsStore;
+            _mediator = mediator;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -127,6 +132,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                     if (appVersion?.SemanticVersion is null || string.IsNullOrWhiteSpace(appVersion.PackageId))
                     {
+                        continue;
+                    }
+
+                    var result = await _mediator.Send(new DeploymentHistoryRequest(deploymentTarget.Id.TargetId), stoppingToken);
+                    var latestDeploy = result.DeploymentTasks.OrderByDescending(task=>task.FinishedAtUtc).SingleOrDefault();
+
+                    if (latestDeploy is {} && latestDeploy.ExitCode != ExitCode.Success.Code)
+                    {
+                        _logger.Warning("Latest deploy at {LatestDeployUtc} was not successful, pausing auto deploy for deployment target id {DeploymentTargetId}", latestDeploy.FinishedAtUtc, deploymentTarget.Id);
                         continue;
                     }
 
