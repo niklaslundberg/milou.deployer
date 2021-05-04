@@ -4,9 +4,9 @@
     ".NETCoreApp,Version=v5.0": {
       "Arbor.App.Extensions": {
         "type": "Direct",
-        "requested": "[0.9.0-build.1620060829, )",
-        "resolved": "0.9.0-build.1620060829",
-        "contentHash": "JaZ9yfA2htpll9HnSkvMaqWybrzWsOFdopT9WxlNayY0pfP2sl6nPFU0dh//undQ1i38JeWV7boJaIqDkeBXGQ==",
+        "requested": "[0.9.0-build.1620147275, )",
+        "resolved": "0.9.0-build.1620147275",
+        "contentHash": "NwBpHiHNsLmB8z4umyA13m62mJwlbzj1ZUe8NBcfnsKATXN7+sHMvpi1X+mdQQZzu7DmKgM8V0OdrVB4Du9EQA==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema": "1.2.0",
@@ -14,6 +14,7 @@
           "Arbor.Primitives": "1.2.0",
           "JetBrains.Annotations": "2021.1.0",
           "MediatR": "9.0.0",
+          "Microsoft.Extensions.Caching.Abstractions": "5.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
           "Microsoft.Extensions.DependencyModel": "5.0.0",
           "Microsoft.Extensions.Http": "5.0.0",
@@ -316,6 +317,14 @@
           "System.Runtime.CompilerServices.Unsafe": "5.0.0",
           "System.Text.Encoding.CodePages": "4.5.1",
           "System.Threading.Tasks.Extensions": "4.5.4"
+        }
+      },
+      "Microsoft.Extensions.Caching.Abstractions": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "bu8As90/SBAouMZ6fJ+qRNo1X+KgHGrVueFhhYi+E5WqEhcnp2HoWRFnMzXQ6g4RdZbvPowFerSbKNH4Dtg5yg==",
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "5.0.0"
         }
       },
       "Microsoft.Extensions.Configuration": {

@@ -87,7 +87,6 @@ namespace Milou.Deployer.Web.Agent.Host
                     _agentConfiguration.AgentId(), deploymentTaskId);
                 deploymentTaskAgentResult =
                     new DeploymentTaskAgentResult(deploymentTaskId, id, false);
-
             }
             catch (Exception ex) when (!ex.IsFatal())
             {

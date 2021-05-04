@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.Caching;
 using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.AspNetCore.Host.Hosting;
@@ -37,6 +38,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly IDistributedCache _distributedCache;
+        private readonly CurrentCacheVersion _currentCacheVersion;
 
         [NotNull] private readonly EnvironmentConfiguration _environmentConfiguration;
 
@@ -61,7 +63,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             ILogger logger,
             IApplicationSettingsStore settingsStore,
             IApplicationAssemblyResolver applicationAssemblyResolver,
-            IDistributedCache distributedCache)
+            IDistributedCache distributedCache, CurrentCacheVersion currentCacheVersion)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -77,6 +79,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             _settingsStore = settingsStore;
             _applicationAssemblyResolver = applicationAssemblyResolver;
             _distributedCache = distributedCache;
+            _currentCacheVersion = currentCacheVersion;
         }
 
         public async Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)
@@ -173,8 +176,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
             ApplicationSettings applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
 
-            string cacheKey = nameof(serviceDiagnosticsRegistrations);
-            var cached = await _distributedCache.Get<List<ServiceInstance>>(cacheKey, cancellationToken: cancellationToken);
+            const string cacheKey = nameof(serviceDiagnosticsRegistrations);
+            var cached = await _distributedCache.GetWithVersionAsync<List<ServiceInstance>>(cacheKey, _currentCacheVersion.CurrentVersion, cancellationToken: cancellationToken);
             List<ServiceInstance>? registrationInstances;
 
             if (cached is null)
@@ -184,7 +187,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     .NotNull()
                     .ToList();
 
-                await _distributedCache.Set(cacheKey, registrationInstances, cancellationToken: cancellationToken);
+                await _distributedCache.SetWithVersionAsync(cacheKey, registrationInstances, _currentCacheVersion.CurrentVersion, cancellationToken: cancellationToken);
             }
             else
             {

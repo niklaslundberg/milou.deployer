@@ -1,4 +1,5 @@
-﻿using Arbor.App.Extensions.DependencyInjection;
+﻿using Arbor.App.Extensions.Caching;
+using Arbor.App.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
         public IServiceCollection Register(IServiceCollection builder) =>
             builder
                 .AddSingleton<IMemoryCache, MemoryCache>(new MemoryCache(new MemoryCacheOptions()), this)
-                .AddSingleton<ICustomMemoryCache, CustomMemoryCache>(this);
+                .AddSingleton<ICustomMemoryCache, CustomMemoryCache>(this)
+                .AddSingleton<CurrentCacheVersion>();
     }
 }

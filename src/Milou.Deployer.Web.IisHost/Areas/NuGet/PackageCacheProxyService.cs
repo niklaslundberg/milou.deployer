@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Caching;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
 using Milou.Deployer.Web.Core.Caching;
@@ -25,17 +26,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         private readonly IApplicationSettingsStore _applicationSettingsStore;
         private readonly ILogger _logger;
         private readonly IDistributedCache _distributedCache;
+        private readonly CurrentCacheVersion _currentCacheVersion;
         private readonly IPackageService _packageService;
 
         public PackageCacheProxyService(IPackageService packageService,
             ILogger logger,
             IApplicationSettingsStore applicationSettingsStore,
-            IDistributedCache distributedCache)
+            IDistributedCache distributedCache,
+            CurrentCacheVersion currentCacheVersion)
         {
             _packageService = packageService;
             _logger = logger;
             _applicationSettingsStore = applicationSettingsStore;
             _distributedCache = distributedCache;
+            _currentCacheVersion = currentCacheVersion;
         }
 
         public Task Handle(PackageUpdatedEvent notification, CancellationToken cancellationToken) =>
@@ -58,7 +62,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (useCache)
             {
-                var packages = await _distributedCache.Get<PackageVersions>(cacheKey, _logger, cancellationToken);
+                var packages = await _distributedCache.GetWithVersionAsync<PackageVersions>(cacheKey, _currentCacheVersion.CurrentVersion, _logger, cancellationToken);
                 _logger.Debug(
                     "Returning packages from cache with key {Key} for package id {PackageId}",
                     cacheKey,
@@ -87,7 +91,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
                 var packageVersions = new PackageVersions {Versions = versions};
 
-                await _distributedCache.Set(cacheKey, packageVersions, _logger, cancellationToken);
+                await _distributedCache.SetWithVersionAsync(cacheKey, packageVersions, _currentCacheVersion.CurrentVersion, logger: _logger, cancellationToken: cancellationToken);
 
                 _logger.Debug(
                     "Cached {Packages} packages with key {CacheKey} for {Duration} seconds",

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.DependencyInjection;
 using Arbor.KVConfiguration.Core;
@@ -105,10 +102,5 @@ namespace Milou.Deployer.Web.Marten
             options.Schema.For<LogItem>().Index(x => x.TaskLogId);
             options.Schema.For<LogItem>().Index(x => x.Level);
         }
-    }
-
-    public class EmptyEnvironmentTypeService : IEnvironmentTypeService
-    {
-        public Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(CancellationToken cancellationToken = default) => Task.FromResult(ImmutableArray<EnvironmentType>.Empty);
     }
 }

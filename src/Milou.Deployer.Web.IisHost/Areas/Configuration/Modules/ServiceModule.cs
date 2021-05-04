@@ -1,4 +1,5 @@
-﻿using Arbor.App.Extensions.DependencyInjection;
+﻿using Arbor.App.Extensions.Caching;
+using Arbor.App.Extensions.DependencyInjection;
 using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 using JetBrains.Annotations;
@@ -21,7 +22,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
             builder.AddSingleton<IPackageService>(context =>
                 new PackageCacheProxyService(context.GetRequiredService<PackageService>(),
                     context.GetRequiredService<ILogger>(), context.GetRequiredService<IApplicationSettingsStore>(),
-                    context.GetRequiredService<IDistributedCache>()));
+                    context.GetRequiredService<IDistributedCache>(), context.GetRequiredService<CurrentCacheVersion>()));
             builder.Add<IDeploymentService, DeploymentService>(ServiceLifetime.Transient, this);
             builder.AddSingleton(
                 context => new MilouDeployerConfiguration(context.GetRequiredService<IKeyValueConfiguration>()),

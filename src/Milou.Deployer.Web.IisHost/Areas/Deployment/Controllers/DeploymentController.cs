@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Caching;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
@@ -71,7 +72,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         public async Task<ActionResult> InvalidateCache(
             [FromBody] InvalidateCache invalidateCache,
             [FromServices] ICustomMemoryCache customMemoryCache,
-            [FromServices] IDistributedCache? distributedCache)
+            [FromServices] IDistributedCache? distributedCache,
+            [FromServices] CurrentCacheVersion? currentCacheVersion)
         {
             customMemoryCache.Invalidate(invalidateCache.Prefix);
 
@@ -85,6 +87,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 {
                     _logger.Warning("Could not remove distributed cache with key {Key}", invalidateCache.Prefix);
                 }
+            }
+            else if (currentCacheVersion is {})
+            {
+                currentCacheVersion.CurrentVersion = new CacheVersion(currentCacheVersion.CurrentVersion.Version + 1);
             }
 
             return RedirectToAction(nameof(Index));

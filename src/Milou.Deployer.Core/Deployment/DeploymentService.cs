@@ -252,7 +252,7 @@ namespace Milou.Deployer.Core.Deployment
 
             if (matchingFoundEnvironmentPackage.Any())
             {
-                string tempName = deploymentExecutionDefinition.EnvironmentConfig!.Substring(4);
+                string tempName = deploymentExecutionDefinition.EnvironmentConfig!.Substring(0,4);
 
                 var tempInstallDirectory =
                     new DirectoryInfo(
@@ -505,7 +505,7 @@ namespace Milou.Deployer.Core.Deployment
 
                     string tempPath = Path.Combine(
                         Path.GetTempPath(),
-                        $"{tempPrefix}{DateTime.UtcNow.Ticks.ToString().Substring(10)}");
+                        $"{tempPrefix}{DateTime.UtcNow.Ticks.ToString()[10..]}");
 
                     var tempWorkingDirectory = new DirectoryInfo(tempPath);
                     DirectoryInfo packageInstallTempDirectory = tempWorkingDirectory;

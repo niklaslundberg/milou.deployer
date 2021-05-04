@@ -107,7 +107,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 packageId,
                 _deploymentConfiguration.ListTimeOutInSeconds);
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
 
             var allVersions = await _packageInstaller.GetAllVersionsAsync(
                 new NuGetPackageId(packageId),
