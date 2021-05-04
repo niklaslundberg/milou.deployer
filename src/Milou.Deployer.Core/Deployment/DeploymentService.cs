@@ -892,6 +892,11 @@ namespace Milou.Deployer.Core.Deployment
                     }
 
                     _logger.Information("Summary: {Summary}", summary.ToDisplayValue());
+
+                    if (summary.ExitCode != 0)
+                    {
+                        return new ExitCode(summary.ExitCode);
+                    }
                 }
             }
             catch (Exception ex)

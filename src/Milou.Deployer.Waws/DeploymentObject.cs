@@ -263,6 +263,11 @@ namespace Milou.Deployer.Waws
             if (!exitCode.IsSuccess)
             {
                 _logger.Error("MSDeploy.exe Failed with exit code {ExitCode}", exitCode.Code);
+                syncToInternal.ExitCode = exitCode;
+            }
+            else
+            {
+                syncToInternal.ExitCode = ExitCode.Success.Code;
             }
 
             return syncToInternal;
