@@ -8,6 +8,7 @@ using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Packages;
@@ -67,9 +68,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(TargetConstants.InvalidateCacheRoute, Name = TargetConstants.InvalidateCacheRouteName)]
-        public ActionResult InvalidateCache([FromBody] InvalidateCache invalidateCache,  [FromServices] ICustomMemoryCache customMemoryCache)
+        public async Task<ActionResult> InvalidateCache(
+            [FromBody] InvalidateCache invalidateCache,
+            [FromServices] ICustomMemoryCache customMemoryCache,
+            [FromServices] IDistributedCache? distributedCache)
         {
             customMemoryCache.Invalidate(invalidateCache.Prefix);
+
+            if (distributedCache is { } && !string.IsNullOrWhiteSpace(invalidateCache.Prefix))
+            {
+                try
+                {
+                    await distributedCache.RemoveAsync(invalidateCache.Prefix);
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    _logger.Warning("Could not remove distributed cache with key {Key}", invalidateCache.Prefix);
+                }
+            }
 
             return RedirectToAction(nameof(Index));
         }

@@ -24,18 +24,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
         private readonly IApplicationSettingsStore _applicationSettingsStore;
         private readonly ILogger _logger;
-        private readonly IDistributedCache _memoryCache;
+        private readonly IDistributedCache _distributedCache;
         private readonly IPackageService _packageService;
 
         public PackageCacheProxyService(IPackageService packageService,
             ILogger logger,
             IApplicationSettingsStore applicationSettingsStore,
-            IDistributedCache memoryCache)
+            IDistributedCache distributedCache)
         {
             _packageService = packageService;
             _logger = logger;
             _applicationSettingsStore = applicationSettingsStore;
-            _memoryCache = memoryCache;
+            _distributedCache = distributedCache;
         }
 
         public Task Handle(PackageUpdatedEvent notification, CancellationToken cancellationToken) =>
@@ -58,7 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (useCache)
             {
-                var packages = await _memoryCache.Get<PackageVersions>(cacheKey, _logger, cancellationToken);
+                var packages = await _distributedCache.Get<PackageVersions>(cacheKey, _logger, cancellationToken);
                 _logger.Debug(
                     "Returning packages from cache with key {Key} for package id {PackageId}",
                     cacheKey,
@@ -87,7 +87,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
                 var packageVersions = new PackageVersions {Versions = versions};
 
-                await _memoryCache.Set(cacheKey, packageVersions, _logger, cancellationToken);
+                await _distributedCache.Set(cacheKey, packageVersions, _logger, cancellationToken);
 
                 _logger.Debug(
                     "Cached {Packages} packages with key {CacheKey} for {Duration} seconds",
@@ -107,7 +107,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         {
             string cacheKey = GetCacheKey(notificationNugetConfig, notificationNugetSource, packageId);
 
-            await _memoryCache.RemoveAsync(cacheKey);
+            await _distributedCache.RemoveAsync(cacheKey);
         }
 
         private string GetCacheKey(string? nugetConfigFile, string? nugetPackageSource, string packageId)

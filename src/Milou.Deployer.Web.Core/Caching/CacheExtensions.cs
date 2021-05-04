@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.Core.Caching
         {
             try
             {
-                var json = JsonSerializer.Serialize(item);
+                string json = JsonSerializer.Serialize(item);
 
                 var options = new DistributedCacheEntryOptions();
 
@@ -44,7 +44,7 @@ namespace Milou.Deployer.Web.Core.Caching
         {
             try
             {
-                var json = await cache.GetStringAsync(key, cancellationToken);
+                string? json = await cache.GetStringAsync(key, cancellationToken);
 
                 if (string.IsNullOrWhiteSpace(json))
                 {
@@ -57,17 +57,17 @@ namespace Milou.Deployer.Web.Core.Caching
             }
             catch (TaskCanceledException ex)
             {
-                logger?.Debug(ex, "Cache timed out");
+                logger?.Debug(ex, "Distributed cache timed out for key {Key}", key);
                 return default;
             }
             catch (OperationCanceledException ex)
             {
-                logger?.Debug(ex, "Cache timed out");
+                logger?.Debug(ex, "Distributed cache timed out for key {Key}", key);
                 return default;
             }
             catch (Exception ex)
             {
-                logger?.Debug(ex, "Could not get cache");
+                logger?.Debug(ex, "Could not get distributed cache item for key {Key}", key);
                 return default;
             }
         }

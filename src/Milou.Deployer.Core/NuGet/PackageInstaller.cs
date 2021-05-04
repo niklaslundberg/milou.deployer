@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
@@ -66,7 +67,12 @@ namespace Milou.Deployer.Core.NuGet
                 throw new InvalidOperationException($"The NuGet executable file '{executePath}' does not exist");
             }
 
-            var arguments = new List<string> {"install", deploymentExecutionDefinition.PackageId};
+            var arguments = new List<string>
+            {
+                "install",
+                deploymentExecutionDefinition.PackageId,
+                "-DirectDownload"
+            };
 
             void AddVersion(string value)
             {
@@ -142,7 +148,7 @@ namespace Milou.Deployer.Core.NuGet
             }
 
             if (_keyValueConfiguration[ConfigurationKeys.NuGetNoCache]
-                .ParseAsBooleanOrDefault())
+                .ParseAsBooleanOrDefault(defaultValue: true))
             {
                 arguments.Add("-NoCache");
             }
@@ -181,6 +187,16 @@ namespace Milou.Deployer.Core.NuGet
 
             try
             {
+                Dictionary<string, string> environmentVariables = new();
+
+                string tempDirectoryValue = _keyValueConfiguration[ApplicationConstants.ApplicationTempDirectory];
+                if (!string.IsNullOrWhiteSpace(tempDirectoryValue))
+                {
+                    environmentVariables.Add("TEMP", tempDirectoryValue);
+                    environmentVariables.Add("TMP", tempDirectoryValue);
+                    _logger.Debug("Using environment temp variable when running NuGet.exe set to {Path}", tempDirectoryValue);
+                }
+
                 exitCode = await ProcessRunner.ExecuteProcessAsync(
                     executePath,
                     arguments,
@@ -192,19 +208,21 @@ namespace Milou.Deployer.Core.NuGet
                         "{Category} {Message}",
                         category,
                         message),
+                    environmentVariables: environmentVariables,
                     cancellationToken: cancellationTokenSource.Token).ConfigureAwait(false);
             }
             catch (TaskCanceledException ex)
             {
-                _logger.Error(ex, "NuGet package install timed out");
+                _logger.Error(ex, "NuGet package install timed out for package id {PackageId}", deploymentExecutionDefinition.PackageId);
             }
 
             if (exitCode?.IsSuccess != true)
             {
-                _logger.Error("The package installer process '{Process}' {Arguments} failed with exit code {ExitCode}",
+                _logger.Error("The package installer process '{Process}' {Arguments} failed with exit code {ExitCode} for {PackageId}",
                     executePath,
                     string.Join(" ", arguments.Select(arg => $"\"{arg}\"")),
-                    exitCode);
+                    exitCode,
+                    deploymentExecutionDefinition.PackageId);
                 return default;
             }
 
