@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 return ExitCode.Failure;
             }
 
-            await _agentHub.Clients.Clients(agent.ConnectionId).SendAsync(AgentConstants.SignalRDeployCommand,
+            await _agentHub.Clients.Clients(agent.ConnectionId).SendAsync(AgentConstants.SignalRServerToAgentDeployCommand,
                 deploymentTaskId, deploymentTargetId.TargetId, cancellationToken);
 
             await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken); //TODO

@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             {
                 await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
-                await _agentHub.Clients.All.SendAsync(AgentConstants.SignalRPingCommand,"Ping!", cancellationToken: stoppingToken);
+                await _agentHub.Clients.All.SendAsync(AgentConstants.SignalRServerToAgentPingCommand,"Ping!", cancellationToken: stoppingToken);
             }
         }
     }

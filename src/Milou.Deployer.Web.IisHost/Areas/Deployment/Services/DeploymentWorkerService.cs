@@ -76,12 +76,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        public async Task<ClearAgentWorkTasksResult> Handle(ClearAgentWorkTasks request,
+        public Task<ClearAgentWorkTasksResult> Handle(ClearAgentWorkTasks request,
             CancellationToken cancellationToken)
         {
             var foundAgent = _agents.Agents.SingleOrDefault(agent => request.AgentId == agent.Id);
 
-            if (foundAgent?.CurrentDeploymentTargetId is {} deploymentTargetId && foundAgent?.CurrentDeploymentTaskId is {} taskId && foundAgent?.Id is {} agentId)
+            if (foundAgent?.CurrentDeploymentTargetId is {} deploymentTargetId && foundAgent.CurrentDeploymentTaskId is {} taskId && foundAgent.Id is {} agentId)
             {
                 var workerByTargetId = GetWorkerByTargetId(deploymentTargetId);
 
@@ -95,7 +95,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             _agents.AgentDone(request.AgentId);
 
-            return new ClearAgentWorkTasksResult(request.AgentId);
+            return Task.FromResult(new ClearAgentWorkTasksResult(request.AgentId));
         }
 
         public Task Handle(AgentDeploymentFailed notification, CancellationToken cancellationToken)

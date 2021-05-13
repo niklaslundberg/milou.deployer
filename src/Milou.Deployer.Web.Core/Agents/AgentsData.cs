@@ -139,9 +139,9 @@ namespace Milou.Deployer.Web.Core.Agents
                 return;
             }
 
-            state.Configuration = notification.AgentConfigView;
+            state.Configuration = notification.agentConfigurationView;
         }
     }
 
-    public record AgentConfigResponse(AgentId AgentId, AgentConfigView AgentConfigView) : IEvent;
+    public record AgentConfigResponse(AgentId AgentId, AgentConfigurationView agentConfigurationView) : IEvent;
 }

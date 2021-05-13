@@ -4,6 +4,7 @@ using Arbor.App.Extensions.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Agent;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
@@ -20,7 +21,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             await stoppingToken;
 
-            await _hubContext.Clients.All.SendAsync("ServerShuttingDown", CancellationToken.None);
+            await _hubContext.Clients.All.SendAsync(AgentConstants.ServerShuttingDown, CancellationToken.None);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.Messaging;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -32,7 +31,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
         public override Task OnConnectedAsync()
         {
-            _logger.Debug("SignalR Agent client connected, user {User}", Context.User?.Identity?.Name);
+            _logger.Verbose("SignalR Agent client connected, identity {Identity}", Context.User?.Identity?.Name);
 
             return base.OnConnectedAsync();
         }
@@ -46,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 return;
             }
 
-            var agentConfigView = JsonConvert.DeserializeObject<AgentConfigView>(agentConfig);
+            var agentConfigView = JsonConvert.DeserializeObject<AgentConfigurationView>(agentConfig);
 
             if (agentConfigView is null)
             {
@@ -70,7 +69,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             if (agentInfo is null)
             {
                 await _mediator.Publish(new UnknownAgentConnected(agentId, Context.ConnectionId));
-                _logger.Error("Unknown agent {AgentI} connected", agentId);
+                _logger.Warning("Unknown agent {AgentId} connected", agentId);
                 return;
             }
 

@@ -18,6 +18,6 @@ namespace Milou.Deployer.Web.Core.Agents
         public string? CurrentDeploymentTaskId { get; set; }
         public DeploymentTargetId? CurrentDeploymentTargetId { get; set; }
 
-        public AgentConfigView? Configuration { get; set; }
+        public AgentConfigurationView? Configuration { get; set; }
     }
 }

@@ -2,11 +2,17 @@
 {
     public static class AgentConstants
     {
+        public const string SignalRServerToAgentSetLogLevelCommand = "SetLogLevel";
+
         public const string HubRoute = "/agents/hub";
 
-        public const string SignalRDeployCommand = "Deploy";
+        public const string SignalRAgentHubAgentConnect = "AgentConnect";
 
-        public const string SignalRPingCommand = "Ping";
+        public const string SignalRServerToAgentDeployCommand = "Deploy";
+
+        public const string SignalRServerToAgentPingCommand = "Ping";
+
+        public const string ServerShuttingDown = "ServerShuttingDown";
 
         public const string DeploymentTaskResult = "/deployment-task/result";
 
@@ -19,5 +25,9 @@
         public const string DeploymentTaskLogRoute = "/deployment-task/log";
 
         public const string DeploymentTaskLogRouteName = nameof(DeploymentTaskLogRoute);
+
+        public const string SignalRAgentHubAgentConfig = "AgentConfig";
+
+        public const string SignalRServerToAgentGetConfigCommand = "AgentConfig";
     }
 }

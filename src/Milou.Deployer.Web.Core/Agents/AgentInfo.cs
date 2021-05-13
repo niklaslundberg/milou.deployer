@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Core.Agents
             string? connectionId = null,
             string? currentDeploymentTaskId = null,
             DeploymentTargetId? currentDeploymentTargetId = null,
-            AgentConfigView? agentConfigView = null)
+            AgentConfigurationView? agentConfigView = null)
         {
             Id = id;
             ConnectedAt = connectedAt;
@@ -32,6 +32,6 @@ namespace Milou.Deployer.Web.Core.Agents
 
         public DeploymentTargetId? CurrentDeploymentTargetId { get; }
 
-        public AgentConfigView? AgentConfigView { get; }
+        public AgentConfigurationView? AgentConfigView { get; }
     }
 }

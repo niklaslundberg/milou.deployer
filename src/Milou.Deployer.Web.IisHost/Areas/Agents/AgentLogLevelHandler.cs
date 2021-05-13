@@ -12,9 +12,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
         public AgentLogLevelHandler(IHubContext<AgentHub> agentContext) => _agentContext = agentContext;
 
-        public async Task Handle(LogLevelChanged notification, CancellationToken cancellationToken)
-        {
-            await _agentContext.Clients.All.SendAsync("SetLogLevel", notification.NewLevel, cancellationToken: cancellationToken);
-        }
+        public async Task Handle(LogLevelChanged notification, CancellationToken cancellationToken) =>
+            await _agentContext.Clients.All.SendAsync(AgentConstants.SignalRServerToAgentSetLogLevelCommand, notification.NewLevel,
+                cancellationToken);
     }
 }
