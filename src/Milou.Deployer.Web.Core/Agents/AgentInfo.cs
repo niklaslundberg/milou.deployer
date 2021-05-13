@@ -6,13 +6,20 @@ namespace Milou.Deployer.Web.Core.Agents
 {
     public class AgentInfo : IQueryResult
     {
-        public AgentInfo(AgentId id, DateTimeOffset? connectedAt = null, string? connectionId = null, string? currentDeploymentTaskId = null, DeploymentTargetId? currentDeploymentTargetId = null)
+        public AgentInfo(
+            AgentId id,
+            DateTimeOffset? connectedAt = null,
+            string? connectionId = null,
+            string? currentDeploymentTaskId = null,
+            DeploymentTargetId? currentDeploymentTargetId = null,
+            AgentConfigView? agentConfigView = null)
         {
             Id = id;
             ConnectedAt = connectedAt;
             ConnectionId = connectionId;
             CurrentDeploymentTaskId = currentDeploymentTaskId;
             CurrentDeploymentTargetId = currentDeploymentTargetId;
+            AgentConfigView = agentConfigView;
         }
 
         public AgentId Id { get; }
@@ -24,5 +31,7 @@ namespace Milou.Deployer.Web.Core.Agents
         public string? CurrentDeploymentTaskId { get; }
 
         public DeploymentTargetId? CurrentDeploymentTargetId { get; }
+
+        public AgentConfigView? AgentConfigView { get; }
     }
 }

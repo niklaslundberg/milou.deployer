@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
+using Arbor.App.Extensions.Messaging;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Agent;
@@ -30,7 +31,7 @@ namespace Milou.Deployer.Web.Core.Agents
 
         public ImmutableArray<AgentInfo> Agents => _agents
             .Select(agent => new AgentInfo(agent.Key,
-                agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId, agent.Value.CurrentDeploymentTargetId))
+                agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId, agent.Value.CurrentDeploymentTargetId, agent.Value.Configuration))
             .ToImmutableArray();
 
         public void AgentAssigned(AgentId agentId, string deploymentTaskId, DeploymentTargetId deploymentTargetId)
@@ -130,5 +131,17 @@ namespace Milou.Deployer.Web.Core.Agents
 
         public void UnknownAgentConnected(UnknownAgentConnected notification) =>
             _unknownAgents.TryAdd(notification.AgentId, notification.ConnectionId);
+
+        public void SetConfig(AgentConfigResponse notification)
+        {
+            if (!_agents.TryGetValue(notification.AgentId, out var state))
+            {
+                return;
+            }
+
+            state.Configuration = notification.AgentConfigView;
+        }
     }
+
+    public record AgentConfigResponse(AgentId AgentId, AgentConfigView AgentConfigView) : IEvent;
 }

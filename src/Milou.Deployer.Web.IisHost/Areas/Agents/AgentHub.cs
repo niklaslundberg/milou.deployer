@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Messaging;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Events;
 using Milou.Deployer.Web.Core.Agents.Queries;
 using Milou.Deployer.Web.Core.Security;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
@@ -33,6 +35,25 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             _logger.Debug("SignalR Agent client connected, user {User}", Context.User?.Identity?.Name);
 
             return base.OnConnectedAsync();
+        }
+
+        [PublicAPI]
+        public async Task AgentConfig(string agentConfig)
+        {
+            if (!AgentId.TryParse(Context.UserIdentifier, out AgentId? agentId))
+            {
+                _logger.Warning("The connected agent has no agent id");
+                return;
+            }
+
+            var agentConfigView = JsonConvert.DeserializeObject<AgentConfigView>(agentConfig);
+
+            if (agentConfigView is null)
+            {
+                return;
+            }
+
+            await _mediator.Publish(new AgentConfigResponse(agentId, agentConfigView));
         }
 
         [PublicAPI]

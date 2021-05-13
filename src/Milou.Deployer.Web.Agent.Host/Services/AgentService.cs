@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Tasks;
+using Arbor.Primitives;
 using MediatR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Agent.Host.Configuration;
+using Newtonsoft.Json;
 using Serilog;
+using Serilog.Core;
 using Serilog.Events;
 
 namespace Milou.Deployer.Web.Agent.Host.Services
@@ -18,6 +22,8 @@ namespace Milou.Deployer.Web.Agent.Host.Services
         private readonly AgentConfiguration? _agentConfiguration;
         private readonly IDeploymentPackageAgent _deploymentPackageAgent;
         private readonly IHostApplicationLifetime _lifetime;
+        private readonly EnvironmentVariables _environmentVariables;
+        private readonly LoggingLevelSwitch _loggingLevelSwitch;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private AgentId? _agentId;
@@ -31,12 +37,16 @@ namespace Milou.Deployer.Web.Agent.Host.Services
             ILogger logger,
             IMediator mediator,
             IHostApplicationLifetime lifetime,
+            EnvironmentVariables environmentVariables,
+            LoggingLevelSwitch loggingLevelSwitch,
             AgentConfiguration? agentConfiguration = default)
         {
             _deploymentPackageAgent = deploymentPackageAgent;
             _logger = logger;
             _mediator = mediator;
             _lifetime = lifetime;
+            _environmentVariables = environmentVariables;
+            _loggingLevelSwitch = loggingLevelSwitch;
             _agentConfiguration = agentConfiguration;
         }
 
@@ -96,6 +106,24 @@ namespace Milou.Deployer.Web.Agent.Host.Services
             _hubConnection.On<string, string>(AgentConstants.SignalRDeployCommand, ExecuteDeploymentTask);
             _hubConnection.On<string>(AgentConstants.SignalRPingCommand, Ping);
             _hubConnection.On("ServerShuttingDown", ShutDown);
+            _hubConnection.On("GetAgentConfig", SendConfig);
+            _hubConnection.On<LogEventLevel>("SetLogLevel", SetLogLevel);
+        }
+
+        private Task SetLogLevel(LogEventLevel level)
+        {
+            _loggingLevelSwitch.MinimumLevel = level;
+            return Task.CompletedTask;
+        }
+
+        private async Task SendConfig()
+        {
+            string json = JsonConvert.SerializeObject(new AgentConfigView()
+            {
+                EnvironmentVariables = _environmentVariables.Variables.ToDictionary(s => s.Key, s => s.Value)
+            });
+
+            await _hubConnection.SendAsync("AgentConfig", json, cancellationToken: _stoppingToken);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -139,6 +167,8 @@ namespace Milou.Deployer.Web.Agent.Host.Services
             {
                 _logger.Error(ex, "Could not connect to server {Url} from agent {Agent}", _connectionUrl, _agentId);
             }
+
+            await SendConfig();
 
             _logger.Debug("Agent background service waiting for cancellation");
             await stoppingToken;

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNext.Threading;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Web.Agent;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Logging
@@ -13,14 +13,16 @@ namespace Milou.Deployer.Web.Core.Logging
     {
         private readonly LogLevelState _levelState;
         private readonly ILogger _logger;
+        private readonly IMediator _mediator;
 
-        public ChangeLogLevelRequestHandler(LogLevelState levelState, ILogger logger)
+        public ChangeLogLevelRequestHandler(LogLevelState levelState, ILogger logger, IMediator mediator)
         {
             _levelState = levelState;
             _logger = logger;
+            _mediator = mediator;
         }
 
-        public Task<Unit> Handle([NotNull] ChangeLogLevelRequest? request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle([NotNull] ChangeLogLevelRequest? request, CancellationToken cancellationToken)
         {
             if (request is null)
             {
@@ -30,13 +32,14 @@ namespace Milou.Deployer.Web.Core.Logging
             if (LogEventLevelParser.TryParse(request.ChangeLogLevel.NewLevel, out var newLevel) && TimeSpan.TryParse(request.ChangeLogLevel.TimeSpan, out var timeSpan))
             {
                 _levelState.SetLevel(newLevel, timeSpan);
+               await _mediator.Publish(new LogLevelChanged(newLevel), cancellationToken);
             }
             else
             {
                 _logger.Warning("Invalid log level request {Request}", request);
             }
 
-            return Unit.Task;
+            return Unit.Value;
         }
     }
 }

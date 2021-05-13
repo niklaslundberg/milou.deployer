@@ -9,7 +9,8 @@ using Milou.Deployer.Web.Core.Agents.Events;
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     [UsedImplicitly]
-    public class AgentStatusHandler : INotificationHandler<AgentConnected>, INotificationHandler<AgentDisconnected>
+    public class AgentStatusHandler : INotificationHandler<AgentConnected>, INotificationHandler<AgentDisconnected>,
+        INotificationHandler<AgentConfigResponse>
     {
         private readonly AgentsData _agents;
 
@@ -25,6 +26,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public Task Handle(AgentDisconnected agentDisconnected, CancellationToken cancellationToken)
         {
             _agents.AgentDisconnected(agentDisconnected);
+
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(AgentConfigResponse notification, CancellationToken cancellationToken)
+        {
+            _agents.SetConfig(notification);
 
             return Task.CompletedTask;
         }

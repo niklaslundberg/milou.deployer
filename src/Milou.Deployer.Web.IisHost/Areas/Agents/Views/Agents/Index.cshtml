@@ -1,4 +1,5 @@
-﻿@using Arbor.App.Extensions.Time
+﻿@using Arbor.App.Extensions.ExtensionMethods
+@using Arbor.App.Extensions.Time
 @using Milou.Deployer.Web.Core.Extensions
 @using Milou.Deployer.Web.Core.Html
 @using Milou.Deployer.Web.IisHost.Areas.Agents
@@ -42,7 +43,7 @@
 
             </select>
 
-            <input type="hidden" value="@agent.Id.Value" name="agentId"/>
+            <input type="hidden" value="@agent.Id.Value" name="agentId" />
 
             <button type="submit">Assign agent to pool</button>
 
@@ -51,11 +52,23 @@
         <form method="post" action="@Url.RouteUrl(AgentsController.ClearAgentWorkTasksRouteName)">
             @Html.AntiForgeryToken()
 
-            <input type="hidden" value="@agent.Id.Value" name="agentId"/>
+            <input type="hidden" value="@agent.Id.Value" name="agentId" />
 
             <button type="submit">Clear work tasks for agent</button>
 
         </form>
+
+        @if (agent.AgentConfigView is { })
+        {
+            <p>Configuration</p>
+
+            <ul>
+                @foreach (var pair in agent.AgentConfigView.EnvironmentVariables.OrderBy(pair => pair.Key))
+                {
+                    <li>@pair.Key: @pair.Value.MakeAnonymous(pair.Key, ArborStringExtensions.DefaultAnonymousKeyWords.ToArray())</li>
+                }
+            </ul>
+        }
     }
 }
 else if (Model.DisconnectedAgents.Any())
