@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {

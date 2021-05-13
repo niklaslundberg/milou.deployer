@@ -64,8 +64,8 @@
       },
       "Arbor.App.Extensions": {
         "type": "Transitive",
-        "resolved": "0.9.0-build.1620147275",
-        "contentHash": "NwBpHiHNsLmB8z4umyA13m62mJwlbzj1ZUe8NBcfnsKATXN7+sHMvpi1X+mdQQZzu7DmKgM8V0OdrVB4Du9EQA==",
+        "resolved": "0.9.0-build.1620909921",
+        "contentHash": "nHVHjgwa+76EBaDnU71plYzaTjrOr8EdBTbC2HsgaiZFTV9Gb5wDSLCqh+FuuaP0BRgntVXnwnkDjOZm1MwcUQ==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema": "1.2.0",
@@ -171,8 +171,8 @@
       },
       "FluentFTP": {
         "type": "Transitive",
-        "resolved": "33.2.0",
-        "contentHash": "BCkqBIeKzvlILX8QqUKSRdJb700AraHy6d+Qb9iBvB8h/xmDpCO+N1FGrNsgSrh6jmxDXjYNaJm3xoDj6t/7XA==",
+        "resolved": "34.0.0",
+        "contentHash": "uw92f2gZz11xEr67HlS5rs9oYeLY/rx+mOFgPdDYDh7Je9/Za7OfnS0D0niNxaoIMWw1VEPsI8bPn65lIv68JQ==",
         "dependencies": {
           "System.Console": "4.3.0",
           "System.IO": "4.3.0",
@@ -1325,7 +1325,7 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.9.0-build.1620147275",
+          "Arbor.App.Extensions": "0.9.0-build.1620909921",
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
@@ -1368,7 +1368,7 @@
       "milou.deployer.ftp": {
         "type": "Project",
         "dependencies": {
-          "FluentFTP": "33.2.0",
+          "FluentFTP": "34.0.0",
           "JetBrains.Annotations": "2021.1.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
           "Milou.Deployer.Core": "1.0.0",

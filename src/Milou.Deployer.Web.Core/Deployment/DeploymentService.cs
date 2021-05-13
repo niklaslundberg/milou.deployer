@@ -245,7 +245,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                     finishedAtUtc,
                     metadataContent);
 
-                await _mediator.Publish(new DeploymentMetadataLog(deploymentTask, deploymentTaskResult),
+                await _mediator.Publish(new DeploymentMetadataLogged(deploymentTask, deploymentTaskResult),
                     cancellationToken);
 
                 return deploymentTaskResult;

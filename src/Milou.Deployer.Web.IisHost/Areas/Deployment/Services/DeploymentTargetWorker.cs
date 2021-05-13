@@ -12,6 +12,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Events;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
@@ -120,7 +121,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     if (valueTuple.Message.HasValue())
                     {
                         await _mediator.Publish(
-                            new DeploymentLogNotification(deploymentTask.DeploymentTargetId, valueTuple.Message),
+                            new DeploymentTargetLogged(deploymentTask.DeploymentTargetId, valueTuple.Message),
                             stoppingToken);
                     }
                 }
@@ -396,7 +397,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        public void LogProgress(AgentLogNotification notification)
+        public void LogProgress(DeploymentTaskLogged notification)
         {
             CheckDisposed();
 

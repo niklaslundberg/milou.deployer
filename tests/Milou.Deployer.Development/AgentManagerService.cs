@@ -8,12 +8,12 @@ using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Logging;
 using Arbor.App.Extensions.Tasks;
 using Arbor.AspNetCore.Host;
+using Arbor.AspNetCore.Host.Startup;
 using Arbor.Primitives;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Agent.Host;
 using Milou.Deployer.Web.Agent.Host.Configuration;
-using Milou.Deployer.Web.Core.Startup;
 
 namespace Milou.Deployer.Development
 {

@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
@@ -14,16 +15,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
         public AgentStatusHandler(AgentsData agents) => _agents = agents;
 
-        public Task Handle(AgentConnected notification, CancellationToken cancellationToken)
+        public Task Handle(AgentConnected agentConnected, CancellationToken cancellationToken)
         {
-            _agents.AgentConnected(notification);
+            _agents.AgentConnected(agentConnected);
 
             return Task.CompletedTask;
         }
 
-        public Task Handle(AgentDisconnected notification, CancellationToken cancellationToken)
+        public Task Handle(AgentDisconnected agentDisconnected, CancellationToken cancellationToken)
         {
-            _agents.AgentDisconnected(notification);
+            _agents.AgentDisconnected(agentDisconnected);
 
             return Task.CompletedTask;
         }

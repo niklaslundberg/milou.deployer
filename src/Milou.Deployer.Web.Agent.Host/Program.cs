@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Arbor.AspNetCore.Host;
 using Arbor.Primitives;
+using Milou.Deployer.Web.Agent.Host.Configuration;
 
 namespace Milou.Deployer.Web.Agent.Host
 {

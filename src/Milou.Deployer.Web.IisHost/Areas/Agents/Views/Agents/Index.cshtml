@@ -1,8 +1,10 @@
-﻿@using Milou.Deployer.Web.Core.Extensions
+﻿@using Arbor.App.Extensions.Time
+@using Milou.Deployer.Web.Core.Extensions
 @using Milou.Deployer.Web.Core.Html
 @using Milou.Deployer.Web.IisHost.Areas.Agents
+@using Milou.Deployer.Web.IisHost.Areas.Agents.Pools
 @model Milou.Deployer.Web.IisHost.Areas.Agents.AgentsViewModel
-@inject IAppTime AppTime;
+@inject ICustomClock _clock
 
 <h1>Agents</h1>
 
@@ -19,7 +21,7 @@
     @foreach (var agent in Model.ConnectedAgents)
     {
         <h3>@agent.Id</h3>
-        <p>Connected at: @agent.ConnectedAt.ToLocalDateTimeFormat(AppTime)</p>
+        <p>Connected at: @agent.ConnectedAt.ToLocalDateTimeFormat(_clock)</p>
         @if (agent.CurrentDeploymentTaskId is { })
         {
             <p>Current deployment task id: @agent.CurrentDeploymentTaskId</p>

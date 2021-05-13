@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Tests.Integration;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Commands;
 using Milou.Deployer.Web.IisHost.Areas.Agents;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.Marten;

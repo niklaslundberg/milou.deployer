@@ -14,7 +14,9 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Agent.Host;
+using Milou.Deployer.Web.Agent.Host.Configuration;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Commands;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 
 namespace Milou.Deployer.Web.Tests.Integration

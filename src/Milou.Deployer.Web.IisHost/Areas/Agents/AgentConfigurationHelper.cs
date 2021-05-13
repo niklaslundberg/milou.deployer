@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Commands;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Agents

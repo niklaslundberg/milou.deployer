@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Arbor.AspNetCore.Host.Startup;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Milou.Deployer.Web.Core.Startup;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Startup
 {

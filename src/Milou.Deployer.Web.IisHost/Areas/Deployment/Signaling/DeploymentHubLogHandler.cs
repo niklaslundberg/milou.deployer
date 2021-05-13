@@ -11,7 +11,7 @@ using Milou.Deployer.Web.Core.Deployment;
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 {
     [UsedImplicitly]
-    public class DeploymentHubLogHandler : INotificationHandler<DeploymentLogNotification>
+    public class DeploymentHubLogHandler : INotificationHandler<DeploymentTargetLogged>
     {
         private readonly IHubContext<TargetHub> _hubContext;
         private readonly LogSubscribers _logSubscribers;
@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
             _logSubscribers = logSubscribers;
         }
 
-        public async Task Handle(DeploymentLogNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(DeploymentTargetLogged notification, CancellationToken cancellationToken)
         {
             ImmutableHashSet<string> tryGetTargetSubscribers =
                 _logSubscribers.TryGetTargetSubscribers(notification.DeploymentTargetId);

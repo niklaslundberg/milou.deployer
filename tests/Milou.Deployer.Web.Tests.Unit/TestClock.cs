@@ -15,5 +15,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             return new DateTime(localTime.Ticks, DateTimeKind.Local);
         }
+
+        public TimeZoneInfo DefaultTimeZone => TimeZoneInfo.Utc;
     }
 }

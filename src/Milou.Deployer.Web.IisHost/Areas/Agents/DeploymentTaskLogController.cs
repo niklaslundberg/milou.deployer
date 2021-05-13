@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Events;
 using Milou.Deployer.Web.IisHost.Controllers;
 using Serilog;
 using Serilog.Events;
@@ -53,7 +54,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
                     string message = serilogSinkEvent.RenderedMessage.Replace("\\\"", "");
 
-                    await mediator.Publish(new AgentLogNotification(deploymentTaskId, deploymentTargetId, message, serilogSinkEvent.Level));
+                    await mediator.Publish(new DeploymentTaskLogged(deploymentTaskId, deploymentTargetId, message, serilogSinkEvent.Level));
                 }
             }
 

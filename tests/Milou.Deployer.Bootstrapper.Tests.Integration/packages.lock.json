@@ -73,8 +73,8 @@
       },
       "Arbor.App.Extensions": {
         "type": "Transitive",
-        "resolved": "0.9.0-build.1620147275",
-        "contentHash": "NwBpHiHNsLmB8z4umyA13m62mJwlbzj1ZUe8NBcfnsKATXN7+sHMvpi1X+mdQQZzu7DmKgM8V0OdrVB4Du9EQA==",
+        "resolved": "0.9.0-build.1620909921",
+        "contentHash": "nHVHjgwa+76EBaDnU71plYzaTjrOr8EdBTbC2HsgaiZFTV9Gb5wDSLCqh+FuuaP0BRgntVXnwnkDjOZm1MwcUQ==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema": "1.2.0",
@@ -1390,7 +1390,7 @@
       "milou.deployer.bootstrapper.common": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.9.0-build.1620147275",
+          "Arbor.App.Extensions": "0.9.0-build.1620909921",
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema": "1.2.0",
           "Arbor.Tooler": "0.15.0-build.1620064855",
@@ -1408,7 +1408,7 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.9.0-build.1620147275",
+          "Arbor.App.Extensions": "0.9.0-build.1620909921",
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Events;
+using Milou.Deployer.Web.Core.Agents.Queries;
 using Milou.Deployer.Web.Core.Security;
 using Serilog;
 

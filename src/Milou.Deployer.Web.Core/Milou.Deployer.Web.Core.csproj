@@ -3,14 +3,15 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.9.0-build.1620147275" />
-    <PackageReference Include="DotNext.Threading" Version="3.0.0" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.9.0-build.1620909921" />
+    <PackageReference Include="Arbor.AspNetCore.Host" Version="0.10.0-build.1620911475" />
+    <PackageReference Include="DotNext.Threading" Version="3.1.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Arbor.ModelBinding" Version="2.0.0" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.15.0-build.1620064855" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
-    <PackageReference Include="MailKit" Version="2.11.1" />
+    <PackageReference Include="MailKit" Version="2.12.0" />
     <PackageReference Include="Marten" Version="3.9.0" />
     <PackageReference Include="Marten" Version="3.13.4" />
     <PackageReference Include="MediatR" Version="9.0.0" />
@@ -42,5 +43,8 @@
     <ProjectReference Include="..\Milou.Deployer.Bootstrapper.Common\Milou.Deployer.Bootstrapper.Common.csproj" />
     <ProjectReference Include="..\Milou.Deployer.Core\Milou.Deployer.Core.csproj" />
     <ProjectReference Include="..\Milou.Deployer.Web.Agent\Milou.Deployer.Web.Agent.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Startup\" />
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Commands;
 using Milou.Deployer.Web.IisHost.Areas.Agents;
 using Newtonsoft.Json;
 using Xunit.Abstractions;

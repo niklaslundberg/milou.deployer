@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Caching;
 using Marten;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Integration.Nexus;

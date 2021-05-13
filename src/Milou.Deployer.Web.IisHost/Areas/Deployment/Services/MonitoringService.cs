@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.Caching;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using Arbor.KVConfiguration.Core;
@@ -29,7 +30,7 @@ using Serilog.Events;
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     [UsedImplicitly]
-    public class MonitoringService : INotificationHandler<DeploymentMetadataLog>,
+    public class MonitoringService : INotificationHandler<DeploymentMetadataLogged>,
         INotificationHandler<UpdateDeploymentTargetResult>
     {
         private readonly IApplicationSettingsStore _applicationSettingsStore;
@@ -59,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _customMemoryCache = customMemoryCache;
         }
 
-        public Task Handle(DeploymentMetadataLog notification, CancellationToken cancellationToken)
+        public Task Handle(DeploymentMetadataLogged notification, CancellationToken cancellationToken)
         {
             InvalidateCache(notification.DeploymentTask.DeploymentTargetId);
 

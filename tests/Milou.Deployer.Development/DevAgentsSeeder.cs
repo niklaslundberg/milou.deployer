@@ -4,6 +4,8 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Commands;
+using Milou.Deployer.Web.Core.Agents.Queries;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 
 namespace Milou.Deployer.Development

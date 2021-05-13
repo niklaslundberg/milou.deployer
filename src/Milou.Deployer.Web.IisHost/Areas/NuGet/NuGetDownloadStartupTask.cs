@@ -4,13 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
+using Arbor.AspNetCore.Host.Startup;
 using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.NuGet;
-using Milou.Deployer.Web.Core.Startup;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.NuGet

@@ -1,7 +1,6 @@
-﻿@using Milou.Deployer.Web.Core.Extensions
-@using Milou.Deployer.Web.IisHost.Areas.Agents
-@model Milou.Deployer.Web.IisHost.Areas.Agents.AgentPoolsViewModel
-@inject IAppTime AppTime;
+﻿@using Milou.Deployer.Web.IisHost.Areas.Agents
+@using Milou.Deployer.Web.IisHost.Areas.Agents.Pools
+@model Milou.Deployer.Web.IisHost.Areas.Agents.Pools.AgentPoolsViewModel
 
 <h1>Agent pools</h1>
 
@@ -9,28 +8,28 @@
 
 @if (!Model.AgentPools.Any())
 {
-<p>There are no registered agents</p>
+    <p>There are no registered agents</p>
 }
 
 @if (Model.AgentPools.Any())
 {
-@foreach (var agentPool in Model.AgentPools)
+    @foreach (var agentPool in Model.AgentPools)
     {
-<h2>@agentPool.AgentPoolId.Value</h2>
-@if (Model.AssignedAgents[agentPool].Length > 0)
+        <h2>@agentPool.AgentPoolId.Value</h2>
+        @if (Model.AssignedAgents[agentPool].Length > 0)
         {
 
-<h3>Agents in pool</h3>
-<ul>
-    @foreach (var item in Model.AssignedAgents[agentPool])
+            <h3>Agents in pool</h3>
+            <ul>
+                @foreach (var item in Model.AssignedAgents[agentPool])
                 {
-    <li>@item.Value</li>
-    }
-</ul>
-}
+                    <li>@item.Value</li>
+                }
+            </ul>
+        }
         else
         {
-<p>Pool has no assigned agents</p>
-}
+            <p>Pool has no assigned agents</p>
+        }
     }
 }

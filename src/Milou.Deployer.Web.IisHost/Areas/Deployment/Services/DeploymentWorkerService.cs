@@ -12,6 +12,8 @@ using MediatR;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
+using Milou.Deployer.Web.Core.Agents.Commands;
+using Milou.Deployer.Web.Core.Agents.Events;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
@@ -23,7 +25,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         INotificationHandler<WorkerCreated>,
         INotificationHandler<TargetEnabled>,
         INotificationHandler<TargetDisabled>,
-        INotificationHandler<AgentLogNotification>,
+        INotificationHandler<DeploymentTaskLogged>,
         IRequestHandler<StartWorker>,
         INotificationHandler<AgentDeploymentDone>,
         INotificationHandler<AgentDeploymentFailed>,
@@ -112,7 +114,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        public Task Handle(AgentLogNotification notification, CancellationToken cancellationToken)
+        public Task Handle(DeploymentTaskLogged notification, CancellationToken cancellationToken)
         {
             var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
