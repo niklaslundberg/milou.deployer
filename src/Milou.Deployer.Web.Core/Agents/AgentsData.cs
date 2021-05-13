@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
-using Arbor.App.Extensions.Messaging;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Agent;
@@ -142,6 +141,4 @@ namespace Milou.Deployer.Web.Core.Agents
             state.Configuration = notification.agentConfigurationView;
         }
     }
-
-    public record AgentConfigResponse(AgentId AgentId, AgentConfigurationView agentConfigurationView) : IEvent;
 }
