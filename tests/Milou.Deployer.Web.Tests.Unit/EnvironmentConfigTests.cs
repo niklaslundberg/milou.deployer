@@ -9,7 +9,10 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void GetConfigFromTargetWithEmptyOldEnvironment()
         {
-            var target = new DeploymentTarget(new DeploymentTargetId("123"), "123", "abc",
+            var target = new DeploymentTarget(
+                new DeploymentTargetId("123"),
+                "123",
+                "abc",
                 environmentConfiguration: "");
 
             string? environmentConfig = target.GetEnvironmentConfiguration();
@@ -20,7 +23,9 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void GetConfigFromTargetWithOldEnvironment()
         {
-            var target = new DeploymentTarget(new DeploymentTargetId("123"), "123", "abc",
+            var target = new DeploymentTarget(new DeploymentTargetId("123"),
+                "123",
+                "abc",
                 environmentConfiguration: "test");
 
             string? environmentConfig = target.GetEnvironmentConfiguration();
@@ -31,7 +36,9 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void GetConfigFromTargetWithOtherEnvironment()
         {
-            var target = new DeploymentTarget(new DeploymentTargetId("123"), "123", "abc",
+            var target = new DeploymentTarget(new DeploymentTargetId("123"),
+                "123",
+                "abc",
                 environmentType: new EnvironmentType("", "", PreReleaseBehavior.Allow));
 
             string? environmentConfig = target.GetEnvironmentConfiguration();
@@ -52,7 +59,9 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void GetConfigFromTargetWithUnknownEnvironment()
         {
-            var target = new DeploymentTarget(new DeploymentTargetId("123"), "123", "abc",
+            var target = new DeploymentTarget(new DeploymentTargetId("123"),
+                "123",
+                "abc",
                 environmentType: EnvironmentType.Unknown);
 
             string? environmentConfig = target.GetEnvironmentConfiguration();

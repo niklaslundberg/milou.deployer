@@ -31,8 +31,8 @@ namespace Milou.Deployer.Web.Core.Logging
                 Level = logEvent.Level.ToString(),
                 logEvent.Timestamp,
                 RenderedTemplate = renderedTemplate,
-                FormattedTimestamp =
-                    logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)
+                FormattedTimestamp = logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff",
+                    CultureInfo.InvariantCulture)
             };
 
             string message = JsonConvert.SerializeObject(output);

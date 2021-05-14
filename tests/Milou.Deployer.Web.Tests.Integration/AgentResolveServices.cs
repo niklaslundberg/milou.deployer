@@ -14,10 +14,12 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class AgentResolveServices : BackgroundService
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly EnvironmentConfiguration _environmentConfiguration;
+        private readonly IServiceProvider _serviceProvider;
 
-        public AgentResolveServices(IServiceProvider serviceProvider, ILogger logger, EnvironmentConfiguration environmentConfiguration)
+        public AgentResolveServices(IServiceProvider serviceProvider,
+            ILogger logger,
+            EnvironmentConfiguration environmentConfiguration)
         {
             _serviceProvider = serviceProvider;
             _environmentConfiguration = environmentConfiguration;
@@ -36,10 +38,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var types = new List<Type>
             {
-                typeof(IDeploymentPackageAgent),
-                typeof(AgentConfiguration),
-                typeof(ILogger),
-                typeof(IMediator)
+                typeof(IDeploymentPackageAgent), typeof(AgentConfiguration), typeof(ILogger), typeof(IMediator)
             };
 
             foreach (var type in types)
@@ -50,7 +49,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
                 catch (Exception ex)
                 {
-                    logger.Fatal(ex, "Could not get service type {Type} in configuration {@Configuration}", type.Name, environment);
+                    logger.Fatal(ex,
+                        "Could not get service type {Type} in configuration {@Configuration}",
+                        type.Name,
+                        environment);
                 }
             }
 

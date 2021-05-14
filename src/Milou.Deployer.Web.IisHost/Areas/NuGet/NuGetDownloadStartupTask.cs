@@ -48,7 +48,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             _logger.Debug("Ensuring nuget.exe exists");
 
             if (!int.TryParse(_configuration[DeployerAppConstants.NuGetDownloadTimeoutInSeconds],
-                out int initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
+                    out int initialNuGetDownloadTimeoutInSeconds) ||
+                initialNuGetDownloadTimeoutInSeconds <= 0)
             {
                 initialNuGetDownloadTimeoutInSeconds = 100;
             }
@@ -64,6 +65,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 HttpClient httpClient = _httpClientFactory.CreateClient();
 
                 var nuGetDownloadClient = new NuGetDownloadClient();
+
                 NuGetDownloadResult nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(
                     new NuGetDownloadSettings(downloadDirectory: downloadDirectory, nugetExeVersion: exeVersion),
                     _logger,
@@ -80,7 +82,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 _logger.Warning(ex, "Could not download nuget.exe");
             }
 
-            if (_configuration is { } && _nugetConfiguration is {})
+            if (_configuration is { } && _nugetConfiguration is { })
             {
                 _nugetConfiguration.NugetExePath = nugetExePath;
             }

@@ -36,8 +36,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [ValidateAntiForgeryToken]
         [Route(TargetConstants.DisableTargetPostRoute, Name = TargetConstants.DisableTargetPostRouteName)]
         [HttpPost]
-        public async Task<IActionResult> Disable(
-            [FromBody] DisableTarget disableTarget,
+        public async Task<IActionResult> Disable([FromBody] DisableTarget disableTarget,
             [FromServices] IMediator mediator)
         {
             await mediator.Send(disableTarget);
@@ -59,13 +58,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [Route(TargetConstants.TargetRoute, Name = TargetConstants.TargetRouteName)]
         [HttpGet]
         [Route(TargetConstants.EditTargetRoute, Name = TargetConstants.EditTargetRouteName)]
-        public async Task<IActionResult> Edit(
-            [ValueFromRoute] DeploymentTargetId deploymentTargetId,
+        public async Task<IActionResult> Edit([ValueFromRoute] DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            var deploymentTarget =
-                await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
             {
@@ -115,9 +112,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [ValidateAntiForgeryToken]
         [Route(TargetConstants.EnableTargetPostRoute, Name = TargetConstants.EnableTargetPostRouteName)]
         [HttpPost]
-        public async Task<IActionResult> Enable(
-            [FromBody] EnableTarget enableTarget,
-            [FromServices] IMediator mediator)
+        public async Task<IActionResult> Enable([FromBody] EnableTarget enableTarget, [FromServices] IMediator mediator)
         {
             await mediator.Send(enableTarget);
 
@@ -137,13 +132,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(
-            [FromRoute] DeploymentTargetId deploymentTargetId,
+        public async Task<IActionResult> Index([FromRoute] DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] IEnvironmentTypeService environmentTypeService)
         {
-            var deploymentTarget =
-                await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
             {
@@ -156,8 +149,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(TargetConstants.CreateTargetPostRoute, Name = TargetConstants.CreateTargetPostRouteName)]
-        public async Task<ActionResult<CreateTargetResult>> Post(
-            [FromBody] CreateTarget? createTarget,
+        public async Task<ActionResult<CreateTargetResult>> Post([FromBody] CreateTarget? createTarget,
             [FromServices] IMediator mediator,
             [FromQuery] bool redirect = true)
         {

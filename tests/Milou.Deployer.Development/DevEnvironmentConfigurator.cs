@@ -1,4 +1,3 @@
-
 #if DEBUG
 using System.IO;
 using System.Linq;
@@ -6,7 +5,6 @@ using Arbor.Aesculus.Core;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Urns;
-using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Agent;
 
 namespace Milou.Deployer.Development
@@ -15,7 +13,8 @@ namespace Milou.Deployer.Development
     {
         private readonly AgentId? _agentId;
 
-        public DevEnvironmentConfigurator(ConfigurationInstanceHolder holder) => _agentId = holder.GetInstances<AgentId>().SingleOrDefault().Value;
+        public DevEnvironmentConfigurator(ConfigurationInstanceHolder holder) =>
+            _agentId = holder.GetInstances<AgentId>().SingleOrDefault().Value;
 
         public void Configure(EnvironmentConfiguration environmentConfiguration)
         {

@@ -21,17 +21,14 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
             Path = path.Equals(RootPath, StringComparison.OrdinalIgnoreCase)
                 ? RootPath
-                : $"/{path.TrimStart(trimChar: '/').Replace("//", "/", StringComparison.Ordinal)}";
+                : $"/{path.TrimStart('/').Replace("//", "/", StringComparison.Ordinal)}";
 
             Type = type;
         }
 
         public bool IsAppDataDirectoryOrFile =>
-            Path.Split(
-                    new[] {'/'},
-                    StringSplitOptions.RemoveEmptyEntries)
-                .Any(
-                    path => path.Equals("App_Data", StringComparison.OrdinalIgnoreCase));
+            Path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries).Any(path =>
+                path.Equals("App_Data", StringComparison.OrdinalIgnoreCase));
 
         public bool IsRoot => Path.Equals(RootPath, StringComparison.OrdinalIgnoreCase);
 
@@ -68,6 +65,21 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public FileSystemType Type { get; }
 
+        public bool Equals(FtpPath? other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
+        }
+
         public FtpPath Append([NotNull] FtpPath path)
         {
             if (path is null)
@@ -75,7 +87,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
                 throw new ArgumentNullException(nameof(path));
             }
 
-            return new FtpPath(Path.TrimEnd(trimChar: '/') + path.Path, path.Type);
+            return new FtpPath(Path.TrimEnd('/') + path.Path, path.Type);
         }
 
         public bool ContainsPath([NotNull] FtpPath excluded)
@@ -104,21 +116,6 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             return true;
         }
 
-        public bool Equals(FtpPath? other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
-        }
-
         public override bool Equals(object? obj) =>
             ReferenceEquals(this, obj) || (obj is FtpPath other && Equals(other));
 
@@ -143,22 +140,26 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             if (string.IsNullOrWhiteSpace(value))
             {
                 ftpPath = default;
+
                 return false;
             }
 
             if (!value!.StartsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 ftpPath = default;
+
                 return false;
             }
 
             if (value.Contains("\\", StringComparison.OrdinalIgnoreCase))
             {
                 ftpPath = default;
+
                 return false;
             }
 
             ftpPath = new FtpPath(value, fileSystemType);
+
             return true;
         }
 

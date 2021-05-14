@@ -8,35 +8,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
 {
     public static class TempDataExtensions
     {
-        public static void Put<T>([NotNull] this ITempDataDictionary tempData, T value) where T : class
-        {
-            if (tempData is null)
-            {
-                throw new ArgumentNullException(nameof(tempData));
-            }
-
-            if (value is null)
-            {
-                return;
-            }
-
-            string? key = typeof(T).FullName;
-
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                return;
-            }
-
-            try
-            {
-                tempData[key] = JsonConvert.SerializeObject(value);
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                // ignore
-            }
-        }
-
         public static T? Get<T>(this ITempDataDictionary? tempData) where T : class
         {
             try
@@ -76,6 +47,35 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public static void Put<T>([NotNull] this ITempDataDictionary tempData, T value) where T : class
+        {
+            if (tempData is null)
+            {
+                throw new ArgumentNullException(nameof(tempData));
+            }
+
+            if (value is null)
+            {
+                return;
+            }
+
+            string? key = typeof(T).FullName;
+
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return;
+            }
+
+            try
+            {
+                tempData[key] = JsonConvert.SerializeObject(value);
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                // ignore
             }
         }
     }

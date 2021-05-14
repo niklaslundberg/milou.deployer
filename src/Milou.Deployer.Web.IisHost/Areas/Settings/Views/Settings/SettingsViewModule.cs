@@ -14,8 +14,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Views.Settings
         public static readonly SettingsViewModule PackageCache = new(nameof(PackageCache), 2);
         public static readonly SettingsViewModule Routes = new(nameof(Routes), 7);
 
-        public static readonly SettingsViewModule
-            AppConfiguration = new(nameof(AppConfiguration), 8);
+        public static readonly SettingsViewModule AppConfiguration = new(nameof(AppConfiguration), 8);
 
         public SettingsViewModule(string invariantName, int order)
         {
@@ -23,8 +22,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Views.Settings
             Order = order;
         }
 
-        public static ImmutableArray<SettingsViewModule> All => EnumerableOf<SettingsViewModule>.All
-            .OrderBy(module => module.Order).ToImmutableArray();
+        public static ImmutableArray<SettingsViewModule> All =>
+            EnumerableOf<SettingsViewModule>.All.OrderBy(module => module.Order).ToImmutableArray();
 
         public string InvariantName { get; }
 

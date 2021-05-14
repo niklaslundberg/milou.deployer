@@ -6,8 +6,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
 {
     public class OrganizationsViewOutputModel
     {
-        public OrganizationsViewOutputModel(
-            ImmutableArray<OrganizationInfo> organizations,
+        public OrganizationsViewOutputModel(ImmutableArray<OrganizationInfo> organizations,
             CreateOrganizationResult? createOrganizationResult)
         {
             Organizations = organizations;

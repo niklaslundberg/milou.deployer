@@ -4,8 +4,7 @@ namespace Milou.Deployer.Waws
 {
     internal sealed class DeploymentWellKnownProvider : IEquatable<DeploymentWellKnownProvider>
     {
-        public static readonly DeploymentWellKnownProvider ContentPath =
-            new(nameof(ContentPath));
+        public static readonly DeploymentWellKnownProvider ContentPath = new(nameof(ContentPath));
 
         public static readonly DeploymentWellKnownProvider Package = new(nameof(Package));
 

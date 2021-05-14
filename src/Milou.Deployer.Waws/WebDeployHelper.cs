@@ -15,8 +15,7 @@ namespace Milou.Deployer.Waws
 
         public WebDeployHelper(ILogger logger) => _logger = logger;
 
-        public async Task<DeploySummary> DeployContentToOneSiteAsync(
-            string sourcePath,
+        public async Task<DeploySummary> DeployContentToOneSiteAsync(string sourcePath,
             string? publishSettingsFile,
             TimeSpan appOfflineDelay,
             string? password = null,
@@ -44,16 +43,27 @@ namespace Milou.Deployer.Waws
                 appOfflineEnabled,
                 appDataSkipDirectiveEnabled,
                 applicationInsightsProfiler2SkipDirectiveEnabled,
-                logAction
-            ).ConfigureAwait(false);
+                logAction).ConfigureAwait(false);
 
             return deploymentChangeSummary;
         }
 
         public event EventHandler<CustomEventArgs>? DeploymentTraceEventHandler;
 
-        private async Task<DeploySummary> DeployContentToOneSiteAsync2(
-            string sourcePath,
+        private static bool AddDeploymentRule(DeploymentSyncOptions syncOptions, string name)
+        {
+            DeploymentRuleCollection rules = DeploymentSyncOptions.GetAvailableRules();
+            bool added = rules.TryGetValue(name, out var newRule);
+
+            if (added)
+            {
+                syncOptions.Rules.Add(newRule!);
+            }
+
+            return added;
+        }
+
+        private async Task<DeploySummary> DeployContentToOneSiteAsync2(string sourcePath,
             string? publishSettingsFile,
             TimeSpan appOfflineDelay,
             string? password = null,
@@ -77,9 +87,7 @@ namespace Milou.Deployer.Waws
                 publishSettings = await PublishSettings.Load(publishSettingsFile);
             }
 
-            DeploymentBaseOptions destBaseOptions = await SetBaseOptions(
-                publishSettings,
-                allowUntrusted);
+            DeploymentBaseOptions destBaseOptions = await SetBaseOptions(publishSettings, allowUntrusted);
 
             string? destinationPath = destBaseOptions.SiteName;
 
@@ -88,19 +96,17 @@ namespace Milou.Deployer.Waws
 
             if (appDataSkipDirectiveEnabled)
             {
-                destBaseOptions.SkipDirectives.Add(
-                    new SkipDirective("AppData", "objectName=\"dirpath\",absolutePath=App_Data"));
+                destBaseOptions.SkipDirectives.Add(new SkipDirective("AppData",
+                    "objectName=\"dirpath\",absolutePath=App_Data"));
             }
 
             if (applicationInsightsProfiler2SkipDirectiveEnabled)
             {
-                destBaseOptions.SkipDirectives.Add(
-                    new SkipDirective("WebJobs",
-                        "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous"));
+                destBaseOptions.SkipDirectives.Add(new SkipDirective("WebJobs",
+                    "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous"));
 
-                destBaseOptions.SkipDirectives.Add(
-                    new SkipDirective("ApplicationInsightsProfiler2",
-                        "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous\\\\ApplicationInsightsProfiler2"));
+                destBaseOptions.SkipDirectives.Add(new SkipDirective("ApplicationInsightsProfiler2",
+                    "objectName=\"dirpath\",absolutePath=App_Data\\\\jobs\\\\continuous\\\\ApplicationInsightsProfiler2"));
             }
 
             if (!string.IsNullOrEmpty(password))
@@ -162,7 +168,7 @@ namespace Milou.Deployer.Waws
 
             DeploySummary deployContentToOneSite;
 
-            DeploymentBaseOptions sourceBaseOptions = publishSettings is {}
+            DeploymentBaseOptions sourceBaseOptions = publishSettings is { }
                 ? await DeploymentBaseOptions.Load(publishSettings)
                 : new DeploymentBaseOptions();
 
@@ -171,17 +177,17 @@ namespace Milou.Deployer.Waws
             {
                 FileInfo? appOfflineFile = null;
 
-                if (targetProvider == DeploymentWellKnownProvider.DirPath
-                    && !string.IsNullOrWhiteSpace(destinationPath)
-                    && Directory.Exists(destinationPath)
-                    && string.IsNullOrWhiteSpace(publishSettingsFile))
+                if (targetProvider == DeploymentWellKnownProvider.DirPath &&
+                    !string.IsNullOrWhiteSpace(destinationPath) &&
+                    Directory.Exists(destinationPath) &&
+                    string.IsNullOrWhiteSpace(publishSettingsFile))
                 {
                     string appOfflineFilePath = Path.Combine(destinationPath, DeploymentConstants.AppOfflineHtm);
 
                     appOfflineFile = new FileInfo(appOfflineFilePath);
                 }
 
-                if (appOfflineFile is {} && appOfflineDelay.TotalMilliseconds >= 1)
+                if (appOfflineFile is { } && appOfflineDelay.TotalMilliseconds >= 1)
                 {
                     await Task.Delay(appOfflineDelay).ConfigureAwait(false);
                 }
@@ -189,13 +195,14 @@ namespace Milou.Deployer.Waws
                 try
                 {
                     appOfflineFile?.Refresh();
+
                     if (appOfflineFile?.Exists == false)
                     {
                         await using FileStream _ = File.Create(appOfflineFile.FullName);
                     }
 
-                    deployContentToOneSite = await
-                        deploymentObject.SyncTo(targetProvider, destinationPath, destBaseOptions, syncOptions);
+                    deployContentToOneSite =
+                        await deploymentObject.SyncTo(targetProvider, destinationPath, destBaseOptions, syncOptions);
 
                     if (deployContentToOneSite.ExitCode != 0)
                     {
@@ -204,7 +211,7 @@ namespace Milou.Deployer.Waws
                 }
                 finally
                 {
-                    if (appOfflineFile is {})
+                    if (appOfflineFile is { })
                     {
                         appOfflineFile.Refresh();
 
@@ -212,7 +219,9 @@ namespace Milou.Deployer.Waws
                         {
                             logAction?.Invoke(
                                 $"Deleting {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
+
                             appOfflineFile.Delete();
+
                             logAction?.Invoke(
                                 $"Deleted {DeploymentConstants.AppOfflineHtm} file '{appOfflineFile.FullName}'");
                         }
@@ -220,19 +229,19 @@ namespace Milou.Deployer.Waws
                 }
             }
 
-            DeploymentBaseOptions destDeleteBaseOptions = await SetBaseOptions(
-                publishSettings,
-                allowUntrusted);
+            DeploymentBaseOptions destDeleteBaseOptions = await SetBaseOptions(publishSettings, allowUntrusted);
 
             var syncDeleteOptions = new DeploymentSyncOptions {DeleteDestination = true};
 
-            if (publishSettings?.SiteName is {})
+            if (publishSettings?.SiteName is { })
             {
                 DeploySummary results;
+
                 using (DeploymentObject deploymentDeleteObject = DeploymentManager.CreateObject(
                     DeploymentWellKnownProvider.ContentPath,
                     "/App_Offline.htm",
-                    destBaseOptions, _logger))
+                    destBaseOptions,
+                    _logger))
                 {
                     destDeleteBaseOptions.TraceLevel = traceLevel;
                     destDeleteBaseOptions.Trace += DestBaseOptions_Trace;
@@ -252,24 +261,13 @@ namespace Milou.Deployer.Waws
             return deployContentToOneSite;
         }
 
-        private static bool AddDeploymentRule(DeploymentSyncOptions syncOptions, string name)
-        {
-            DeploymentRuleCollection rules = DeploymentSyncOptions.GetAvailableRules();
-            bool added = rules.TryGetValue(name, out var newRule);
+        private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e) =>
+            DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
 
-            if (added)
-            {
-                syncOptions.Rules.Add(newRule!);
-            }
-
-            return added;
-        }
-
-        private static async Task<DeploymentBaseOptions> SetBaseOptions(
-            PublishSettings? publishSettings,
+        private static async Task<DeploymentBaseOptions> SetBaseOptions(PublishSettings? publishSettings,
             bool allowUntrusted)
         {
-            if (publishSettings is {})
+            if (publishSettings is { })
             {
                 DeploymentBaseOptions deploymentBaseOptions = await DeploymentBaseOptions.Load(publishSettings);
 
@@ -287,8 +285,5 @@ namespace Milou.Deployer.Waws
 
             return deploymentBaseOptions2;
         }
-
-        private void DestBaseOptions_Trace(object sender, DeploymentTraceEventArgs e) =>
-            DeploymentTraceEventHandler?.Invoke(sender, new CustomEventArgs(e.EventData, e.EventLevel, e.Message));
     }
 }

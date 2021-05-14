@@ -8,10 +8,8 @@ namespace Milou.Deployer.Web.Core.Logging
 {
     public class LogLevelState
     {
-        private readonly ILogger _logger;
         private readonly ICustomClock _customClock;
-
-        public LoggingLevelSwitch LevelSwitch { get; }
+        private readonly ILogger _logger;
 
         public LogLevelState(LoggingLevelSwitch levelSwitch, ILogger logger, ICustomClock customClock)
         {
@@ -19,6 +17,8 @@ namespace Milou.Deployer.Web.Core.Logging
             _logger = logger;
             _customClock = customClock;
         }
+
+        public LoggingLevelSwitch LevelSwitch { get; }
 
         public DateTimeOffset? ValidToUtc { get; set; }
 
@@ -28,9 +28,7 @@ namespace Milou.Deployer.Web.Core.Logging
 
             if (oldLevel != newLevel)
             {
-                _logger.Information("Switching log level from {OldLogLevel} to {NewLogLevel}",
-                    oldLevel,
-                    newLevel);
+                _logger.Information("Switching log level from {OldLogLevel} to {NewLogLevel}", oldLevel, newLevel);
 
                 LevelSwitch.MinimumLevel = newLevel;
 

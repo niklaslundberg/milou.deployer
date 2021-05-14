@@ -6,7 +6,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;
-using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Events;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Controllers;
@@ -23,24 +22,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         {
             _logger = logger;
             _mediator = mediator;
-        }
-
-        [HttpGet]
-        [Route(AgentConstants.DeploymentTaskPackageRoute, Name = AgentConstants.DeploymentTaskPackageRouteName)]
-        public async Task<IActionResult> DeploymentTaskPackage(
-            [NotNull] string deploymentTaskId,
-            [FromServices] IDeploymentTaskPackageStore deploymentTaskPackageStore)
-        {
-            if (string.IsNullOrWhiteSpace(deploymentTaskId))
-            {
-                return new BadRequestResult();
-            }
-
-            DeploymentTaskPackage? deploymentTaskPackage =
-                await deploymentTaskPackageStore.GetDeploymentTaskPackageAsync(
-                    deploymentTaskId, CancellationToken.None);
-
-            return new ObjectResult(deploymentTaskPackage);
         }
 
         [Route(AgentConstants.DeploymentTaskResult, Name = AgentConstants.DeploymentTaskResultName)]
@@ -65,18 +46,37 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                     deploymentTaskAgentResult.DeploymentTaskId);
 
                 await _mediator.Publish(new AgentDeploymentDone(deploymentTaskAgentResult.DeploymentTaskId,
-                    deploymentTaskAgentResult.DeploymentTargetId, agentId));
+                    deploymentTaskAgentResult.DeploymentTargetId,
+                    agentId));
             }
             else
             {
                 _logger.Error("Deploy failed for deployment task id {DeploymentTaskId}",
                     deploymentTaskAgentResult.DeploymentTaskId);
 
-                await _mediator.Publish(new AgentDeploymentFailed(
-                    deploymentTaskAgentResult.DeploymentTaskId, deploymentTaskAgentResult.DeploymentTargetId, agentId));
+                await _mediator.Publish(new AgentDeploymentFailed(deploymentTaskAgentResult.DeploymentTaskId,
+                    deploymentTaskAgentResult.DeploymentTargetId,
+                    agentId));
             }
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route(AgentConstants.DeploymentTaskPackageRoute, Name = AgentConstants.DeploymentTaskPackageRouteName)]
+        public async Task<IActionResult> DeploymentTaskPackage([NotNull] string deploymentTaskId,
+            [FromServices] IDeploymentTaskPackageStore deploymentTaskPackageStore)
+        {
+            if (string.IsNullOrWhiteSpace(deploymentTaskId))
+            {
+                return new BadRequestResult();
+            }
+
+            var deploymentTaskPackage =
+                await deploymentTaskPackageStore.GetDeploymentTaskPackageAsync(deploymentTaskId,
+                    CancellationToken.None);
+
+            return new ObjectResult(deploymentTaskPackage);
         }
     }
 }

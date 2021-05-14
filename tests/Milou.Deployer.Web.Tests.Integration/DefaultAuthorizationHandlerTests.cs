@@ -20,20 +20,22 @@ namespace Milou.Deployer.Web.Tests.Integration
         public async Task IpClaimInRangeForAllowedNetworkShouldMarkContextSucceeded()
         {
             ILogger logger = Logger.None;
+
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
             };
+
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var handler =
-                new DefaultAuthorizationHandler(configuration,
-                    logger,
-                    ImmutableArray<AllowedEmail>.Empty,
-                    ImmutableArray<AllowedEmailDomain>.Empty);
+            var handler = new DefaultAuthorizationHandler(configuration,
+                logger,
+                ImmutableArray<AllowedEmail>.Empty,
+                ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IpAddress, "192.168.0.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
+
             var authorizationHandlerContext = new AuthorizationHandlerContext(
                 new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,
@@ -48,6 +50,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public async Task IpClaimInRangeForMultipleAllowedNetworksShouldMarkContextSucceeded()
         {
             ILogger logger = Logger.None;
+
             var nameValueCollection = new NameValueCollection
             {
                 {DeployerAppConstants.AllowedIpNetworks, "192.168.0.0/24"},
@@ -58,14 +61,14 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var handler =
-                new DefaultAuthorizationHandler(configuration,
-                    logger,
-                    ImmutableArray<AllowedEmail>.Empty,
-                    ImmutableArray<AllowedEmailDomain>.Empty);
+            var handler = new DefaultAuthorizationHandler(configuration,
+                logger,
+                ImmutableArray<AllowedEmail>.Empty,
+                ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IpAddress, "192.168.0.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
+
             var authorizationHandlerContext = new AuthorizationHandlerContext(
                 new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,
@@ -80,20 +83,22 @@ namespace Milou.Deployer.Web.Tests.Integration
         public async Task IpClaimMissingShouldMarkContextSucceeded()
         {
             ILogger logger = Logger.None;
+
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
             };
+
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var handler =
-                new DefaultAuthorizationHandler(configuration,
-                    logger,
-                    ImmutableArray<AllowedEmail>.Empty,
-                    ImmutableArray<AllowedEmailDomain>.Empty);
+            var handler = new DefaultAuthorizationHandler(configuration,
+                logger,
+                ImmutableArray<AllowedEmail>.Empty,
+                ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = ImmutableArray<Claim>.Empty;
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
+
             var authorizationHandlerContext = new AuthorizationHandlerContext(
                 new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,
@@ -108,20 +113,22 @@ namespace Milou.Deployer.Web.Tests.Integration
         public async Task IpClaimOutOfRangeForAllowedNetworkShouldMarkContextNotSucceeded()
         {
             ILogger logger = Logger.None;
+
             var nameValueCollection = new NameValueCollection
             {
                 [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
             };
+
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var handler =
-                new DefaultAuthorizationHandler(configuration,
-                    logger,
-                    ImmutableArray<AllowedEmail>.Empty,
-                    ImmutableArray<AllowedEmailDomain>.Empty);
+            var handler = new DefaultAuthorizationHandler(configuration,
+                logger,
+                ImmutableArray<AllowedEmail>.Empty,
+                ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IpAddress, "192.168.1.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
+
             var authorizationHandlerContext = new AuthorizationHandlerContext(
                 new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,
@@ -137,14 +144,14 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             ILogger logger = Logger.None;
 
-            var handler =
-                new DefaultAuthorizationHandler(NoConfiguration.Empty,
-                    logger,
-                    ImmutableArray<AllowedEmail>.Empty,
-                    ImmutableArray<AllowedEmailDomain>.Empty);
+            var handler = new DefaultAuthorizationHandler(NoConfiguration.Empty,
+                logger,
+                ImmutableArray<AllowedEmail>.Empty,
+                ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IpAddress, "192.168.1.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
+
             var authorizationHandlerContext = new AuthorizationHandlerContext(
                 new IAuthorizationRequirement[] {new DefaultAuthorizationRequirement()},
                 user,

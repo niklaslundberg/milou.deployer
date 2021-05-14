@@ -25,8 +25,8 @@ namespace Milou.Deployer.Tests.Integration
 
             int exitCode;
 
-            using (DeployerApp.DeployerApp deployerApp = await
-                AppBuilder.BuildAppAsync(args, logger, cancellationToken))
+            using (DeployerApp.DeployerApp
+                deployerApp = await AppBuilder.BuildAppAsync(args, logger, cancellationToken))
             {
                 exitCode = await deployerApp.ExecuteAsync(args, cancellationToken);
             }
@@ -42,8 +42,8 @@ namespace Milou.Deployer.Tests.Integration
             CancellationToken cancellationToken = default;
 
             LoggingLevelSwitch level;
-            using (DeployerApp.DeployerApp deployerApp = await
-                AppBuilder.BuildAppAsync(args, null, cancellationToken))
+
+            using (DeployerApp.DeployerApp deployerApp = await AppBuilder.BuildAppAsync(args, null, cancellationToken))
             {
                 level = deployerApp.LevelSwitch;
             }
@@ -66,8 +66,9 @@ namespace Milou.Deployer.Tests.Integration
 
                 CancellationToken cancellationToken = default;
 
-                using DeployerApp.DeployerApp deployerApp = await
-                    AppBuilder.BuildAppAsync(args, null, cancellationToken);
+                using DeployerApp.DeployerApp deployerApp =
+                    await AppBuilder.BuildAppAsync(args, null, cancellationToken);
+
                 tempPath = Path.GetTempPath();
             }
             finally

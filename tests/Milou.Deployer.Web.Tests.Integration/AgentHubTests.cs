@@ -14,15 +14,14 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void AllConstantNamesShouldExistInAgentHub()
         {
             string[] signalRFieldValues = typeof(AgentConstants).GetFields()
-                .Where(field => field.Name.StartsWith("SignalRAgentHub"))
-                .Select(field => field.GetValue(null) as string)
-                .NotNull()
-                .ToArray();
+                                                                .Where(field =>
+                                                                     field.Name.StartsWith("SignalRAgentHub"))
+                                                                .Select(field => field.GetValue(null) as string)
+                                                                .NotNull().ToArray();
 
             string[] hubPublicNames = typeof(AgentHub).GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .Where(method => !method.IsVirtual)
-                .Select(method => method.Name)
-                .ToArray();
+                                                      .Where(method => !method.IsVirtual).Select(method => method.Name)
+                                                      .ToArray();
 
             foreach (string publicAgentMethodName in signalRFieldValues)
             {

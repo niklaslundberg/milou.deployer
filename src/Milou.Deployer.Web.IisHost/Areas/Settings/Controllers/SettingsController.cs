@@ -3,7 +3,6 @@ using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Controllers;
 
@@ -13,6 +12,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
     public class SettingsController : BaseApiController
     {
         public const string BaseRoute = "settings";
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        [Route(SettingsConstants.SaveSettingsPostRoute, Name = SettingsConstants.SaveSettingsPostRouteName)]
+        public async Task<IActionResult> ApplicationSettings([FromBody] UpdateSettings updateSettings,
+            [FromServices] IMediator mediator)
+        {
+            await mediator.Send(updateSettings);
+
+            return RedirectToAction(nameof(Index));
+        }
 
         [HttpGet]
         [Route(SettingsConstants.SettingsGetRoute, Name = SettingsConstants.SettingsGetRouteName)]
@@ -33,23 +43,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(SettingsConstants.LogSettingsPostRoute, Name = SettingsConstants.LogSettingsPostRouteName)]
-        public async Task<IActionResult> LogLevel(
-            [FromBody] ChangeLogLevel changeLogLevel,
+        public async Task<IActionResult> LogLevel([FromBody] ChangeLogLevel changeLogLevel,
             [FromServices] IMediator mediator)
         {
             await mediator.Send(new ChangeLogLevelRequest(changeLogLevel));
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        [Route(SettingsConstants.SaveSettingsPostRoute, Name = SettingsConstants.SaveSettingsPostRouteName)]
-        public async Task<IActionResult> ApplicationSettings(
-            [FromBody] UpdateSettings updateSettings,
-            [FromServices] IMediator mediator)
-        {
-            await mediator.Send(updateSettings);
 
             return RedirectToAction(nameof(Index));
         }

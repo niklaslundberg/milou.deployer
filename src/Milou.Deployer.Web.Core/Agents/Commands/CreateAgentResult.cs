@@ -12,6 +12,7 @@ namespace Milou.Deployer.Web.Core.Agents.Commands
         }
 
         public AgentId AgentId { get; }
+
         public string AccessToken { get; }
     }
 }

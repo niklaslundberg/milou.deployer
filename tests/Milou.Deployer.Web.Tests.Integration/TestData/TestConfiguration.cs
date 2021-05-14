@@ -6,10 +6,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
 {
     public sealed class TestConfiguration : IConfigurationValues, IDisposable
     {
-        public TestConfiguration(
-            DirectoryInfo baseDirectory,
-            FileInfo nugetConfigFile,
-            DirectoryInfo siteAppRoot)
+        public TestConfiguration(DirectoryInfo baseDirectory, FileInfo nugetConfigFile, DirectoryInfo siteAppRoot)
         {
             BaseDirectory = baseDirectory;
             NugetConfigFile = nugetConfigFile;
@@ -26,7 +23,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
 
         public void Dispose()
         {
-            if (BaseDirectory is {})
+            if (BaseDirectory is { })
             {
                 BaseDirectory.Refresh();
                 BaseDirectory.Delete(true);

@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Milou.Deployer.Tests.Integration;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -7,9 +6,9 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class WhenMakingHttpGetRequestToClearAgent : TestBase<ClearAgentRequest>
     {
-        public WhenMakingHttpGetRequestToClearAgent(
-            ClearAgentRequest webFixture,
-            ITestOutputHelper output) : base(webFixture, output)
+        public WhenMakingHttpGetRequestToClearAgent(ClearAgentRequest webFixture, ITestOutputHelper output) : base(
+            webFixture,
+            output)
         {
         }
 

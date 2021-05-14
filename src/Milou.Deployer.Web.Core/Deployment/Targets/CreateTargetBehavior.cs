@@ -20,6 +20,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
             {
                 return new CreateTargetResult(new ValidationError("Next handler is not set"));
             }
+
             CreateTargetResult response = await next();
 
             if (response.ValidationErrors.IsDefaultOrEmpty)

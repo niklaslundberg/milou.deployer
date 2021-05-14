@@ -10,11 +10,9 @@ using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
-using Milou.Deployer.Web.IisHost.Areas.Caching;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers;
 using Milou.Deployer.Web.IisHost.Controllers;
@@ -32,8 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         private readonly TimeoutHelper _timeoutHelper;
 
-        public DeploymentController(
-            [NotNull] ILogger logger,
+        public DeploymentController([NotNull] ILogger logger,
             [NotNull] IDeploymentTargetReadService getTargets,
             TimeoutHelper timeoutHelper)
         {
@@ -47,14 +44,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         public async Task<IActionResult> Index()
         {
             IReadOnlyCollection<DeploymentTarget> targets;
+
             try
             {
                 using CancellationTokenSource cts =
                     _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30));
-                targets =
-                    (await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(
-                        organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-                    .SafeToReadOnlyCollection();
+
+                targets = (await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(organization =>
+                    organization.Projects.SelectMany(project => project.DeploymentTargets)).SafeToReadOnlyCollection();
             }
             catch (Exception ex)
             {
@@ -70,8 +67,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(TargetConstants.InvalidateCacheRoute, Name = TargetConstants.InvalidateCacheRouteName)]
-        public async Task<ActionResult> InvalidateCache(
-            [FromBody] InvalidateCache invalidateCache,
+        public async Task<ActionResult> InvalidateCache([FromBody] InvalidateCache invalidateCache,
             [FromServices] ICustomMemoryCache customMemoryCache,
             [FromServices] IDistributedCache? distributedCache,
             [FromServices] CurrentCacheVersion? currentCacheVersion)

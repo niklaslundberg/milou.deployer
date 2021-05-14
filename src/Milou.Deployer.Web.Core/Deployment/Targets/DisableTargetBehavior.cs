@@ -20,7 +20,9 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
             {
                 await next();
             }
+
             await _mediator.Publish(new TargetDisabled(request.TargetId), cancellationToken);
+
             return Unit.Value;
         }
     }

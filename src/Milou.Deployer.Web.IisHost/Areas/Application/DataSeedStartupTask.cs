@@ -25,13 +25,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         private readonly IKeyValueConfiguration _configuration;
         private readonly ImmutableArray<IDataSeeder> _dataSeeders;
+        private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly ILogger _logger;
         private readonly IDocumentStore? _store;
         private readonly TimeoutHelper _timeoutHelper;
-        private readonly IDeploymentTargetReadService _deploymentTargetReadService;
 
-        public DataSeedStartupTask(
-            IEnumerable<IDataSeeder> dataSeeders,
+        public DataSeedStartupTask(IEnumerable<IDataSeeder> dataSeeders,
             IKeyValueConfiguration configuration,
             ILogger logger,
             TimeoutHelper timeoutHelper,
@@ -56,6 +55,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             {
                 _logger.Warning("Data source is readonly, skipping running seeders");
                 IsCompleted = true;
+
                 return;
             }
 
@@ -112,11 +112,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 seedTimeoutInSeconds = 20;
             }
 
-            if (bool.TryParse(_configuration[DeployerAppConstants.SeedEnabled],
-                out bool seedEnabled) && !seedEnabled)
+            if (bool.TryParse(_configuration[DeployerAppConstants.SeedEnabled], out bool seedEnabled) && !seedEnabled)
             {
                 _logger.Debug("Seeders disabled");
                 IsCompleted = true;
+
                 return;
             }
 
@@ -128,16 +128,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 {
                     using CancellationTokenSource startupToken =
                         _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds));
+
                     using var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
                         cancellationToken,
                         startupToken.Token);
+
                     _logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
                     await dataSeeder.SeedAsync(linkedToken.Token);
                 }
                 catch (TaskCanceledException ex)
                 {
-                    _logger.Warning(ex, "Could not run seeder {Seeder}, timeout {Timeout} seconds expired",
-                        dataSeeder.GetType().Name, seedTimeoutInSeconds);
+                    _logger.Warning(ex,
+                        "Could not run seeder {Seeder}, timeout {Timeout} seconds expired",
+                        dataSeeder.GetType().Name,
+                        seedTimeoutInSeconds);
                 }
                 catch (Exception ex)
                 {

@@ -6,7 +6,7 @@
 @using Milou.Deployer.Web.IisHost.AspNetCore.TempData
 @model Milou.Deployer.Web.IisHost.Areas.Targets.Views.EditTargetViewOutputModel
 @{
-    var result = TempData.Get<ITargetResult>();
+    ITargetResult? result = TempData.Get<ITargetResult>();
 }
 
 @if (result is {TargetName: {}})

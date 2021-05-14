@@ -8,7 +8,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
     public static class NameHelper
     {
         public static string GetFullProjectName(string organization, string projectName) =>
-            organization.Replace("-", "_", StringComparison.InvariantCulture) + "-" +
+            organization.Replace("-", "_", StringComparison.InvariantCulture) +
+            "-" +
             projectName.Replace("-", "_", StringComparison.InvariantCulture);
 
         public static bool IsNameValid([NotNull] string name)

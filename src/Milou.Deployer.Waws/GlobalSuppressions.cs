@@ -6,12 +6,16 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly:
-    SuppressMessage("Minor Code Smell", "S1481:Unused local variables should be removed", Justification = "<Pending>",
+    SuppressMessage("Minor Code Smell",
+        "S1481:Unused local variables should be removed",
+        Justification = "<Pending>",
         Scope = "member",
         Target =
             "~M:Milou.Deployer.Waws.WebDeployHelper.DeployContentToOneSiteAsync2(System.String,System.String,System.TimeSpan,System.String,System.Boolean,System.Boolean,System.Diagnostics.TraceLevel,System.Boolean,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Action{System.String})~System.Threading.Tasks.Task{Microsoft.Web.Deployment.DeploymentChangeSummary}")]
 [assembly:
-    SuppressMessage("Blocker Bug", "S2930:\"IDisposables\" should be disposed", Justification = "<Pending>",
+    SuppressMessage("Blocker Bug",
+        "S2930:\"IDisposables\" should be disposed",
+        Justification = "<Pending>",
         Scope = "member",
         Target =
             "~M:Milou.Deployer.Waws.WebDeployHelper.DeployContentToOneSiteAsync2(System.String,System.String,System.TimeSpan,System.String,System.Boolean,System.Boolean,System.Diagnostics.TraceLevel,System.Boolean,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Action{System.String})~System.Threading.Tasks.Task{Microsoft.Web.Deployment.DeploymentChangeSummary}")]

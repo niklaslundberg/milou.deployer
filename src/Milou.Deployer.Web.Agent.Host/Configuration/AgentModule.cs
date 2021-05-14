@@ -13,8 +13,7 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
     {
         public IServiceCollection Register(IServiceCollection builder)
         {
-            builder.AddSingleton(
-                new TimeoutHelper(new TimeoutConfiguration {CancellationEnabled = false}), this);
+            builder.AddSingleton(new TimeoutHelper(new TimeoutConfiguration {CancellationEnabled = false}), this);
 
             builder.AddSingleton<DeploymentTaskPackageService>(this);
             builder.AddSingleton<LogHttpClientFactory>(this);

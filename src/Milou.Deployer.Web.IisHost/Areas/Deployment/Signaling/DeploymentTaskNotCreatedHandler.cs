@@ -16,7 +16,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         private readonly IHubContext<TargetHub> _hubContext;
         private readonly LogSubscribers _logSubscribers;
 
-        public DeploymentTaskNotCreatedHandler([NotNull] IHubContext<TargetHub> hubContext, LogSubscribers logSubscribers)
+        public DeploymentTaskNotCreatedHandler([NotNull] IHubContext<TargetHub> hubContext,
+            LogSubscribers logSubscribers)
         {
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
             _logSubscribers = logSubscribers;
@@ -35,7 +36,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
             string[] clients = tryGetTargetSubscribers.ToArray();
             IClientProxy clientProxy = _hubContext.Clients.Clients(clients);
 
-            await clientProxy.SendAsync(TargetHub.MessageMethod, notification.Message ?? "Unknown error", cancellationToken);
+            await clientProxy.SendAsync(TargetHub.MessageMethod,
+                notification.Message ?? "Unknown error",
+                cancellationToken);
         }
     }
 }

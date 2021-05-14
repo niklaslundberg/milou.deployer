@@ -17,11 +17,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
         private readonly EmailNotificationConfiguration _emailNotificationConfiguration;
         private readonly ISmtpService _smtpService;
 
-        public DeploymentFinishedEmailHandler(
-            [NotNull] ISmtpService smtpService,
+        public DeploymentFinishedEmailHandler([NotNull] ISmtpService smtpService,
             [NotNull] EmailNotificationConfiguration emailNotificationConfiguration)
         {
             _smtpService = smtpService ?? throw new ArgumentNullException(nameof(smtpService));
+
             _emailNotificationConfiguration = emailNotificationConfiguration ??
                                               throw new ArgumentNullException(nameof(emailNotificationConfiguration));
         }
@@ -59,7 +59,7 @@ Log: {string.Join(Environment.NewLine, notification.LogLines.Select(line => line
                 message.To.Add(MailboxAddress.Parse(email.Address));
             }
 
-            if (_emailNotificationConfiguration.From is {})
+            if (_emailNotificationConfiguration.From is { })
             {
                 message.From.Add(MailboxAddress.Parse(_emailNotificationConfiguration.From.Address));
             }

@@ -6,8 +6,7 @@ namespace Milou.Deployer.Core.Deployment.WebDeploy
 {
     public interface IWebDeployHelper
     {
-        Task<DeploySummary> DeployContentToOneSiteAsync(
-            string sourcePath,
+        Task<DeploySummary> DeployContentToOneSiteAsync(string sourcePath,
             string? publishSettingsFile,
             TimeSpan appOfflineDelay,
             string? password = null,

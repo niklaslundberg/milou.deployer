@@ -9,8 +9,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
     [UsedImplicitly]
     public class AutoDeployConfiguration : IConfigurationValues
     {
-        public AutoDeployConfiguration(
-            int startupDelayInSeconds,
+        public AutoDeployConfiguration(int startupDelayInSeconds,
             int metadataTimeoutInSeconds,
             int defaultTimeoutInSeconds,
             int afterDeployDelayInSeconds,

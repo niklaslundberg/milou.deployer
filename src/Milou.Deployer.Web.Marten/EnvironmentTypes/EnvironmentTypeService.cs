@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.Caching;
 using Marten;
 using Milou.Deployer.Web.Core;
-using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
 
 namespace Milou.Deployer.Web.Marten.EnvironmentTypes
@@ -21,8 +20,8 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
             _cache = cache;
         }
 
-        public Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(CancellationToken cancellationToken =
-            default) =>
+        public Task<ImmutableArray<EnvironmentType>>
+            GetEnvironmentTypes(CancellationToken cancellationToken = default) =>
             _store.GetEnvironmentTypes(_cache, cancellationToken);
     }
 }

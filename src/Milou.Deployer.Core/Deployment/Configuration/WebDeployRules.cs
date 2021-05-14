@@ -8,16 +8,13 @@ namespace Milou.Deployer.Core.Deployment.Configuration
         public const string WhatIfEnabled = "urn:milou:deployer:tools:web-deploy:rules:what-if:enabled";
 
         [Metadata]
-        public const string DoNotDeleteEnabled =
-            "urn:milou:deployer:tools:web-deploy:rules:do-not-delete:enabled";
+        public const string DoNotDeleteEnabled = "urn:milou:deployer:tools:web-deploy:rules:do-not-delete:enabled";
 
         [Metadata]
-        public const string AppOfflineEnabled =
-            "urn:milou:deployer:tools:web-deploy:rules:app-offline:enabled";
+        public const string AppOfflineEnabled = "urn:milou:deployer:tools:web-deploy:rules:app-offline:enabled";
 
         [Metadata]
-        public const string UseChecksumEnabled =
-            "urn:milou:deployer:tools:web-deploy:rules:use-checksum:enabled";
+        public const string UseChecksumEnabled = "urn:milou:deployer:tools:web-deploy:rules:use-checksum:enabled";
 
         [Metadata]
         public const string AppDataSkipDirectiveEnabled =

@@ -13,6 +13,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         }
 
         public Type ControllerType { get; }
+
         public ImmutableArray<RouteAttribute> RouteAttributes { get; }
     }
 }

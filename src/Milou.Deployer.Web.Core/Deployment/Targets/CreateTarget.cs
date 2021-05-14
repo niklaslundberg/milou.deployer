@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-using Arbor.App.Extensions;
+﻿using System.ComponentModel.DataAnnotations;
 using Arbor.App.Extensions.Messaging;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment.Messages;
@@ -22,8 +19,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
         [Required]
         public string Name { get; }
 
-        public bool IsValid => Id != DeploymentTargetId.Invalid
-                               && !string.IsNullOrWhiteSpace(Name);
+        public bool IsValid => Id != DeploymentTargetId.Invalid && !string.IsNullOrWhiteSpace(Name);
 
         public override string ToString() => Id == DeploymentTargetId.Invalid ? "[Missing Id]" : Id.TargetId;
     }

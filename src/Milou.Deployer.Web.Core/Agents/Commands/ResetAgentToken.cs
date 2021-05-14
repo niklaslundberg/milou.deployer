@@ -6,5 +6,4 @@ namespace Milou.Deployer.Web.Core.Agents.Commands
 {
     [UsedImplicitly]
     public sealed record ResetAgentToken(AgentId AgentId) : ICommand<ResetAgentTokenResult>;
-
 }

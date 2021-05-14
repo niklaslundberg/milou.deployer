@@ -20,13 +20,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
         public IServiceCollection Register(IServiceCollection builder)
         {
             builder.AddSingleton<PackageService>(this);
-            builder.AddSingleton<IPackageService>(context =>
-                new PackageCacheProxyService(context.GetRequiredService<PackageService>(),
-                    context.GetRequiredService<ILogger>(), context.GetRequiredService<IApplicationSettingsStore>(),
-                    context.GetRequiredService<IDistributedCache>(), context.GetRequiredService<CurrentCacheVersion>()));
+
+            builder.AddSingleton<IPackageService>(context => new PackageCacheProxyService(
+                context.GetRequiredService<PackageService>(),
+                context.GetRequiredService<ILogger>(),
+                context.GetRequiredService<IApplicationSettingsStore>(),
+                context.GetRequiredService<IDistributedCache>(),
+                context.GetRequiredService<CurrentCacheVersion>()));
+
             builder.Add<IDeploymentService, DeploymentService>(ServiceLifetime.Transient, this);
-            builder.AddSingleton(
-                context => new MilouDeployerConfiguration(context.GetRequiredService<IKeyValueConfiguration>()),
+
+            builder.AddSingleton(context =>
+                    new MilouDeployerConfiguration(context.GetRequiredService<IKeyValueConfiguration>()),
                 this);
 
             builder.AddSingleton<ICredentialReadService, ConfigurationCredentialReadService>(this);

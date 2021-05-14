@@ -7,8 +7,8 @@ namespace Milou.Deployer.Web.Core.Agents.Queries
 {
     public class AgentsInPoolResult : IQueryResult
     {
-        public ImmutableArray<AgentId> Agents { get; }
-
         public AgentsInPoolResult(IReadOnlyCollection<AgentId> agentIds) => Agents = agentIds.ToImmutableArray();
+
+        public ImmutableArray<AgentId> Agents { get; }
     }
 }

@@ -16,9 +16,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.ErrorHandling
         private readonly ImmutableArray<ConfigurationError> _configurationErrors;
         private readonly RequestDelegate _next;
 
-        public ConfigurationErrorMiddleware(
-            IEnumerable<ConfigurationError> configurationErrors,
-            RequestDelegate next)
+        public ConfigurationErrorMiddleware(IEnumerable<ConfigurationError> configurationErrors, RequestDelegate next)
         {
             _configurationErrors = configurationErrors.ToImmutableArray();
             _next = next;

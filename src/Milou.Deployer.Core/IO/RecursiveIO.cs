@@ -11,11 +11,9 @@ namespace Milou.Deployer.Core.IO
     public static class RecursiveIO
     {
         private static readonly ImmutableHashSet<string> DeniedExtensions =
-            new HashSet<string> {".user", ".ncrunchproject", ".dotsettings", ".csproj"}
-                .ToImmutableHashSet();
+            new HashSet<string> {".user", ".ncrunchproject", ".dotsettings", ".csproj"}.ToImmutableHashSet();
 
-        public static void RecursiveCopy(
-            DirectoryInfo sourceDirectoryInfo,
+        public static void RecursiveCopy(DirectoryInfo sourceDirectoryInfo,
             DirectoryInfo targetDirectoryInfo,
             [NotNull] ILogger logger,
             ImmutableArray<string> excludedFilePatterns)
@@ -44,19 +42,17 @@ namespace Milou.Deployer.Core.IO
                 targetDirectoryInfo.Create();
             }
 
-            var deniedFilesInDirectory = excludedFilePatterns
-                .Select(sourceDirectoryInfo.GetFiles)
-                .SelectMany(files => files)
-                .ToImmutableArray();
+            var deniedFilesInDirectory = excludedFilePatterns.Select(sourceDirectoryInfo.GetFiles)
+                                                             .SelectMany(files => files).ToImmutableArray();
 
             foreach (FileInfo currentFile in sourceDirectoryInfo.GetFiles())
             {
                 if (DeniedExtensions.Any(denied =>
-                    currentFile.Extension.Length > 0
-                    && denied.Equals(currentFile.Extension, StringComparison.OrdinalIgnoreCase)))
+                    currentFile.Extension.Length > 0 &&
+                    denied.Equals(currentFile.Extension, StringComparison.OrdinalIgnoreCase)))
                 {
-                    logger.Verbose("Skipping denied file '{FullName}' due to its file extension",
-                        currentFile.FullName);
+                    logger.Verbose("Skipping denied file '{FullName}' due to its file extension", currentFile.FullName);
+
                     continue;
                 }
 
@@ -66,6 +62,7 @@ namespace Milou.Deployer.Core.IO
                     logger.Verbose("Skipping denied file '{FullName}' due to its file pattern {Patterns}",
                         currentFile.FullName,
                         excludedFilePatterns);
+
                     continue;
                 }
 
@@ -100,6 +97,7 @@ namespace Milou.Deployer.Core.IO
             if (!sourceDirectoryInfo.Exists)
             {
                 logger.Verbose("Cannot delete directory '{FullName}', it does not exist", sourceDirectoryInfo.FullName);
+
                 return;
             }
 

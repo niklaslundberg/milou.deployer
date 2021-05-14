@@ -10,8 +10,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
     /// </summary>
     public interface IDeploymentPackageHandler
     {
-        Task<ExitCode> RunAsync(
-            DeploymentTaskPackage deploymentTaskPackage,
+        Task<ExitCode> RunAsync(DeploymentTaskPackage deploymentTaskPackage,
             ILogger jobLogger,
             CancellationToken cancellationToken);
     }

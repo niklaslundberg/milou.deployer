@@ -15,20 +15,18 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
     [PublicAPI]
     public class AppVersion
     {
-        public AppVersion(
-            [NotNull] DeploymentTarget target,
+        public AppVersion([NotNull] DeploymentTarget target,
             [NotNull] IKeyValueConfiguration manifestProperties,
             IReadOnlyCollection<PackageVersion> availablePackageVersions)
         {
-            Properties =
-                manifestProperties ?? throw new ArgumentNullException(nameof(manifestProperties));
+            Properties = manifestProperties ?? throw new ArgumentNullException(nameof(manifestProperties));
+
             AvailablePackageVersions = availablePackageVersions.SafeToImmutableArray();
             Target = target ?? throw new ArgumentNullException(nameof(target));
             Status = GetStatus();
         }
 
-        public AppVersion(
-            [NotNull] DeploymentTarget target,
+        public AppVersion([NotNull] DeploymentTarget target,
             string message,
             IReadOnlyCollection<PackageVersion> availablePackages)
         {
@@ -69,8 +67,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
         {
             get
             {
-                if (!DateTime.TryParse(
-                    Properties[DeployerAppConstants.DeploymentStartTime],
+                if (!DateTime.TryParse(Properties[DeployerAppConstants.DeploymentStartTime],
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.AssumeUniversal,
                     out var deployedAtUtc))
@@ -129,6 +126,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
             if (latestAvailable > SemanticVersion)
             {
                 LatestNewerAvailable = latestAvailable;
+
                 return DeployStatus.UpdateAvailable;
             }
 

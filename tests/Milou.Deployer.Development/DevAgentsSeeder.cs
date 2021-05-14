@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Agent.Host.Configuration;
-using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Commands;
 using Milou.Deployer.Web.Core.Agents.Queries;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -38,6 +37,7 @@ namespace Milou.Deployer.Development
                 if (agentInfo is null)
                 {
                     var createAgentResult = await _mediator.Send(new CreateAgent(agentId), cancellationToken);
+
                     _devConfiguration.Agents[agentId] =
                         new AgentConfiguration(createAgentResult.AccessToken, _devConfiguration.ServerUrl);
                 }

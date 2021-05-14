@@ -9,10 +9,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class DeploymentFinished : IEvent
     {
-        public DeploymentFinished(
-            [NotNull] DeploymentTask deploymentTask,
-            LogItem[] logLines,
-            DateTime finishedAtUtc)
+        public DeploymentFinished([NotNull] DeploymentTask deploymentTask, LogItem[] logLines, DateTime finishedAtUtc)
         {
             LogLines = logLines.ToImmutableArray();
             FinishedAtUtc = finishedAtUtc;

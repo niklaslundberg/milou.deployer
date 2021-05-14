@@ -22,7 +22,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         }
 
         public string RegistrationType { get; }
+
         public string Instance { get; }
+
         public string? Module { get; }
     }
 }

@@ -15,8 +15,7 @@ namespace Milou.Deployer.Core.Deployment
         [JsonConstructor]
         [UsedImplicitly]
         [PublicAPI]
-        private DeploymentExecutionDefinition(
-            string packageId,
+        private DeploymentExecutionDefinition(string packageId,
             string semanticVersion,
             string targetDirectoryPath,
             string? nuGetConfigFile = null,
@@ -43,9 +42,7 @@ namespace Milou.Deployer.Core.Deployment
 
             if (!string.IsNullOrWhiteSpace(semanticVersion))
             {
-                if (
-                    !SemanticVersion.TryParse(semanticVersion,
-                        out SemanticVersion parsedResultValue))
+                if (!SemanticVersion.TryParse(semanticVersion, out SemanticVersion parsedResultValue))
                 {
                     throw new FormatException(
                         $"Could not parse a valid semantic version from string value '{semanticVersion}'");
@@ -60,7 +57,8 @@ namespace Milou.Deployer.Core.Deployment
 
             ExcludedFilePatterns =
                 excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern))
-                    .ToImmutableArray() ?? ImmutableArray<string>.Empty;
+                                     .ToImmutableArray() ??
+                ImmutableArray<string>.Empty;
 
             SetPreRelease(isPreRelease);
 
@@ -80,10 +78,12 @@ namespace Milou.Deployer.Core.Deployment
             PackageListPrefix = packageListPrefix;
             PackageListPrefixEnabled = packageListPrefixEnabled;
             NugetExePath = nugetExePath;
-            Parameters = parameters?.ToDictionary(pair => pair.Key,
-                                 pair => new StringValues(pair.Value ?? Array.Empty<string>()))
-                             .ToImmutableDictionary() ??
-                         ImmutableDictionary<string, StringValues>.Empty;
+
+            Parameters =
+                parameters?.ToDictionary(pair => pair.Key,
+                    pair => new StringValues(pair.Value ?? Array.Empty<string>())).ToImmutableDictionary() ??
+                ImmutableDictionary<string, StringValues>.Empty;
+
             ExcludedFilePatternsCombined = excludedFilePatterns;
 
             PublishType = PublishType.TryParseOrDefault(publishType, out var publishTypeValue)
@@ -91,8 +91,7 @@ namespace Milou.Deployer.Core.Deployment
                 : PublishType.Default;
         }
 
-        public DeploymentExecutionDefinition(
-            string packageId,
+        public DeploymentExecutionDefinition(string packageId,
             string targetDirectoryPath,
             [CanBeNull] SemanticVersion semanticVersion,
             string? nuGetConfigFile = null,
@@ -113,6 +112,7 @@ namespace Milou.Deployer.Core.Deployment
             bool? packageListPrefixEnabled = null)
         {
             SemanticVersion = semanticVersion;
+
             if (string.IsNullOrWhiteSpace(packageId))
             {
                 throw new ArgumentNullException(nameof(packageId));
@@ -120,7 +120,8 @@ namespace Milou.Deployer.Core.Deployment
 
             ExcludedFilePatterns =
                 excludedFilePatterns?.Split(';').Where(pattern => !string.IsNullOrWhiteSpace(pattern))
-                    .ToImmutableArray() ?? ImmutableArray<string>.Empty;
+                                     .ToImmutableArray() ??
+                ImmutableArray<string>.Empty;
 
             PackageId = packageId;
             TargetDirectoryPath = targetDirectoryPath;
@@ -133,10 +134,11 @@ namespace Milou.Deployer.Core.Deployment
             PublishSettingsFile = publishSettingsFile;
             RequireEnvironmentConfig = requireEnvironmentConfig;
             WebConfigTransformFile = webConfigTransformFile;
-            Parameters = parameters?.ToDictionary(pair => pair.Key,
-                                 pair => new StringValues(pair.Value ?? Array.Empty<string>()))
-                             .ToImmutableDictionary() ??
-                         ImmutableDictionary<string, StringValues>.Empty;
+
+            Parameters =
+                parameters?.ToDictionary(pair => pair.Key,
+                    pair => new StringValues(pair.Value ?? Array.Empty<string>())).ToImmutableDictionary() ??
+                ImmutableDictionary<string, StringValues>.Empty;
 
             PublishType.TryParseOrDefault(publishType, out var publishTypeValue);
             FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
@@ -180,8 +182,7 @@ namespace Milou.Deployer.Core.Deployment
 
         [JsonProperty(PropertyName = nameof(SemanticVersion))]
         [CanBeNull]
-        public string NormalizedVersion =>
-            SemanticVersion?.ToNormalizedString() ?? "";
+        public string NormalizedVersion => SemanticVersion?.ToNormalizedString() ?? "";
 
         public string TargetDirectoryPath { get; }
 
@@ -212,8 +213,8 @@ namespace Milou.Deployer.Core.Deployment
         [JsonIgnore]
         public FtpPath? FtpPath { get; }
 
-        private void SetPreRelease(bool isPreRelease) => IsPreRelease = SemanticVersion?.IsPrerelease ?? isPreRelease;
-
         public override string ToString() => $"{PackageId} {Version} {TargetDirectoryPath} {EnvironmentConfig}";
+
+        private void SetPreRelease(bool isPreRelease) => IsPreRelease = SemanticVersion?.IsPrerelease ?? isPreRelease;
     }
 }

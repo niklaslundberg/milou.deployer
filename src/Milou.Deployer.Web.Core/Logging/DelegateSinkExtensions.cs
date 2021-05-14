@@ -8,8 +8,7 @@ namespace Milou.Deployer.Web.Core.Logging
 {
     public static class DelegateSinkExtensions
     {
-        public static LoggerConfiguration DelegateSink(
-            [NotNull] this LoggerSinkConfiguration loggerConfiguration,
+        public static LoggerConfiguration DelegateSink([NotNull] this LoggerSinkConfiguration loggerConfiguration,
             [NotNull] Action<string, LogEventLevel> action,
             LogEventLevel? minimumLevel = default)
         {

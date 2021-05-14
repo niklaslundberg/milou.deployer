@@ -16,12 +16,13 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
             CancellationToken cancellationToken,
             RequestHandlerDelegate<Unit>? next)
         {
-            if (next is {})
+            if (next is { })
             {
                 await next();
             }
 
             await _mediator.Publish(new TargetEnabled(request.TargetId), cancellationToken);
+
             return Unit.Value;
         }
     }

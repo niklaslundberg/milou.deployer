@@ -23,8 +23,7 @@ namespace Milou.Deployer.Web.Core.Health
         private readonly ILogger _logger;
         private readonly NuGetConfiguration _nuGetConfiguration;
 
-        public NuGetFeedsHealthCheck(
-            [NotNull] IHttpClientFactory httpClient,
+        public NuGetFeedsHealthCheck([NotNull] IHttpClientFactory httpClient,
             [NotNull] ILogger logger,
             [NotNull] NuGetConfiguration nuGetConfiguration)
         {
@@ -43,6 +42,7 @@ namespace Milou.Deployer.Web.Core.Health
                 !File.Exists(_nuGetConfiguration.NugetExePath))
             {
                 _logger.Warning("Could not perform health checks of NuGet feeds, nuget.exe is missing");
+
                 return new HealthCheckResult(false);
             }
 
@@ -69,9 +69,8 @@ namespace Milou.Deployer.Web.Core.Health
 
             ConcurrentDictionary<Uri, bool?> nugetFeeds = GetFeedUrls(lines);
 
-            var tasks = nugetFeeds.Keys
-                .Select(nugetFeed => CheckFeedAsync(nugetFeed, nugetFeeds, cancellationToken))
-                .ToList();
+            var tasks = nugetFeeds.Keys.Select(nugetFeed => CheckFeedAsync(nugetFeed, nugetFeeds, cancellationToken))
+                                  .ToList();
 
             await Task.WhenAll(tasks);
 
@@ -80,13 +79,45 @@ namespace Milou.Deployer.Web.Core.Health
             return new HealthCheckResult(allSucceeded);
         }
 
+        private async Task CheckFeedAsync(Uri nugetFeed,
+            ConcurrentDictionary<Uri, bool?> nugetFeeds,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Get, nugetFeed);
+
+                using HttpResponseMessage httpResponseMessage = await _httpClient.CreateClient(nugetFeed.Host)
+                   .SendAsync(request, cancellationToken);
+
+                if (httpResponseMessage.StatusCode == HttpStatusCode.OK ||
+                    httpResponseMessage.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    nugetFeeds[nugetFeed] = true;
+                }
+                else
+                {
+                    nugetFeeds[nugetFeed] = false;
+
+                    _logger.Verbose(
+                        "Failed to get expected result from NuGet feed {Feed}, status code {HttpStatusCode}",
+                        nugetFeed,
+                        httpResponseMessage.StatusCode);
+                }
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Verbose(ex, "Could not get {Uri}", nugetFeed);
+            }
+        }
+
         private ConcurrentDictionary<Uri, bool?> GetFeedUrls(List<string> lines)
         {
             var nugetFeeds = new ConcurrentDictionary<Uri, bool?>();
 
             for (int i = 0; i < lines.Count; i++)
             {
-                ReadOnlySpan<char> line = lines[i].AsSpan();
+                var line = lines[i].AsSpan();
 
                 if (line.IsEmpty)
                 {
@@ -121,36 +152,6 @@ namespace Milou.Deployer.Web.Core.Health
             }
 
             return nugetFeeds;
-        }
-
-        private async Task CheckFeedAsync(
-            Uri nugetFeed,
-            ConcurrentDictionary<Uri, bool?> nugetFeeds,
-            CancellationToken cancellationToken)
-        {
-            try
-            {
-                using var request = new HttpRequestMessage(HttpMethod.Get, nugetFeed);
-                using HttpResponseMessage httpResponseMessage = await _httpClient.CreateClient(nugetFeed.Host)
-                    .SendAsync(request, cancellationToken);
-                if (httpResponseMessage.StatusCode == HttpStatusCode.OK ||
-                    httpResponseMessage.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    nugetFeeds[nugetFeed] = true;
-                }
-                else
-                {
-                    nugetFeeds[nugetFeed] = false;
-                    _logger.Verbose(
-                        "Failed to get expected result from NuGet feed {Feed}, status code {HttpStatusCode}",
-                        nugetFeed,
-                        httpResponseMessage.StatusCode);
-                }
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Verbose(ex, "Could not get {Uri}", nugetFeed);
-            }
         }
     }
 }

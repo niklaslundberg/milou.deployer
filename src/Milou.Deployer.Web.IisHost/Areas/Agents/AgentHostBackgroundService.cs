@@ -43,20 +43,25 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             if (!applicationSettings.HostAgentEnabled)
             {
                 _logger.Debug("Host agent is disabled");
+
                 return;
             }
 
             string? exePath = applicationSettings.AgentExe;
+
             if (string.IsNullOrWhiteSpace(applicationSettings.AgentExe))
             {
                 _logger.Debug("No agent exe has been specified");
 
                 var currentVersion = await GetCurrentVersionAsync();
-                NuGetPackageVersion nuGetPackageVersion = currentVersion is {}
+
+                NuGetPackageVersion nuGetPackageVersion = currentVersion is { }
                     ? new NuGetPackageVersion(currentVersion)
                     : NuGetPackageVersion.LatestAvailable;
+
                 var nugetPackage = new NuGetPackage(new NuGetPackageId("Milou.Deployer.Web.Agent.Host"),
                     nuGetPackageVersion);
+
                 NugetPackageSettings nugetPackageSettings = NugetPackageSettings.Default;
                 string fileName = Assembly.GetExecutingAssembly().Location;
 
@@ -73,11 +78,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 }
 
                 DirectoryInfo targetDirectory = fileInfo.Directory.CreateSubdirectory("agent");
+
                 NuGetPackageInstallResult result = await _packageInstaller.InstallPackageAsync(nugetPackage,
                     nugetPackageSettings,
-                    installBaseDirectory: targetDirectory, cancellationToken: stoppingToken);
+                    installBaseDirectory: targetDirectory,
+                    cancellationToken: stoppingToken);
 
-                if (result?.SemanticVersion is {})
+                if (result?.SemanticVersion is { })
                 {
                     exePath = Path.Combine(targetDirectory.FullName, "Milou.Deployer.Web.Agent.Host.exe");
                 }
@@ -86,12 +93,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
             {
                 _logger.Debug("The specified agent exe '{AgentExe}' does not exist", applicationSettings.AgentExe);
+
                 return;
             }
 
             _logger.Debug("Starting agent as sub-process {Path}", applicationSettings.AgentExe);
-            var exitCode = await ProcessRunner.ExecuteProcessAsync(
-                applicationSettings.AgentExe,
+
+            var exitCode = await ProcessRunner.ExecuteProcessAsync(applicationSettings.AgentExe,
                 workingDirectory: new FileInfo(exePath).Directory,
                 cancellationToken: stoppingToken);
 
@@ -117,14 +125,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             try
             {
-                ConfigurationItems configuration =
-                    JsonConfigurationSerializer.Deserialize(json);
+                ConfigurationItems configuration = JsonConfigurationSerializer.Deserialize(json);
 
                 string? version = configuration.Keys.FirstOrDefault(key =>
                     key.Key.Equals(DeployerAppConstants.SemanticVersionNormalized, StringComparison.Ordinal))?.Value;
 
-                if (string.IsNullOrWhiteSpace(version) ||
-                    !SemanticVersion.TryParse(version, out var semanticVersion))
+                if (string.IsNullOrWhiteSpace(version) || !SemanticVersion.TryParse(version, out var semanticVersion))
                 {
                     return default;
                 }

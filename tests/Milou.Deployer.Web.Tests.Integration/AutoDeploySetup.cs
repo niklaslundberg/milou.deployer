@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public override async Task DisposeAsync()
         {
-            if (TestConfiguration?.BaseDirectory is {})
+            if (TestConfiguration?.BaseDirectory is { })
             {
                 DirectoriesToClean.Add(TestConfiguration.BaseDirectory);
             }
@@ -32,11 +32,10 @@ namespace Milou.Deployer.Web.Tests.Integration
             await base.DisposeAsync();
         }
 
-        protected override Task RunAsync() => Task.CompletedTask;
-
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)
         {
             Variables.Add("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
+
             Variables.Add("TestDeploymentUri",
                 $"http://localhost:{ServerEnvironmentTestSiteConfiguration.Port.Port + 1}");
 
@@ -46,9 +45,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var keys = new List<KeyValue>
             {
-                new(DeployerAppConstants.NugetConfigFile,
-                    TestConfiguration.NugetConfigFile.FullName,
-                    null),
+                new(DeployerAppConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName, null),
                 new(ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
                 new(ConfigurationKeys.LogLevel, "Verbose", null)
             }.ToImmutableArray();
@@ -64,7 +61,9 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var integrationTestProjectDirectory = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
                 "tests",
-                milouDeployerWebTestsIntegration, "TestData", "Packages"));
+                milouDeployerWebTestsIntegration,
+                "TestData",
+                "Packages"));
 
             FileInfo[] nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
 
@@ -76,35 +75,27 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Variables.Add(ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
 
-            Variables.Add(DeployerAppConstants.NugetConfigFile,
-                TestConfiguration.NugetConfigFile.FullName);
+            Variables.Add(DeployerAppConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName);
 
-            Variables.Add(DeployerAppConstants.NuGetPackageSourceName,
-                milouDeployerWebTestsIntegration);
+            Variables.Add(DeployerAppConstants.NuGetPackageSourceName, milouDeployerWebTestsIntegration);
 
-            Variables.Add(
-                $"{DeployerAppConstants.AutoDeployConfiguration}:default:StartupDelayInSeconds",
-                "0");
+            Variables.Add($"{DeployerAppConstants.AutoDeployConfiguration}:default:StartupDelayInSeconds", "0");
 
-            Variables.Add(
-                $"{DeployerAppConstants.AutoDeployConfiguration}:default:afterDeployDelayInSeconds",
-                "1");
+            Variables.Add($"{DeployerAppConstants.AutoDeployConfiguration}:default:afterDeployDelayInSeconds", "1");
 
-            Variables.Add(
-                $"{DeployerAppConstants.AutoDeployConfiguration}:default:MetadataTimeoutInSeconds",
-                "10");
+            Variables.Add($"{DeployerAppConstants.AutoDeployConfiguration}:default:MetadataTimeoutInSeconds", "10");
 
-            Variables.Add(
-                $"{DeployerAppConstants.AutoDeployConfiguration}:default:enabled",
-                "true");
+            Variables.Add($"{DeployerAppConstants.AutoDeployConfiguration}:default:enabled", "true");
 
             DirectoriesToClean.Add(TestConfiguration.BaseDirectory);
         }
+
+        protected override Task BeforeStartAsync(IReadOnlyCollection<string> args) => Task.CompletedTask;
 
         protected override void OnException(Exception exception)
         {
         }
 
-        protected override Task BeforeStartAsync(IReadOnlyCollection<string> args) => Task.CompletedTask;
+        protected override Task RunAsync() => Task.CompletedTask;
     }
 }

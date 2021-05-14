@@ -55,6 +55,7 @@ namespace Milou.Deployer.Core.Deployment
             if (updatedDirectories.Length > 0)
             {
                 builder.AppendLine("Updated directories:");
+
                 foreach (string updateDirectory in updatedDirectories)
                 {
                     builder.AppendLine("* " + updateDirectory);
@@ -64,6 +65,7 @@ namespace Milou.Deployer.Core.Deployment
             if (CreatedFiles.Count > 0)
             {
                 builder.AppendLine("Created files:");
+
                 foreach (string createdFile in CreatedFiles)
                 {
                     builder.AppendLine("* " + createdFile);
@@ -73,6 +75,7 @@ namespace Milou.Deployer.Core.Deployment
             if (UpdatedFiles.Count > 0)
             {
                 builder.AppendLine("Updated files:");
+
                 foreach (string updatedFile in UpdatedFiles)
                 {
                     builder.AppendLine("* " + updatedFile);
@@ -82,6 +85,7 @@ namespace Milou.Deployer.Core.Deployment
             if (DeletedFiles.Count > 0)
             {
                 builder.AppendLine("Deleted files:");
+
                 foreach (string deletedFile in DeletedFiles)
                 {
                     builder.AppendLine("* " + deletedFile);

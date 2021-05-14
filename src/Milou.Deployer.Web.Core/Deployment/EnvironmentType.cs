@@ -6,8 +6,7 @@ namespace Milou.Deployer.Web.Core.Deployment
     public sealed class EnvironmentType
     {
         [PublicAPI]
-        public static readonly EnvironmentType Unknown =
-            new EnvironmentType("", nameof(Unknown), PreReleaseBehavior.Invalid);
+        public static readonly EnvironmentType Unknown = new("", nameof(Unknown), PreReleaseBehavior.Invalid);
 
         public EnvironmentType(string id, string name, PreReleaseBehavior preReleaseBehavior)
         {

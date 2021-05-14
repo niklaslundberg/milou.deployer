@@ -18,8 +18,10 @@ namespace Milou.Deployer.Tests.Integration
         public void DefinitionCreatedWithPublicCtorShouldBeEqualToDeserializedDefinition()
         {
             var definition = new DeploymentExecutionDefinition("aPackageId",
-                @"C:\Temp", new SemanticVersion(1, 2, 3),
-                "@C:\\Nuget.Config", "aNuGetSource",
+                @"C:\Temp",
+                new SemanticVersion(1, 2, 3),
+                "@C:\\Nuget.Config",
+                "aNuGetSource",
                 "aSiteName",
                 true,
                 false,
@@ -37,14 +39,12 @@ namespace Milou.Deployer.Tests.Integration
 
             DeploymentExecutionDefinition[] deploymentExecutionDefinitions = {definition};
 
-            string serialized = JsonConvert.SerializeObject(
-                new {definitions = deploymentExecutionDefinitions},
+            string serialized = JsonConvert.SerializeObject(new {definitions = deploymentExecutionDefinitions},
                 Formatting.Indented);
 
             _output.WriteLine(serialized);
 
-            var deserializedObject =
-                DeploymentExecutionDefinitionParser.Deserialize(serialized);
+            var deserializedObject = DeploymentExecutionDefinitionParser.Deserialize(serialized);
 
             Assert.Single(deserializedObject);
 
@@ -74,21 +74,16 @@ namespace Milou.Deployer.Tests.Integration
 
             DeploymentExecutionDefinition[] deploymentExecutionDefinitions =
             {
-                new DeploymentExecutionDefinition("MySamplePackageId",
-                    @"C:\Sites\Sample",
-                    SemanticVersion.Parse("1.0.0"),
-                    excludedFilePatterns: "*.user;*.cache",
-                    parameters: parameters)
+                new("MySamplePackageId", @"C:\Sites\Sample", SemanticVersion.Parse("1.0.0"), excludedFilePatterns:
+                    "*.user;*.cache", parameters: parameters)
             };
 
-            string serialized = JsonConvert.SerializeObject(
-                new {definitions = deploymentExecutionDefinitions},
+            string serialized = JsonConvert.SerializeObject(new {definitions = deploymentExecutionDefinitions},
                 Formatting.Indented);
 
             _output.WriteLine(serialized);
 
-            var deserializeObject =
-                DeploymentExecutionDefinitionParser.Deserialize(serialized);
+            var deserializeObject = DeploymentExecutionDefinitionParser.Deserialize(serialized);
 
             Assert.Single(deserializeObject);
             Assert.Equal(2, deserializeObject[0].ExcludedFilePatterns.Length);

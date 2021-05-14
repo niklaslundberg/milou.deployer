@@ -4,8 +4,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public class FtpSettings
     {
-        public FtpSettings(
-            FtpPath? basePath = default,
+        public FtpSettings(FtpPath? basePath = default,
             bool isSecure = true,
             int batchSize = 10,
             int maxAttempts = 3,

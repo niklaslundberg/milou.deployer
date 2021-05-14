@@ -17,24 +17,18 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             var targets = new List<OrganizationInfo>
             {
-                new("testorg",
-                    new List<ProjectInfo>
+                new("testorg", new List<ProjectInfo>
+                {
+                    new("testorg", "testproject", new List<DeploymentTarget>
                     {
-                        new("testorg",
-                            "testproject",
-                            new List<DeploymentTarget>
-                            {
-                                new(new DeploymentTargetId(Testtarget),
-                                    "Test target",
-                                    "MilouDeployerWebTest",
-                                    allowExplicitPreRelease: false,
-                                    autoDeployEnabled: true,
-                                    targetDirectory: Environment.GetEnvironmentVariable("TestDeploymentTargetPath"),
-                                    url: Environment.GetEnvironmentVariable("TestDeploymentUri").ParseUriOrDefault(),
-                                    emailNotificationAddresses: new StringValues("noreply@localhost.local"),
-                                    enabled: true)
-                            })
+                        new(new DeploymentTargetId(Testtarget), "Test target", "MilouDeployerWebTest",
+                            allowExplicitPreRelease: false, autoDeployEnabled: true, targetDirectory:
+                            Environment.GetEnvironmentVariable("TestDeploymentTargetPath"), url: Environment
+                               .GetEnvironmentVariable("TestDeploymentUri")
+                               .ParseUriOrDefault(), emailNotificationAddresses: new StringValues(
+                                "noreply@localhost.local"), enabled: true)
                     })
+                })
             };
 
             return Task.FromResult<IReadOnlyCollection<OrganizationInfo>>(targets);

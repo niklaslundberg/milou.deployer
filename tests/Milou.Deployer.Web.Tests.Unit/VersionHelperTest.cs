@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void VersionInfoShouldNotBeNull()
         {
-            ApplicationVersionInfo? applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
+            var applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
             Assert.NotNull(applicationVersionInfo);
 

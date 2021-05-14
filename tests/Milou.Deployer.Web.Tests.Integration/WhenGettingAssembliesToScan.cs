@@ -20,25 +20,22 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void ItShouldFindAllKnownAssemblies()
         {
             string[] assemblyNameStartsWith = {"Milou"};
-            var filteredAssemblies =
-                ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith: assemblyNameStartsWith,
-useCache: false);
-            var assemblies = filteredAssemblies
-                .Where(assembly =>
+
+            var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith, false);
+
+            var assemblies = filteredAssemblies.Where(assembly =>
+            {
+                string? assemblyName = assembly.GetName()?.Name;
+
+                if (string.IsNullOrWhiteSpace(assemblyName))
                 {
-                    string? assemblyName = assembly.GetName()?.Name;
+                    return false;
+                }
 
-                    if (string.IsNullOrWhiteSpace(assemblyName))
-                    {
-                        return false;
-                    }
+                return !assemblyName.EndsWith(".Views", StringComparison.OrdinalIgnoreCase);
+            }).ToImmutableArray();
 
-                    return !assemblyName.EndsWith(".Views", StringComparison.OrdinalIgnoreCase);
-                })
-                .ToImmutableArray();
-
-            _output.WriteLine(string.Join(
-                Environment.NewLine,
+            _output.WriteLine(string.Join(Environment.NewLine,
                 assemblies.Select(assembly => $"{assembly.FullName} {assembly.Location}")));
 
             Assert.Contains(assemblies, assembly => assembly == typeof(DeployController).Assembly);

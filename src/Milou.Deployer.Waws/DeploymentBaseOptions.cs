@@ -26,8 +26,8 @@ namespace Milou.Deployer.Waws
 
         public string? SiteName { get; set; }
 
-        public static Task<DeploymentBaseOptions> Load(PublishSettings publishSettings) =>
-            Task.FromResult(new DeploymentBaseOptions
+        public static Task<DeploymentBaseOptions> Load(PublishSettings publishSettings) => Task.FromResult(
+            new DeploymentBaseOptions
             {
                 Password = publishSettings.Password,
                 ComputerName = publishSettings.ComputerName,

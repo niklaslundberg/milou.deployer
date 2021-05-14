@@ -11,6 +11,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void WhenInitializedWithCommandLineArg()
         {
             string[] args = {"urn:abc:123=hello world"};
+
             MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration(args: args);
 
@@ -22,6 +23,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void WhenInitializedWithEnvironmentVariable()
         {
             var args = new Dictionary<string, string> {["urn:abc:123"] = "hello world"};
+
             MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration(environmentVariables: args);
 
@@ -34,6 +36,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             string[] args = {"urn:abc:123=hello arg world"};
             var environmentVariables = new Dictionary<string, string> {["urn:abc:123"] = "hello environment world"};
+
             MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration =
                 ConfigurationInitialization.InitializeConfiguration(environmentVariables: environmentVariables,
                     args: args);

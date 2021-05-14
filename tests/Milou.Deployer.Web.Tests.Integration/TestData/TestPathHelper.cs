@@ -12,8 +12,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
         {
             const string projectName = "Milou.Deployer.Web.Tests.Integration";
 
-            string baseDirectoryPath = Path.Combine(Path.GetTempPath(),
-                projectName + "-" + DateTime.UtcNow.Ticks);
+            string baseDirectoryPath = Path.Combine(Path.GetTempPath(), projectName + "-" + DateTime.UtcNow.Ticks);
 
             var baseDirectory = new DirectoryInfo(baseDirectoryPath);
 
@@ -22,17 +21,22 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
             DirectoryInfo nugetBaseDirectory = baseDirectory.CreateSubdirectory("nuget");
             var packagesDirectory = nugetBaseDirectory.CreateSubdirectory("packages");
 
-            var nugetConfigFile = new FileInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tests",
-                "Milou.Deployer.Web.Tests.Integration", "TestData", "nuget.config"));
+            var nugetConfigFile = new FileInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
+                "tests",
+                "Milou.Deployer.Web.Tests.Integration",
+                "TestData",
+                "nuget.config"));
 
             if (!nugetConfigFile.Exists)
             {
                 throw new InvalidOperationException($"The nuget config file {nugetConfigFile.FullName} does not exist");
             }
 
-            var packages = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tests",
-                "Milou.Deployer.Web.Tests.Integration", "TestData", "packages")).GetFiles("*.nupkg");
-
+            var packages = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
+                "tests",
+                "Milou.Deployer.Web.Tests.Integration",
+                "TestData",
+                "packages")).GetFiles("*.nupkg");
 
             string testNuGetConfig = Path.Combine(nugetBaseDirectory.FullName, "nuget.config");
 
@@ -44,12 +48,10 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
 
             foreach (var fileInfo in packages)
             {
-                fileInfo.CopyTo(Path.Combine(packagesDirectory.FullName, fileInfo.Name), overwrite: true);
+                fileInfo.CopyTo(Path.Combine(packagesDirectory.FullName, fileInfo.Name), true);
             }
 
-            var testConfiguration = new TestConfiguration(baseDirectory,
-                new FileInfo(testNuGetConfig),
-                targetAppRoot);
+            var testConfiguration = new TestConfiguration(baseDirectory, new FileInfo(testNuGetConfig), targetAppRoot);
 
             Console.WriteLine(
                 $"Created test configuration {testConfiguration} with nuget config file content {Environment.NewLine}{nugetConfigContent}");

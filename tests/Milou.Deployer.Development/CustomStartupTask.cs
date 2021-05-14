@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using DotNext.Collections.Generic;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 
 namespace Milou.Deployer.Development

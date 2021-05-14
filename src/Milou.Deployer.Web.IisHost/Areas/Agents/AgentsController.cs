@@ -25,6 +25,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
         public AgentsController(AgentsData agentsData) => _agentsData = agentsData;
 
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        [Route(ClearAgentWorkTasksRoute, Name = ClearAgentWorkTasksRouteName)]
+        public async Task<IActionResult> ClearAgentWorkTasks([FromBody] ClearAgentWorkTasks clearAgentWorkTasks,
+            [FromServices] IMediator mediator) => this.ToActionResult(
+            await mediator.Send(clearAgentWorkTasks),
+            AgentsRouteName);
+
+        [HttpGet]
+        [Route(CreateAgentRoute, Name = CreateAgentRouteName)]
+        public IActionResult Create() => View();
+
         [HttpGet]
         [Route(AgentsRoute, Name = AgentsRouteName)]
         public async Task<IActionResult> Index([FromServices] IMediator mediator)
@@ -36,34 +48,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             var agentPoolListResult = await mediator.Send(new GetAgentPoolsQuery());
             var assignedAgentsInPoolsResult = await mediator.Send(new GetAssignedAgentsInPoolsQuery());
 
-            return View(new AgentsViewModel(connectedAgents, result.Agents, unknownAgents, agentPoolListResult.AgentPools, assignedAgentsInPoolsResult.AssignedAgents));
+            return View(new AgentsViewModel(connectedAgents,
+                result.Agents,
+                unknownAgents,
+                agentPoolListResult.AgentPools,
+                assignedAgentsInPoolsResult.AssignedAgents));
         }
 
         [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(AgentsRoute, Name = AgentsRouteName)]
-        public async Task<IActionResult> Index(
-            [FromBody] CreateAgent createAgent,
-            [FromServices] IMediator mediator) =>
+        public async Task<IActionResult> Index([FromBody] CreateAgent createAgent, [FromServices] IMediator mediator) =>
             this.ToActionResult(await mediator.Send(createAgent), AgentsRouteName);
-
-        [HttpGet]
-        [Route(CreateAgentRoute, Name = CreateAgentRouteName)]
-        public IActionResult Create() => View();
 
         [HttpPost]
         [Route(ResetAgentTokenRoute, Name = ResetAgentTokenRouteName)]
-        public async Task<IActionResult> ResetToken(
-            [FromBody] ResetAgentToken resetToken,
-            [FromServices] IMediator mediator) =>
-            this.ToActionResult(await mediator.Send(resetToken), AgentsRouteName);
-
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        [Route(ClearAgentWorkTasksRoute, Name = ClearAgentWorkTasksRouteName)]
-        public async Task<IActionResult> ClearAgentWorkTasks(
-            [FromBody] ClearAgentWorkTasks clearAgentWorkTasks,
-            [FromServices] IMediator mediator) =>
-            this.ToActionResult(await mediator.Send(clearAgentWorkTasks), AgentsRouteName);
+        public async Task<IActionResult> ResetToken([FromBody] ResetAgentToken resetToken,
+            [FromServices] IMediator mediator) => this.ToActionResult(await mediator.Send(resetToken), AgentsRouteName);
     }
 }

@@ -12,8 +12,12 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
         public static (string source, DirectoryInfo deployTargetDirectory, TempDirectory tempTargetDir) CopyTestData(
             ILogger logger)
         {
-            string testDataPath = Path.Combine(VcsTestPathHelper.FindVcsRootPath(), "tests",
-                "Milou.Deployer.Tests.Integration", "TestData", "AppDataTest");
+            string testDataPath = Path.Combine(VcsTestPathHelper.FindVcsRootPath(),
+                "tests",
+                "Milou.Deployer.Tests.Integration",
+                "TestData",
+                "AppDataTest");
+
             string source = Path.Combine(testDataPath, "Source");
             string target = Path.Combine(testDataPath, "Target");
 
@@ -25,8 +29,8 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
 
             deployTargetDirectory.EnsureExists();
             var testTargetDirectory = new DirectoryInfo(target);
-            RecursiveIO.RecursiveCopy(testTargetDirectory, deployTargetDirectory, logger,
-                ImmutableArray<string>.Empty);
+
+            RecursiveIO.RecursiveCopy(testTargetDirectory, deployTargetDirectory, logger, ImmutableArray<string>.Empty);
 
             deployTargetDirectory.Refresh();
 

@@ -12,9 +12,6 @@
 
         public bool UseChecksum { get; set; } = true;
 
-        public static DeploymentRuleCollection GetAvailableRules() => new()
-        {
-            DeploymentRule.DoNotDeleteRule
-        };
+        public static DeploymentRuleCollection GetAvailableRules() => new() {DeploymentRule.DoNotDeleteRule};
     }
 }

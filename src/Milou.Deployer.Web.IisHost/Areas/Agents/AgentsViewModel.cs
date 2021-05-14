@@ -15,9 +15,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             ImmutableDictionary<AgentPoolInfo, ImmutableArray<AgentId>> assignedAgents)
         {
             ConnectedAgents = connectedAgents;
+
             DisconnectedAgents = agents
-                .Where(agent => !connectedAgents.Any(connectedAgent => connectedAgent.Id == agent.Id))
-                .ToImmutableArray();
+                                .Where(agent => !connectedAgents.Any(connectedAgent => connectedAgent.Id == agent.Id))
+                                .ToImmutableArray();
+
             Agents = agents;
             UnknownAgents = unknownAgents;
             AgentPools = agentPools;
@@ -31,6 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public ImmutableArray<AgentInfo> Agents { get; }
 
         public ImmutableDictionary<AgentId, string> UnknownAgents { get; }
+
         public ImmutableArray<AgentPoolInfo> AgentPools { get; }
 
         public ImmutableDictionary<AgentPoolInfo, ImmutableArray<AgentId>> AssignedAgents { get; }

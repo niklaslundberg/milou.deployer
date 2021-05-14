@@ -8,7 +8,6 @@ using Arbor.App.Extensions.Application;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
-using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Commands;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 
@@ -46,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             {
                 new(ClaimTypes.NameIdentifier, request.AgentId.Value),
                 new(ClaimTypes.Name, request.AgentId.Value),
-                new("milou_agent", request.AgentId.Value),
+                new("milou_agent", request.AgentId.Value)
             };
 
             var securityTokenDescriptor = new SecurityTokenDescriptor
@@ -59,8 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             JwtSecurityToken jwtSecurityToken = handler.CreateJwtSecurityToken(securityTokenDescriptor);
 
-            string accessToken =
-                handler.WriteToken(jwtSecurityToken);
+            string accessToken = handler.WriteToken(jwtSecurityToken);
 
             if (string.IsNullOrWhiteSpace(_environmentConfiguration.PublicHostname))
             {
@@ -68,7 +66,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             }
 
             var serverUri = new UriBuilder(_environmentConfiguration.PublicPortIsHttps ?? false ? "https" : "http",
-                _environmentConfiguration.PublicHostname, _environmentConfiguration.PublicPort ?? _environmentConfiguration.HttpPort ?? 80);
+                _environmentConfiguration.PublicHostname,
+                _environmentConfiguration.PublicPort ?? _environmentConfiguration.HttpPort ?? 80);
 
             return Task.FromResult(new AgentInstallConfiguration(request.AgentId, accessToken, serverUri.Uri));
         }

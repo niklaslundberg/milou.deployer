@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Arbor.ModelBinding.Primitives;
-using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Agent
 {
@@ -15,7 +14,7 @@ namespace Milou.Deployer.Web.Agent
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
             }
 
-            bool parsed = TryParse(value, out AgentId? agentId);
+            bool parsed = TryParse(value, out var agentId);
 
             if (!parsed)
             {
@@ -30,10 +29,12 @@ namespace Milou.Deployer.Web.Agent
             if (string.IsNullOrWhiteSpace(value))
             {
                 agentId = null;
+
                 return false;
             }
 
             agentId = new AgentId(value);
+
             return true;
         }
     }

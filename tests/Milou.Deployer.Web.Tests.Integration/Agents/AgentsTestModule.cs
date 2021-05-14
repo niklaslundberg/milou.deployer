@@ -16,8 +16,7 @@ namespace Milou.Deployer.Web.Tests.Integration.Agents
         private readonly ServerEnvironmentTestConfiguration _serverEnvironmentTestConfiguration;
         private readonly TestConfiguration _testConfiguration;
 
-        public AgentsTestModule(
-            IApplicationAssemblyResolver applicationAssemblyResolver,
+        public AgentsTestModule(IApplicationAssemblyResolver applicationAssemblyResolver,
             ServerEnvironmentTestConfiguration serverEnvironmentTestConfiguration,
             TestConfiguration testConfiguration)
         {
@@ -32,9 +31,11 @@ namespace Milou.Deployer.Web.Tests.Integration.Agents
                 assembly.FullName is { } fullName && fullName.Contains("Web.Agent.Host", StringComparison.Ordinal)))
             {
                 string accessToken = _testConfiguration.AgentToken;
+
                 builder.AddSingleton(new AgentConfiguration(accessToken,
-                    $"http://localhost:{_serverEnvironmentTestConfiguration.Port}",
-                    startupDelay: TimeSpan.FromMilliseconds(50)), this);
+                        $"http://localhost:{_serverEnvironmentTestConfiguration.Port}",
+                        TimeSpan.FromMilliseconds(50)),
+                    this);
             }
 
             return builder;

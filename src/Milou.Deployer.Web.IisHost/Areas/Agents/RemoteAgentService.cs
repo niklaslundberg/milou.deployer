@@ -24,11 +24,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             _logger = logger;
         }
 
-        public async Task<IDeploymentPackageAgent> GetAgentForDeploymentTask(
-            DeploymentTask deploymentTask,
+        public async Task<IDeploymentPackageAgent> GetAgentForDeploymentTask(DeploymentTask deploymentTask,
             CancellationToken cancellationToken)
         {
-            while (_agents.Agents.Length == 0 && ! cancellationToken.IsCancellationRequested)
+            while (_agents.Agents.Length == 0 && !cancellationToken.IsCancellationRequested)
             {
                 _logger.Debug("Waiting for agents to connect");
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
@@ -43,14 +42,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                 if (agentInfo is {ConnectionId: { }})
                 {
                     _logger.Information("Deployment task {DeploymentTaskId} was assigned to agent {Agent}",
-                        deploymentTask.DeploymentTaskId, agentInfo.Id);
+                        deploymentTask.DeploymentTaskId,
+                        agentInfo.Id);
+
                     AgentId agentId = agentInfo.Id;
                     _agents.AgentAssigned(agentId, deploymentTask.DeploymentTaskId, deploymentTask.DeploymentTargetId);
 
                     return new RemoteDeploymentPackageAgent(_agentHub, _agents, agentId, _logger);
                 }
 
-                _logger.Debug("Waiting for agent to be available for deployment task {DeploymentTaskId}, no connection id",
+                _logger.Debug(
+                    "Waiting for agent to be available for deployment task {DeploymentTaskId}, no connection id",
                     deploymentTask.DeploymentTaskId);
 
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);

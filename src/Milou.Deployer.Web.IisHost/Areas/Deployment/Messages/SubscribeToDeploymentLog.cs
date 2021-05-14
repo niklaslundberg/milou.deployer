@@ -12,6 +12,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Messages
         }
 
         public string ConnectionId { get; }
+
         public DeploymentTargetId DeploymentTargetId { get; }
     }
 }

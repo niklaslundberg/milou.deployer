@@ -7,7 +7,6 @@ namespace Milou.Deployer.Waws
         public static DeploymentObject CreateObject(DeploymentWellKnownProvider provider,
             string path,
             DeploymentBaseOptions deploymentBaseOptions,
-            ILogger logger) =>
-            new(provider, path, deploymentBaseOptions, logger);
+            ILogger logger) => new(provider, path, deploymentBaseOptions, logger);
     }
 }

@@ -32,8 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _logger = logger;
         }
 
-        public async Task<PackageUpdatedEvent?> TryGetWebHookNotification(
-            HttpRequest request,
+        public async Task<PackageUpdatedEvent?> TryGetWebHookNotification(HttpRequest request,
             string content,
             CancellationToken cancellationToken)
         {
@@ -45,18 +44,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             if (!request.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase))
             {
                 _logger.Debug("Web hook request is not json");
+
                 return null;
             }
 
             if (!request.Headers.TryGetValue(NexusSignatureHeader, out var signature))
             {
                 _logger.Debug("Web hook request does not contain nexus signature header");
+
                 return null;
             }
 
             if (string.IsNullOrWhiteSpace(signature))
             {
                 _logger.Debug("Nexus web hook request does not contain a valid signature");
+
                 return null;
             }
 
@@ -68,6 +70,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             {
                 _logger.Warning("HMAC Key for {Config} is empty, cannot process Nexus web hook request",
                     nameof(NexusConfig));
+
                 return null;
             }
 
@@ -78,15 +81,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             if (!computedHash.SequenceEqual(expectedBytes))
             {
                 _logger.Error("Nexus web hook signature validation failed");
+
                 return null;
             }
 
-            NexusWebHookNotification? webHookNotification =
-                JsonConvert.DeserializeObject<NexusWebHookNotification>(content);
+            var webHookNotification = JsonConvert.DeserializeObject<NexusWebHookNotification>(content);
 
             if (string.IsNullOrWhiteSpace(webHookNotification?.Audit?.Attributes?.Name))
             {
                 _logger.Debug("Nexus web hook notification does not contain audit attribute name");
+
                 return null;
             }
 
@@ -96,7 +100,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             if (split.Length != 2)
             {
                 _logger.Debug("Unexpected attribute name value '{Name}' in Nexus JSON {Json}",
-                    webHookNotification.Audit.Attributes.Name, content);
+                    webHookNotification.Audit.Attributes.Name,
+                    content);
+
                 return null;
             }
 
@@ -107,14 +113,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             {
                 _logger.Debug("Could not parse semantic version from Nexus web hook notification, '{Version}'",
                     version);
+
                 return null;
             }
 
             var packageVersion = new PackageVersion(name, semanticVersion);
-            _logger.Debug("Successfully received Nexus web hook notification for package {Package}",
-                packageVersion);
+
+            _logger.Debug("Successfully received Nexus web hook notification for package {Package}", packageVersion);
 
             return new PackageUpdatedEvent(packageVersion, nexusConfig.NuGetSource, nexusConfig.NuGetConfig);
+        }
+
+        private HMACSHA1 GetSignatureKey(NexusConfig nexusConfig)
+        {
+            byte[] key = Encoding.UTF8.GetBytes(nexusConfig.HmacKey ??
+                                                throw new InvalidOperationException(
+                                                    $"{nameof(nexusConfig.HmacKey)} is required"));
+
+            return new HMACSHA1(key);
         }
 
         private async Task<NexusConfig> GetSignatureKeyAsync(CancellationToken cancellationToken)
@@ -125,14 +141,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             NexusConfig nexusConfig = applicationSettings.NexusConfig;
 
             return nexusConfig;
-        }
-
-        private HMACSHA1 GetSignatureKey(NexusConfig nexusConfig)
-        {
-            byte[] key = Encoding.UTF8.GetBytes(nexusConfig.HmacKey ?? throw new InvalidOperationException(
-                $"{nameof(nexusConfig.HmacKey)} is required"));
-
-            return new HMACSHA1(key);
         }
     }
 }

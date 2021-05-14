@@ -51,14 +51,10 @@ namespace Milou.Deployer.Waws
                 }
             }
 
-            return await SyncToInternal(baseOptions,
-                syncOptions,
-                Configure,
-                cancellationToken);
+            return await SyncToInternal(baseOptions, syncOptions, Configure, cancellationToken);
         }
 
-        public async Task<DeploySummary> SyncTo(
-            DeploymentWellKnownProvider destinationProvider,
+        public async Task<DeploySummary> SyncTo(DeploymentWellKnownProvider destinationProvider,
             string? destinationPath,
             DeploymentBaseOptions deploymentBaseOptions,
             DeploymentSyncOptions syncOptions,
@@ -78,8 +74,7 @@ namespace Milou.Deployer.Waws
                     if (!string.IsNullOrWhiteSpace(destinationPath) &&
                         !string.IsNullOrWhiteSpace(deploymentBaseOptions.SiteName))
                     {
-                        string destinationParameter =
-                            GetDestinationParameter(deploymentBaseOptions.SiteName, destinationPath: null);
+                        string destinationParameter = GetDestinationParameter(deploymentBaseOptions.SiteName, null);
 
                         arguments.Add(destinationParameter);
                     }
@@ -101,11 +96,7 @@ namespace Milou.Deployer.Waws
                     $"The current provider {Provider.Name} to provider {destinationProvider.Name} is not supported");
             }
 
-            return await SyncToInternal(
-                deploymentBaseOptions,
-                syncOptions,
-                action,
-                cancellationToken);
+            return await SyncToInternal(deploymentBaseOptions, syncOptions, action, cancellationToken);
         }
 
         private static string CreateDestination(DeploymentBaseOptions deploymentBaseOptions)
@@ -138,7 +129,7 @@ namespace Milou.Deployer.Waws
                     dest += $",password=\"{deploymentBaseOptions.Password}\"";
                 }
 
-                if (deploymentBaseOptions.AuthenticationType is {})
+                if (deploymentBaseOptions.AuthenticationType is { })
                 {
                     dest += $",authtype=\"{deploymentBaseOptions.AuthenticationType.Name}\"";
                 }
@@ -153,16 +144,14 @@ namespace Milou.Deployer.Waws
 
         private static string GetDestinationParameter(string siteName, string? destinationPath)
         {
-            string? path = string.IsNullOrWhiteSpace(destinationPath)
-                ? null
-                : $"/{destinationPath.TrimStart(trimChar: '/')}";
+            string? path = string.IsNullOrWhiteSpace(destinationPath) ? null : $"/{destinationPath.TrimStart('/')}";
 
             string destinationParameter = $"-setParam:kind=ProviderPath,scope=contentPath,value=\"{siteName}{path}\"";
+
             return destinationParameter;
         }
 
-        private async Task<DeploySummary> SyncToInternal(
-            DeploymentBaseOptions deploymentBaseOptions,
+        private async Task<DeploySummary> SyncToInternal(DeploymentBaseOptions deploymentBaseOptions,
             DeploymentSyncOptions syncOptions,
             Action<List<string>> onConfigureArgs,
             CancellationToken cancellationToken = default)
@@ -249,8 +238,7 @@ namespace Milou.Deployer.Waws
                 _logger.Error("{Message}", message);
             }
 
-            var exitCode = await ProcessRunner.ExecuteProcessAsync(
-                exePath,
+            var exitCode = await ProcessRunner.ExecuteProcessAsync(exePath,
                 arguments,
                 Log,
                 LogError,

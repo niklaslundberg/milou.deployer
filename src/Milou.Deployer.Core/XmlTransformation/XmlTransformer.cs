@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Arbor.App.Extensions;
 using Arbor.App.Extensions.IO;
 using Arbor.Processing;
 using JetBrains.Annotations;
@@ -22,8 +23,7 @@ namespace Milou.Deployer.Core.XmlTransformation
             _fileMatcher = fileMatcher;
         }
 
-        public ExitCode TransformFile(
-            [NotNull] FileInfo originalFile,
+        public ExitCode TransformFile([NotNull] FileInfo originalFile,
             [NotNull] FileInfo transformationFile,
             [NotNull] DirectoryInfo originalFileRootDirectory,
             [NotNull] DirectoryInfo transformationFileRootDirectory)
@@ -51,15 +51,16 @@ namespace Milou.Deployer.Core.XmlTransformation
             if (!originalFile.Exists)
             {
                 _logger.Error("The original file to transform '{FullName}' does not exist", originalFile.FullName);
+
                 return ExitCode.Failure;
             }
 
             if (!transformationFile.Exists)
             {
-                _logger.Error(
-                    "The transformation file '{FullName}' to transform '{FullName1}' does not exist",
+                _logger.Error("The transformation file '{FullName}' to transform '{FullName1}' does not exist",
                     transformationFile.FullName,
                     originalFile.FullName);
+
                 return ExitCode.Failure;
             }
 
@@ -76,9 +77,8 @@ namespace Milou.Deployer.Core.XmlTransformation
                 xmlTransformableDocument.Load(originalFile.FullName);
 
                 bool succeed;
-                using (
-                    var transform =
-                        new Microsoft.Web.XmlTransform.XmlTransformation(transformationFile.FullName))
+
+                using (var transform = new Microsoft.Web.XmlTransform.XmlTransformation(transformationFile.FullName))
                 {
                     succeed = transform.Apply(xmlTransformableDocument);
                 }
@@ -90,6 +90,7 @@ namespace Milou.Deployer.Core.XmlTransformation
                         originalFile.FullName,
                         transformationFile.FullName,
                         destFilePath);
+
                     return ExitCode.Failure;
                 }
 
@@ -130,26 +131,23 @@ namespace Milou.Deployer.Core.XmlTransformation
 
         public TransformationResult TransformMatch(FileMatch possibleXmlTransformation, DirectoryInfo contentDirectory)
         {
-            var matchingFiles = _fileMatcher.Matches(
-                possibleXmlTransformation,
-                contentDirectory);
+            var matchingFiles = _fileMatcher.Matches(possibleXmlTransformation, contentDirectory);
 
             var transformedFiles = new List<string>();
 
             if (matchingFiles.Length > 1)
             {
-                _logger.Error(
-                    "Could not find a single matching file to transform, found multiple: {V}",
+                _logger.Error("Could not find a single matching file to transform, found multiple: {V}",
                     string.Join(", ", matchingFiles.Select(file => $"'{file.FullName}'")));
+
                 return new TransformationResult(false);
             }
 
-            if (matchingFiles.Any() && possibleXmlTransformation.ActionFile is {})
+            if (matchingFiles.Any() && possibleXmlTransformation.ActionFile is { })
             {
                 FileInfo originalFile = matchingFiles.Single();
 
-                var transformExitCode = TransformFile(
-                    originalFile,
+                var transformExitCode = TransformFile(originalFile,
                     possibleXmlTransformation.ActionFile,
                     contentDirectory,
                     possibleXmlTransformation.ActionFileRootDirectory);
@@ -163,9 +161,8 @@ namespace Milou.Deployer.Core.XmlTransformation
             }
             else
             {
-                _logger.Debug(
-                    "Could not find any matching file for transform, looked for '{TargetName}'",
-                    possibleXmlTransformation?.TargetName ?? Arbor.App.Extensions.Constants.NotAvailable);
+                _logger.Debug("Could not find any matching file for transform, looked for '{TargetName}'",
+                    possibleXmlTransformation?.TargetName ?? Constants.NotAvailable);
             }
 
             return new TransformationResult(true, transformedFiles);

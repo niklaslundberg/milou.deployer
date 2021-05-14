@@ -29,8 +29,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [Route(DeploymentConstants.HistoryLogRoute + ".json", Name = DeploymentConstants.HistoryLogRouteName + "Json")]
         [HttpGet]
-        public async Task<ActionResult<string[]>> LogJson(
-            [FromServices] IMediator mediator,
+        public async Task<ActionResult<string[]>> LogJson([FromServices] IMediator mediator,
             [FromRoute] string deploymentTaskId,
             [FromQuery] string? level = null)
         {
@@ -38,9 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             DeploymentLogResponse response = await mediator.Send(new DeploymentLogRequest(deploymentTaskId, usedLevel));
 
-            return response.LogItems
-                .OrderBy(line => line.TimeStamp)
-                .Select(line => line.Message).ToArray();
+            return response.LogItems.OrderBy(line => line.TimeStamp).Select(line => line.Message).ToArray();
         }
     }
 }

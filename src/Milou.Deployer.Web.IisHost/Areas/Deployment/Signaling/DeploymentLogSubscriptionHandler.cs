@@ -4,17 +4,14 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using MediatR;
-using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 {
     [UsedImplicitly]
-    public class DeploymentLogSubscriptionHandler :
-        IRequestHandler<SubscribeToDeploymentLog>,
+    public class DeploymentLogSubscriptionHandler : IRequestHandler<SubscribeToDeploymentLog>,
         IRequestHandler<UnsubscribeToDeploymentLog>
     {
         private readonly LogSubscribers _logSubscribers;
@@ -29,8 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
             }
             else
             {
-                _logSubscribers.TargetMapping.TryAdd(
-                    request.DeploymentTargetId,
+                _logSubscribers.TargetMapping.TryAdd(request.DeploymentTargetId,
                     new HashSet<string>(StringComparer.OrdinalIgnoreCase) {request.ConnectionId});
             }
 
@@ -39,10 +35,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 
         public Task<Unit> Handle(UnsubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
-            HashSet<string>[] hashSets = _logSubscribers.TargetMapping.Values
-                .ToImmutableArray()
-                .Where(value => value.Contains(request.ConnectionId))
-                .ToArray();
+            HashSet<string>[] hashSets = _logSubscribers.TargetMapping.Values.ToImmutableArray()
+                                                        .Where(value => value.Contains(request.ConnectionId)).ToArray();
 
             foreach (HashSet<string> hashSet in hashSets)
             {

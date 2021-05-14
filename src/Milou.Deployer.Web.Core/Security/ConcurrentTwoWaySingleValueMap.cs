@@ -7,10 +7,11 @@ namespace Milou.Deployer.Web.Core.Security
 {
     public class ConcurrentTwoWaySingleValueMap<T1, T2> where T1 : class where T2 : class
     {
-        private readonly ConcurrentDictionary<T1, T2> _forward = new ConcurrentDictionary<T1, T2>();
-        private readonly ConcurrentDictionary<T2, T1> _reverse = new ConcurrentDictionary<T2, T1>();
+        private readonly ConcurrentDictionary<T1, T2> _forward = new();
+        private readonly ConcurrentDictionary<T2, T1> _reverse = new();
 
         public ImmutableArray<T1> ForwardKeys => _forward.Keys.ToImmutableArray();
+
         public ImmutableArray<T2> ReverseKeys => _reverse.Keys.ToImmutableArray();
 
         public bool TrySet([NotNull] T1 t1, [NotNull] T2 t2)
@@ -45,7 +46,7 @@ namespace Milou.Deployer.Web.Core.Security
                 forwardSet = true;
             }
 
-            if (oldValue is {} && _reverse.ContainsKey(oldValue) && !t2.Equals(oldValue))
+            if (oldValue is { } && _reverse.ContainsKey(oldValue) && !t2.Equals(oldValue))
             {
                 _reverse.TryRemove(oldValue, out _);
             }

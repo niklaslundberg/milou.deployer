@@ -1,5 +1,4 @@
 ﻿@using Milou.Deployer.Web.IisHost.Areas.Agents
-
 <form method="post" action="@Url.RouteUrl(AgentsController.AgentsRouteName)">
 
     @Html.AntiForgeryToken()
@@ -14,8 +13,8 @@
 
     @Html.AntiForgeryToken()
 
-    <input name="agentId" />
+    <input name="agentId"/>
 
-    <input type="submit" value="Reset" />
+    <input type="submit" value="Reset"/>
 
 </form>

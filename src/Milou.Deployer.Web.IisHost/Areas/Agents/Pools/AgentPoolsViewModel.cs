@@ -10,6 +10,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents.Pools
             AssignedAgents = assignedAgents;
 
         public ImmutableDictionary<AgentPoolInfo, ImmutableArray<AgentId>> AssignedAgents { get; }
+
         public ImmutableArray<AgentPoolInfo> AgentPools => AssignedAgents.Keys.ToImmutableArray();
     }
 }

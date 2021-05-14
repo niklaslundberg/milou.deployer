@@ -8,6 +8,8 @@ namespace Milou.Deployer.Web.Marten
 {
     public class EmptyEnvironmentTypeService : IEnvironmentTypeService
     {
-        public Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(CancellationToken cancellationToken = default) => Task.FromResult(ImmutableArray<EnvironmentType>.Empty);
+        public Task<ImmutableArray<EnvironmentType>>
+            GetEnvironmentTypes(CancellationToken cancellationToken = default) =>
+            Task.FromResult(ImmutableArray<EnvironmentType>.Empty);
     }
 }

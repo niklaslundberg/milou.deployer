@@ -32,34 +32,52 @@ namespace Milou.Deployer.Web.Tests.Integration
     public class AutoDeployStartupTask : BackgroundService, IStartupTask, INotificationHandler<DeploymentFinished>
     {
         private readonly EnvironmentConfiguration _environmentConfiguration;
+        private readonly AsyncManualResetEvent _handle = new(false);
         private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _readService;
-        private readonly TestConfiguration? _testConfiguration;
         private readonly ServerEnvironmentTestConfiguration _serverEnvironmentTestSiteConfiguration;
-        private IWebHost _webHost;
-        private readonly AsyncManualResetEvent _handle = new(false);
+        private readonly TestConfiguration? _testConfiguration;
         private readonly DeploymentWorkerService _worker;
+        private IWebHost _webHost;
 
-        public AutoDeployStartupTask(
-            IServiceProvider serviceProvider,
+        public AutoDeployStartupTask(IServiceProvider serviceProvider,
             EnvironmentConfiguration environmentConfiguration)
         {
             _environmentConfiguration = environmentConfiguration;
+
             if (environmentConfiguration.HttpEnabled)
             {
                 _worker = serviceProvider.GetRequiredService<DeploymentWorkerService>();
 
                 _testConfiguration = serviceProvider.GetRequiredService<TestConfiguration>();
+
                 var testHttpPorts = serviceProvider.GetRequiredService<ConfigurationInstanceHolder>()
-                    .GetInstances<ServerEnvironmentTestConfiguration>().Values;
+                                                   .GetInstances<ServerEnvironmentTestConfiguration>().Values;
+
                 _serverEnvironmentTestSiteConfiguration = testHttpPorts.FirstOrDefault() ??
                                                           throw new InvalidOperationException("Missing test http port");
+
                 _logger = serviceProvider.GetRequiredService<ILogger>();
                 _readService = serviceProvider.GetRequiredService<IDeploymentTargetReadService>();
             }
         }
 
+        public Task Handle(DeploymentFinished notification, CancellationToken cancellationToken)
+        {
+            _handle.Set();
+
+            return Task.CompletedTask;
+        }
+
         public bool IsCompleted { get; private set; }
+
+        public override void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            base.Dispose();
+            _webHost.SafeDispose();
+            _serverEnvironmentTestSiteConfiguration.SafeDispose();
+        }
 
         protected override async Task ExecuteAsync(CancellationToken startupCancellationToken)
         {
@@ -68,10 +86,11 @@ namespace Milou.Deployer.Web.Tests.Integration
             if (_testConfiguration is null || !_environmentConfiguration.HttpEnabled)
             {
                 IsCompleted = true;
+
                 return;
             }
 
-            ImmutableArray<DeploymentTarget> targets = ImmutableArray<DeploymentTarget>.Empty;
+            var targets = ImmutableArray<DeploymentTarget>.Empty;
 
             while (targets.IsDefaultOrEmpty && !startupCancellationToken.IsCancellationRequested)
             {
@@ -84,6 +103,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 else
                 {
                     _logger.Debug("The test target has now yet been created");
+
                     break;
                 }
             }
@@ -92,7 +112,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var deploymentTaskId = Guid.NewGuid();
             var deploymentTargetId = new DeploymentTargetId(TestDataCreator.Testtarget);
-            var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId,
+
+            var deploymentTask = new DeploymentTask(packageVersion,
+                deploymentTargetId,
+                deploymentTaskId,
                 nameof(AutoDeployStartupTask));
 
             await _worker.Enqueue(deploymentTask);
@@ -104,14 +127,12 @@ namespace Milou.Deployer.Web.Tests.Integration
             try
             {
                 _webHost = WebHost.CreateDefaultBuilder()
-                    .ConfigureServices(services => services.AddSingleton(_testConfiguration))
-                    .UseKestrel(options =>
-                    {
-                        options.Listen(IPAddress.Loopback,
-                            testSitePort);
-                    })
-                    .UseContentRoot(_testConfiguration.SiteAppRoot.FullName)
-                    .UseStartup<TestStartup>().Build();
+                                  .ConfigureServices(services => services.AddSingleton(_testConfiguration)).UseKestrel(
+                                       options =>
+                                       {
+                                           options.Listen(IPAddress.Loopback, testSitePort);
+                                       }).UseContentRoot(_testConfiguration.SiteAppRoot.FullName)
+                                  .UseStartup<TestStartup>().Build();
 
                 await _webHost.StartAsync(startupCancellationToken);
             }
@@ -143,27 +164,13 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Could not get successful http get response in integration test, {Status}",
+                    _logger.Error(ex,
+                        "Could not get successful http get response in integration test, {Status}",
                         response?.StatusCode);
                 }
             }
 
             IsCompleted = true;
-        }
-
-        public override void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            base.Dispose();
-            _webHost.SafeDispose();
-            _serverEnvironmentTestSiteConfiguration.SafeDispose();
-        }
-
-        public Task Handle(DeploymentFinished notification, CancellationToken cancellationToken)
-        {
-            _handle.Set();
-
-            return Task.CompletedTask;
         }
     }
 }

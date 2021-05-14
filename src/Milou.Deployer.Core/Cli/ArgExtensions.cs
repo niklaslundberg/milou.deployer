@@ -15,9 +15,8 @@ namespace Milou.Deployer.Core.Cli
                 return default;
             }
 
-            string[] matchingArgs = args
-                .Where(argument => argument.StartsWith("-" + argumentName, StringComparison.OrdinalIgnoreCase))
-                .ToArray();
+            string[] matchingArgs = args.Where(argument =>
+                argument.StartsWith("-" + argumentName, StringComparison.OrdinalIgnoreCase)).ToArray();
 
             if (matchingArgs.Length != 1)
             {

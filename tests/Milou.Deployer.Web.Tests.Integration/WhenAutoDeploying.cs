@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Tests.Integration;
 using Milou.Deployer.Web.Core;
-using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
+using NCrunch.Framework;
 using NuGet.Versioning;
 using Xunit;
 using Xunit.Abstractions;
@@ -22,14 +22,12 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class WhenAutoDeploying : TestBase<AutoDeploySetup>
     {
-        public WhenAutoDeploying(
-            ITestOutputHelper output,
-            AutoDeploySetup webFixture) : base(webFixture, output)
+        public WhenAutoDeploying(ITestOutputHelper output, AutoDeploySetup webFixture) : base(webFixture, output)
         {
         }
 
         //[Fact(Skip = "NuGet source issues")]
-        [NCrunch.Framework.Timeout(120_000)]
+        [Timeout(120_000)]
         [ConditionalFact]
         public async Task ThenNewVersionShouldBeDeployed()
         {
@@ -56,7 +54,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Assert.NotNull(WebFixture?.App?.Host?.Services);
 
-            using (var httpClient = WebFixture!.App!.Host!.Services.GetRequiredService<IHttpClientFactory>().CreateClient())
+            using (var httpClient =
+                WebFixture!.App!.Host!.Services.GetRequiredService<IHttpClientFactory>().CreateClient())
             {
                 using CancellationTokenSource cancellationTokenSource =
                     WebFixture!.App!.Host!.Services.GetRequiredService<CancellationTokenSource>();
@@ -67,22 +66,20 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 lifeTime.ApplicationStopped.Register(() => Debug.WriteLine("Stop for app in test"));
 
-                while (!cancellationTokenSource.Token.IsCancellationRequested
-                       && semanticVersion != expectedVersion
-                       && !lifeTime.ApplicationStopped.IsCancellationRequested
-                       && !WebFixture!.CancellationToken.IsCancellationRequested)
+                while (!cancellationTokenSource.Token.IsCancellationRequested &&
+                       semanticVersion != expectedVersion &&
+                       !lifeTime.ApplicationStopped.IsCancellationRequested &&
+                       !WebFixture!.CancellationToken.IsCancellationRequested)
                 {
                     // ReSharper disable MethodSupportsCancellation
-                    StartupTaskContext? startupTaskContext =
-                        WebFixture!.App!.Host!.Services.GetService<StartupTaskContext>();
+                    var startupTaskContext = WebFixture!.App!.Host!.Services.GetService<StartupTaskContext>();
 
                     if (startupTaskContext is null)
                     {
                         return;
                     }
 
-                    while (!startupTaskContext.IsCompleted &&
-                           !cancellationTokenSource.Token.IsCancellationRequested)
+                    while (!startupTaskContext.IsCompleted && !cancellationTokenSource.Token.IsCancellationRequested)
                     {
                         await Task.Delay(TimeSpan.FromMilliseconds(500));
                     }
@@ -91,6 +88,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                         $"http://localhost:{WebFixture!.ServerEnvironmentTestSiteConfiguration.Port.Port + 1}/applicationmetadata.json");
 
                     string contents;
+
                     try
                     {
                         using HttpResponseMessage responseMessage = await httpClient.GetAsync(url);
@@ -98,10 +96,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                         Output.WriteLine($"{responseMessage.StatusCode} {contents}");
 
-                        if (responseMessage.StatusCode == HttpStatusCode.ServiceUnavailable
-                            || responseMessage.StatusCode == HttpStatusCode.NotFound)
+                        if (responseMessage.StatusCode == HttpStatusCode.ServiceUnavailable ||
+                            responseMessage.StatusCode == HttpStatusCode.NotFound)
                         {
                             await Task.Delay(TimeSpan.FromMilliseconds(100));
+
                             continue;
                         }
 
@@ -109,18 +108,14 @@ namespace Milou.Deployer.Web.Tests.Integration
                     }
                     catch (Exception ex) when (!ex.IsFatal())
                     {
-                        throw new DeployerAppException($"Could not get a valid response from request to '{url}'",
-                            ex);
+                        throw new DeployerAppException($"Could not get a valid response from request to '{url}'", ex);
                     }
 
                     string tempFileName = Path.GetTempFileName();
-                    await File.WriteAllTextAsync(tempFileName,
-                        contents,
-                        Encoding.UTF8,
-                        cancellationTokenSource.Token);
 
-                    var jsonKeyValueConfiguration =
-                        new JsonKeyValueConfiguration(tempFileName);
+                    await File.WriteAllTextAsync(tempFileName, contents, Encoding.UTF8, cancellationTokenSource.Token);
+
+                    var jsonKeyValueConfiguration = new JsonKeyValueConfiguration(tempFileName);
 
                     if (File.Exists(tempFileName))
                     {

@@ -1,5 +1,4 @@
-﻿@using Milou.Deployer.Web.IisHost.Areas.Agents
-@using Milou.Deployer.Web.IisHost.Areas.Agents.Pools
+﻿@using Milou.Deployer.Web.IisHost.Areas.Agents.Pools
 @model Milou.Deployer.Web.IisHost.Areas.Agents.Pools.AgentPoolsViewModel
 
 <h1>Agent pools</h1>
@@ -18,7 +17,6 @@
         <h2>@agentPool.AgentPoolId.Value</h2>
         @if (Model.AssignedAgents[agentPool].Length > 0)
         {
-
             <h3>Agents in pool</h3>
             <ul>
                 @foreach (var item in Model.AssignedAgents[agentPool])

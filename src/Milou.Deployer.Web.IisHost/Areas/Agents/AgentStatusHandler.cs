@@ -16,6 +16,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
         public AgentStatusHandler(AgentsData agents) => _agents = agents;
 
+        public Task Handle(AgentConfigResponse notification, CancellationToken cancellationToken)
+        {
+            _agents.SetConfig(notification);
+
+            return Task.CompletedTask;
+        }
+
         public Task Handle(AgentConnected agentConnected, CancellationToken cancellationToken)
         {
             _agents.AgentConnected(agentConnected);
@@ -26,13 +33,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         public Task Handle(AgentDisconnected agentDisconnected, CancellationToken cancellationToken)
         {
             _agents.AgentDisconnected(agentDisconnected);
-
-            return Task.CompletedTask;
-        }
-
-        public Task Handle(AgentConfigResponse notification, CancellationToken cancellationToken)
-        {
-            _agents.SetConfig(notification);
 
             return Task.CompletedTask;
         }

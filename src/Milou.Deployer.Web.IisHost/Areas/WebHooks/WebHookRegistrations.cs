@@ -14,9 +14,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
         public WebHookRegistrations(IApplicationAssemblyResolver applicationAssemblyResolver) =>
             _applicationAssemblyResolver = applicationAssemblyResolver;
 
-        public IServiceCollection Register(IServiceCollection builder) =>
-            builder.AddSingleton<PackageWebHookHandler>()
-                .RegisterAssemblyTypes<IPackageWebHook>(_applicationAssemblyResolver.GetAssemblies(),
-                    ServiceLifetime.Singleton);
+        public IServiceCollection Register(IServiceCollection builder) => builder.AddSingleton<PackageWebHookHandler>()
+           .RegisterAssemblyTypes<IPackageWebHook>(_applicationAssemblyResolver.GetAssemblies(),
+                ServiceLifetime.Singleton);
     }
 }

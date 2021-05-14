@@ -28,10 +28,13 @@ namespace Milou.Deployer.Web.Core.Agents
 
         public ImmutableDictionary<AgentId, string> UnknownAgents => _unknownAgents.ToImmutableDictionary();
 
-        public ImmutableArray<AgentInfo> Agents => _agents
-            .Select(agent => new AgentInfo(agent.Key,
-                agent.Value.ConnectedAt, agent.Value.ConnectionId, agent.Value.CurrentDeploymentTaskId, agent.Value.CurrentDeploymentTargetId, agent.Value.Configuration))
-            .ToImmutableArray();
+        public ImmutableArray<AgentInfo> Agents =>
+            _agents.Select(agent => new AgentInfo(agent.Key,
+                agent.Value.ConnectedAt,
+                agent.Value.ConnectionId,
+                agent.Value.CurrentDeploymentTaskId,
+                agent.Value.CurrentDeploymentTargetId,
+                agent.Value.Configuration)).ToImmutableArray();
 
         public void AgentAssigned(AgentId agentId, string deploymentTaskId, DeploymentTargetId deploymentTargetId)
         {
@@ -74,6 +77,7 @@ namespace Milou.Deployer.Web.Core.Agents
                 else
                 {
                     _logger.Error("Could not get agent state for agent id {AgentId}", agentId);
+
                     return;
                 }
             }
@@ -95,9 +99,7 @@ namespace Milou.Deployer.Web.Core.Agents
                 _agents.TryAdd(agentId,
                     new AgentState(agentId)
                     {
-                        ConnectedAt = _customClock.UtcNow(),
-                        IsConnected = false,
-                        ConnectionId = null
+                        ConnectedAt = _customClock.UtcNow(), IsConnected = false, ConnectionId = null
                     });
             }
             else
@@ -128,9 +130,6 @@ namespace Milou.Deployer.Web.Core.Agents
             state.CurrentDeploymentTargetId = default;
         }
 
-        public void UnknownAgentConnected(UnknownAgentConnected notification) =>
-            _unknownAgents.TryAdd(notification.AgentId, notification.ConnectionId);
-
         public void SetConfig(AgentConfigResponse notification)
         {
             if (!_agents.TryGetValue(notification.AgentId, out var state))
@@ -140,5 +139,8 @@ namespace Milou.Deployer.Web.Core.Agents
 
             state.Configuration = notification.agentConfigurationView;
         }
+
+        public void UnknownAgentConnected(UnknownAgentConnected notification) =>
+            _unknownAgents.TryAdd(notification.AgentId, notification.ConnectionId);
     }
 }

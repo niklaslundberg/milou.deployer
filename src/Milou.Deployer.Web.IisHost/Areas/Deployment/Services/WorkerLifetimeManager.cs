@@ -22,8 +22,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly TimeoutHelper _timeoutHelper;
         private readonly WorkerConfiguration _workerConfiguration;
 
-        public WorkerLifetimeManager(
-            ConfigurationInstanceHolder configurationInstanceHolder,
+        public WorkerLifetimeManager(ConfigurationInstanceHolder configurationInstanceHolder,
             WorkerConfiguration workerConfiguration,
             IMediator mediator,
             ILogger logger,
@@ -52,7 +51,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             // TODO remove old worker
 
-            _configurationInstanceHolder.Add(new NamedInstance<DeploymentTargetWorker>(worker, notification.TargetId.TargetId));
+            _configurationInstanceHolder.Add(
+                new NamedInstance<DeploymentTargetWorker>(worker, notification.TargetId.TargetId));
 
             await _mediator.Publish(new WorkerCreated(worker), cancellationToken);
         }

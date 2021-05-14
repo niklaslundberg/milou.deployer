@@ -16,8 +16,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 {
     public static class DeploymentApplicationBuilderExtensions
     {
-        public static IApplicationBuilder AddExceptionHandling(
-            this IApplicationBuilder app,
+        public static IApplicationBuilder AddExceptionHandling(this IApplicationBuilder app,
             EnvironmentConfiguration environmentConfiguration)
         {
             if (environmentConfiguration.UseVerboseExceptions)
@@ -28,16 +27,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return app.UseExceptionHandler(ErrorRouteConstants.ErrorRoute);
         }
 
-        public static IApplicationBuilder AddForwardHeaders(
-            this IApplicationBuilder app,
+        public static IApplicationBuilder AddForwardHeaders(this IApplicationBuilder app,
             EnvironmentConfiguration environmentConfiguration)
         {
-            var forwardedHeadersOptions =
-                new ForwardedHeadersOptions
-                {
-                    ForwardedHeaders =
-                        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-                };
+            var forwardedHeadersOptions = new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            };
 
             foreach (IPAddress proxyAddress in environmentConfiguration.ProxyAddresses)
             {
@@ -52,8 +48,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return app.UseForwardedHeaders(forwardedHeadersOptions);
         }
 
-        public static IApplicationBuilder UseCustomStaticFiles(
-            this IApplicationBuilder app,
+        public static IApplicationBuilder UseCustomStaticFiles(this IApplicationBuilder app,
             EnvironmentConfiguration environmentConfiguration)
         {
             string wwwrootPath = Path.Combine(environmentConfiguration.ContentBasePath!, "wwwroot");

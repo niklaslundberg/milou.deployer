@@ -62,6 +62,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             const string? id = "-it";
             _assemblies = ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});
+
             _globalTempDir =
                 new DirectoryInfo(Path.Combine(Path.GetTempPath(), "mdst-" + Guid.NewGuid())).EnsureExists();
 
@@ -96,17 +97,21 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public ServerEnvironmentTestConfiguration ServerEnvironmentTestSiteConfiguration { get; protected set; }
 
-        [PublicAPI] public List<DirectoryInfo> DirectoriesToClean { get; } = new();
+        [PublicAPI]
+        public List<DirectoryInfo> DirectoriesToClean { get; } = new();
 
-        [PublicAPI] public TestConfiguration TestConfiguration { get; protected set; }
+        [PublicAPI]
+        public TestConfiguration TestConfiguration { get; protected set; }
 
-        [PublicAPI] public List<FileInfo> FilesToClean { get; } = new();
+        [PublicAPI]
+        public List<FileInfo> FilesToClean { get; } = new();
 
         public Exception Exception { get; private set; }
 
         public App<ApplicationPipeline>? App { get; private set; }
 
-        [PublicAPI] public int? HttpPort => GetHttpPort();
+        [PublicAPI]
+        public int? HttpPort => GetHttpPort();
 
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
@@ -116,11 +121,8 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 try
                 {
-                    _testLogger = new LoggerConfiguration()
-                        .WriteTo.Console()
-                        .WriteTo.Debug()
-                        .MinimumLevel.Verbose()
-                        .CreateLogger();
+                    _testLogger = new LoggerConfiguration().WriteTo.Console().WriteTo.Debug().MinimumLevel.Verbose()
+                                                           .CreateLogger();
 
                     _context = await DockerContext.CreateContextAsync(_dockerArgs, _testLogger);
 
@@ -132,11 +134,12 @@ namespace Milou.Deployer.Web.Tests.Integration
                         new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
                 }
 
-                string connStr = string.Format(CultureInfo.InvariantCulture, ConnectionStringFormat,
+                string connStr = string.Format(CultureInfo.InvariantCulture,
+                    ConnectionStringFormat,
                     _postgres.PgPort.Port);
 
-                Variables.Add("urn:milou:deployer:web:marten:singleton:connection-string",
-                    connStr);
+                Variables.Add("urn:milou:deployer:web:marten:singleton:connection-string", connStr);
+
                 Variables.Add("urn:milou:deployer:web:marten:singleton:enabled", "true");
 
                 Variables.Add(ApplicationConstants.DevelopmentMode.TrimStart('-'), "true");
@@ -146,6 +149,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 _appRootDirectory = new DirectoryInfo(Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost"));
 
                 var portPoolRange = new PortPoolRange(6200, 100);
+
                 ServerEnvironmentTestSiteConfiguration =
                     new ServerEnvironmentTestConfiguration(TcpHelper.GetAvailablePort(portPoolRange),
                         _appRootDirectory);
@@ -176,6 +180,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 {
                     _diagnosticMessageSink.OnMessage(new DiagnosticMessage(ex.ToString()));
                     _cancellationTokenSource.Cancel();
+
                     throw new DeployerAppException("Before start exception", ex);
                 }
 
@@ -190,8 +195,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    if (App?.Host?.Services?.GetService<IHostApplicationLifetime>() is { } hostApplicationLifetime
-                        && !hostApplicationLifetime.ApplicationStopped.IsCancellationRequested)
+                    if (App?.Host?.Services?.GetService<IHostApplicationLifetime>() is { } hostApplicationLifetime &&
+                        !hostApplicationLifetime.ApplicationStopped.IsCancellationRequested)
                     {
                         hostApplicationLifetime.StopApplication();
                     }
@@ -207,8 +212,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 IHostApplicationLifetime? appLifeTime = null;
 
-                if (App?.Host?.Services?.GetService<IHostApplicationLifetime>() is { } lifeTime
-                    && !lifeTime.ApplicationStopped.IsCancellationRequested)
+                if (App?.Host?.Services?.GetService<IHostApplicationLifetime>() is { } lifeTime &&
+                    !lifeTime.ApplicationStopped.IsCancellationRequested)
                 {
                     appLifeTime = lifeTime;
                 }
@@ -258,6 +263,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 try
                 {
                     fileInfo.Refresh();
+
                     if (fileInfo.Exists)
                     {
                         fileInfo.Delete();
@@ -323,6 +329,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var ftpSecondary = TcpHelper.GetAvailablePort(portRange);
 
             var passivePorts = new PortRange(24100, 24100);
+
             var ftpVariables = new Dictionary<string, string>
             {
                 ["FTP_USER"] = "testuser",
@@ -338,12 +345,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 new(passivePorts, passivePorts)
             };
 
-            var ftp = new ContainerArgs(
-                "fauria/vsftpd",
-                "ftp" + id,
-                ftpPorts,
-                ftpVariables
-            );
+            var ftp = new ContainerArgs("fauria/vsftpd", "ftp" + id, ftpPorts, ftpVariables);
 
             return new FtpArgs(ftp, ftpDefault, ftpSecondary);
         }
@@ -354,12 +356,10 @@ namespace Milou.Deployer.Web.Tests.Integration
             var pgPort = TcpHelper.GetAvailablePort(portRange);
             var postgresVariables = new Dictionary<string, string> {["POSTGRES_PASSWORD"] = "test"};
 
-            var postgres = new ContainerArgs(
-                "postgres",
+            var postgres = new ContainerArgs("postgres",
                 "postgres-deploy" + id,
                 new List<PortMapping> {PortMapping.MapSinglePort(pgPort.Port, 5432)},
-                postgresVariables
-            );
+                postgresVariables);
 
             return new PostgresArgs(postgres, pgPort);
         }
@@ -369,13 +369,12 @@ namespace Milou.Deployer.Web.Tests.Integration
             var portRange = new PortPoolRange(10100, 100);
             var redisPort = TcpHelper.GetAvailablePort(portRange);
             var portMappings = new[] {PortMapping.MapSinglePort(redisPort.Port, 6379)};
-            var redis = new ContainerArgs(
-                "redis",
+
+            var redis = new ContainerArgs("redis",
                 "redistest" + id,
                 portMappings,
                 args: Array.Empty<string>(),
-                entryPoint: new[] {"redis-server"}
-            );
+                entryPoint: new[] {"redis-server"});
 
             return new RedisArgs(redis, redisPort);
         }
@@ -385,12 +384,10 @@ namespace Milou.Deployer.Web.Tests.Integration
             var portRange = new PortPoolRange(10400, 100);
             var httpPort = TcpHelper.GetAvailablePort(portRange);
 
-            var args = new ContainerArgs(
-                "datalust/seq:latest",
+            var args = new ContainerArgs("datalust/seq:latest",
                 $"test-seq-{id}",
                 new List<PortMapping> {PortMapping.MapSinglePort(httpPort.Port, 80)},
-                new Dictionary<string, string> {["ACCEPT_EULA"] = "Y"}
-            );
+                new Dictionary<string, string> {["ACCEPT_EULA"] = "Y"});
 
             return new SeqArgs(args, httpPort);
         }
@@ -401,15 +398,13 @@ namespace Milou.Deployer.Web.Tests.Integration
             var smtpPort = TcpHelper.GetAvailablePort(portRange);
             var httpPort = TcpHelper.GetAvailablePort(portRange);
 
-            var smtp4Dev = new ContainerArgs(
-                "rnwood/smtp4dev:linux-amd64-v3",
+            var smtp4Dev = new ContainerArgs("rnwood/smtp4dev:linux-amd64-v3",
                 "smtp4devtest" + id,
                 new List<PortMapping>
                 {
                     PortMapping.MapSinglePort(httpPort.Port, 80), PortMapping.MapSinglePort(smtpPort.Port, 25)
                 },
-                new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
-            );
+                new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"});
 
             return new Smtp4DevArgs(smtp4Dev, smtpPort, httpPort);
         }
@@ -448,8 +443,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private int? GetHttpPort()
         {
-            var environmentConfiguration =
-                App?.Host?.Services.GetService<EnvironmentConfiguration>();
+            var environmentConfiguration = App?.Host?.Services.GetService<EnvironmentConfiguration>();
 
             return environmentConfiguration?.HttpPort;
         }
@@ -469,17 +463,22 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             object[] instances =
             {
-                TestConfiguration, ServerEnvironmentTestSiteConfiguration, new CacheSettings(), _environmentVariables,
-                new ApplicationPartManager(), new MilouAuthenticationConfiguration(true, true,
+                TestConfiguration, ServerEnvironmentTestSiteConfiguration, new CacheSettings(),
+                _environmentVariables, new ApplicationPartManager(),
+                new MilouAuthenticationConfiguration(true,
+                    true,
                     "+LZwHMY/0pifza3BAmrxwzt8F+G+KdMmBfe6nUhqqI9cIZXOLHaYRa0TRldq5ocrBkRELPSCqpEkEKtQvM9FSw=="),
                 _seq
             };
 
-            var assemblies = _assemblies
-                .Where(a => a.FullName is {} fullName && !fullName.Contains("Agent.Host")).ToImmutableArray();
+            var assemblies = _assemblies.Where(a => a.FullName is { } fullName && !fullName.Contains("Agent.Host"))
+                                        .ToImmutableArray();
 
-            App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource, args,
-                _environmentVariables.Variables, assemblies, instances);
+            App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource,
+                args,
+                _environmentVariables.Variables,
+                assemblies,
+                instances);
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);

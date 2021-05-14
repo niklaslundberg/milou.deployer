@@ -14,6 +14,7 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
             }
 
             JwtSecurityToken jwtSecurityToken;
+
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
@@ -25,9 +26,8 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
             }
 
             const string claimType = JwtRegisteredClaimNames.UniqueName;
-            string? agentId = jwtSecurityToken.Claims
-                .SingleOrDefault(claim => claim.Type == claimType)
-                ?.Value;
+
+            string? agentId = jwtSecurityToken.Claims.SingleOrDefault(claim => claim.Type == claimType)?.Value;
 
             if (string.IsNullOrWhiteSpace(agentId))
             {

@@ -15,8 +15,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 {
     public class DeploymentPackageHandler : IDeploymentPackageHandler
     {
-        public async Task<ExitCode> RunAsync(
-            DeploymentTaskPackage deploymentTaskPackage,
+        public async Task<ExitCode> RunAsync(DeploymentTaskPackage deploymentTaskPackage,
             ILogger jobLogger,
             CancellationToken cancellationToken)
         {
@@ -54,7 +53,9 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 
                 if (nuGetConfigFile is { })
                 {
-                    await File.WriteAllTextAsync(nuGetConfigFile, deploymentTaskPackage.NuGetConfigXml, cancellationToken);
+                    await File.WriteAllTextAsync(nuGetConfigFile,
+                        deploymentTaskPackage.NuGetConfigXml,
+                        cancellationToken);
 
                     deploymentExecutionDefinition = deploymentExecutionDefinition with
                     {
@@ -63,17 +64,15 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
                 }
             }
 
-            string manifest =
-                JsonConvert.SerializeObject(new {definitions = new[] {deploymentExecutionDefinition}});
+            string manifest = JsonConvert.SerializeObject(new {definitions = new[] {deploymentExecutionDefinition}});
 
-            await File.WriteAllTextAsync(manifestFile.File!.FullName, manifest, Encoding.UTF8,
-                cancellationToken);
+            await File.WriteAllTextAsync(manifestFile.File!.FullName, manifest, Encoding.UTF8, cancellationToken);
 
             using var publishSettings = string.IsNullOrWhiteSpace(deploymentTaskPackage.PublishSettingsXml)
                 ? null
                 : TempFile.CreateTempFile(deploymentTaskPackage.DeploymentTargetId.TargetId, ".publishSettings");
 
-            DirectoryInfo? currentDir = manifestFile.File!.Directory;
+            var currentDir = manifestFile.File!.Directory;
 
             if (string.IsNullOrWhiteSpace(currentDir?.FullName))
             {
@@ -82,28 +81,30 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 
             if (publishSettings?.File?.Exists ?? false)
             {
-                await File.WriteAllTextAsync(publishSettings.File.FullName, deploymentTaskPackage.PublishSettingsXml,
-                    Encoding.UTF8, cancellationToken);
+                await File.WriteAllTextAsync(publishSettings.File.FullName,
+                    deploymentTaskPackage.PublishSettingsXml,
+                    Encoding.UTF8,
+                    cancellationToken);
 
                 publishSettings.File.CopyTo(Path.Combine(currentDir.FullName, publishSettings.File.Name));
             }
 
             Directory.SetCurrentDirectory(currentDir.FullName);
 
-            string[] inputArgs = {$"-{ConfigurationKeys.AllowPreReleaseEnvironmentVariable}={deploymentExecutionDefinition.IsPreRelease}"};
+            string[] inputArgs =
+            {
+                $"-{ConfigurationKeys.AllowPreReleaseEnvironmentVariable}={deploymentExecutionDefinition.IsPreRelease}"
+            };
 
             using DeployerApp.DeployerApp deployerApp =
-                await AppBuilder.BuildAppAsync(inputArgs,
-                    jobLogger,
-                    cancellationToken);
+                await AppBuilder.BuildAppAsync(inputArgs, jobLogger, cancellationToken);
 
-            int result = await deployerApp.ExecuteAsync(
-                inputArgs,
-                cancellationToken);
+            int result = await deployerApp.ExecuteAsync(inputArgs, cancellationToken);
 
             if (result != 0)
             {
                 jobLogger.Warning("Milou.Deployer failed");
+
                 return ExitCode.Failure;
             }
 

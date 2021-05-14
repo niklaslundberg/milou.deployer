@@ -6,62 +6,6 @@ namespace Milou.Deployer.Core.Deployment
 {
     public static class DeploymentExecutionDefinitionExtensions
     {
-        public static bool WhatIfEnabled(
-            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
-            bool defaultValue = false)
-        {
-            if (deploymentExecutionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return GetBoolValue(deploymentExecutionDefinition,
-                defaultValue,
-                WebDeployRules.WhatIfEnabled);
-        }
-
-        public static bool DoNotDeleteEnabled(
-            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
-            bool defaultValue = true)
-        {
-            if (deploymentExecutionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return GetBoolValue(deploymentExecutionDefinition,
-                defaultValue,
-                WebDeployRules.DoNotDeleteEnabled);
-        }
-
-        public static bool AppOfflineEnabled(
-            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
-            bool defaultValue = true)
-        {
-            if (deploymentExecutionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return GetBoolValue(deploymentExecutionDefinition,
-                defaultValue,
-                WebDeployRules.AppOfflineEnabled);
-        }
-
-        public static bool UseChecksumEnabled(
-            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
-            bool defaultValue = false)
-        {
-            if (deploymentExecutionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
-            }
-
-            return GetBoolValue(deploymentExecutionDefinition,
-                defaultValue,
-                WebDeployRules.UseChecksumEnabled);
-        }
-
         public static bool AppDataSkipDirectiveEnabled(
             [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
             bool defaultValue = false)
@@ -90,13 +34,57 @@ namespace Milou.Deployer.Core.Deployment
                 WebDeployRules.ApplicationInsightsProfiler2SkipDirectiveEnabled);
         }
 
-        private static bool GetBoolValue(
-            DeploymentExecutionDefinition deploymentExecutionDefinition,
+        public static bool AppOfflineEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = true)
+        {
+            if (deploymentExecutionDefinition is null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return GetBoolValue(deploymentExecutionDefinition, defaultValue, WebDeployRules.AppOfflineEnabled);
+        }
+
+        public static bool DoNotDeleteEnabled(
+            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = true)
+        {
+            if (deploymentExecutionDefinition is null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return GetBoolValue(deploymentExecutionDefinition, defaultValue, WebDeployRules.DoNotDeleteEnabled);
+        }
+
+        public static bool UseChecksumEnabled(
+            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = false)
+        {
+            if (deploymentExecutionDefinition is null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return GetBoolValue(deploymentExecutionDefinition, defaultValue, WebDeployRules.UseChecksumEnabled);
+        }
+
+        public static bool WhatIfEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            bool defaultValue = false)
+        {
+            if (deploymentExecutionDefinition is null)
+            {
+                throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
+            }
+
+            return GetBoolValue(deploymentExecutionDefinition, defaultValue, WebDeployRules.WhatIfEnabled);
+        }
+
+        private static bool GetBoolValue(DeploymentExecutionDefinition deploymentExecutionDefinition,
             bool defaultValue,
             string configurationKey)
         {
-            deploymentExecutionDefinition.Parameters.TryGetValue(configurationKey,
-                out var values);
+            deploymentExecutionDefinition.Parameters.TryGetValue(configurationKey, out var values);
 
             if (values.Count == 1 && bool.TryParse(values[0], out bool flag))
             {

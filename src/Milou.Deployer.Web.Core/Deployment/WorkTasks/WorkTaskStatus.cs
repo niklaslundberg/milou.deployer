@@ -21,10 +21,11 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 
         public string Status { get; }
 
-        public override string ToString() => Status;
-
         public static WorkTaskStatus ParseOrDefault(string itemStatus) =>
             EnumerableOf<WorkTaskStatus>.All.SingleOrDefault(status =>
-                status.Status.Equals(itemStatus, StringComparison.OrdinalIgnoreCase)) ?? Unknown;
+                status.Status.Equals(itemStatus, StringComparison.OrdinalIgnoreCase)) ??
+            Unknown;
+
+        public override string ToString() => Status;
     }
 }

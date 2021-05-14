@@ -18,15 +18,16 @@ namespace Milou.Deployer.Web.IisHost
         {
             IServiceCollection services = serviceProviderHolder.ServiceCollection;
 
-            CustomOpenIdConnectConfiguration? openIdConnectConfiguration =
+            var openIdConnectConfiguration =
                 serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
 
-            var applicationAssemblyResolver = serviceProviderHolder.ServiceProvider.GetRequiredService<IApplicationAssemblyResolver>();
+            var applicationAssemblyResolver =
+                serviceProviderHolder.ServiceProvider.GetRequiredService<IApplicationAssemblyResolver>();
 
             HttpLoggingConfiguration httpLoggingConfiguration =
                 serviceProviderHolder.ServiceProvider.GetRequiredService<HttpLoggingConfiguration>();
 
-            MilouAuthenticationConfiguration? milouAuthenticationConfiguration =
+            var milouAuthenticationConfiguration =
                 serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
 
             ILogger logger = serviceProviderHolder.ServiceProvider.GetRequiredService<ILogger>();
@@ -37,16 +38,13 @@ namespace Milou.Deployer.Web.IisHost
             IKeyValueConfiguration configuration =
                 serviceProviderHolder.ServiceProvider.GetRequiredService<IKeyValueConfiguration>();
 
-            services.AddDeploymentAuthentication(
-                    logger,
+            services
+               .AddDeploymentAuthentication(logger,
                     environmentConfiguration,
                     milouAuthenticationConfiguration,
-                    openIdConnectConfiguration)
-                .AddDeploymentAuthorization(environmentConfiguration)
-                .AddHttpClientsWithConfiguration(httpLoggingConfiguration)
-                .AddDeploymentSignalR()
-                .AddServerFeatures()
-                .AddDeploymentMvc(environmentConfiguration, configuration, logger, applicationAssemblyResolver);
+                    openIdConnectConfiguration).AddDeploymentAuthorization(environmentConfiguration)
+               .AddHttpClientsWithConfiguration(httpLoggingConfiguration).AddDeploymentSignalR().AddServerFeatures()
+               .AddDeploymentMvc(environmentConfiguration, configuration, logger, applicationAssemblyResolver);
         }
     }
 }

@@ -37,10 +37,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 return loggerConfiguration;
             }
 
-            return loggerConfiguration
-                .WriteTo.TestOutput(_testOutputHelper)
-                .WriteTo.Debug()
-                .WriteTo.Console();
+            return loggerConfiguration.WriteTo.TestOutput(_testOutputHelper).WriteTo.Debug().WriteTo.Console();
         }
     }
 }

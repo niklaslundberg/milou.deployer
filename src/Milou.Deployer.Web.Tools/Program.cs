@@ -54,12 +54,12 @@ namespace Milou.Deployer.Web.Tools
 
                 var handler = new JwtSecurityTokenHandler();
                 var securityKey = new SymmetricSecurityKey(keyBytes);
+
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(claims),
                     Expires = new DateTime(DateTime.Today.Year + 2, 12, 31, 0, 0, 0, 0),
-                    SigningCredentials = new SigningCredentials(securityKey,
-                        SecurityAlgorithms.HmacSha256Signature)
+                    SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature)
                     //SigningCredentials =  new SigningCredentials(, )
                 };
 

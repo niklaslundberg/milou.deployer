@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
-using Arbor.App.Extensions.Application;
 using Milou.Deployer.Tests.Integration;
 using Xunit;
 using Xunit.Abstractions;
@@ -12,9 +11,9 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class WhenMakingHttpGetRequestToRoot : TestBase<HttpGetRequestToRoot>
     {
-        public WhenMakingHttpGetRequestToRoot(
-            HttpGetRequestToRoot webFixture,
-            ITestOutputHelper output) : base(webFixture, output)
+        public WhenMakingHttpGetRequestToRoot(HttpGetRequestToRoot webFixture, ITestOutputHelper output) : base(
+            webFixture,
+            output)
         {
         }
 
@@ -22,6 +21,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public async Task Then_It_Should_Return_Html_In_Response_Body()
         {
             Assert.Null(WebFixture.Exception);
+
             string headers = string.Join(Environment.NewLine,
                 WebFixture?.ResponseMessage?.Headers?.Select(pair => $"{pair.Key}:{string.Join(",", pair.Value)}") ??
                 Array.Empty<string>());
@@ -33,6 +33,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             string body = WebFixture?.ResponseMessage?.Content is { }
                 ? await WebFixture.ResponseMessage.Content!.ReadAsStringAsync()
                 : Constants.NotAvailable;
+
             Output.WriteLine($"Response body: {body}");
 
             Assert.Contains("<html", body, StringComparison.Ordinal);

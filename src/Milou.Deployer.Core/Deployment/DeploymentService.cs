@@ -20,7 +20,6 @@ using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment.Configuration;
 using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Core.Deployment.WebDeploy;
-
 using Milou.Deployer.Core.IO;
 using Milou.Deployer.Core.NuGet;
 using Milou.Deployer.Core.XmlTransformation;
@@ -46,8 +45,7 @@ namespace Milou.Deployer.Core.Deployment
 
         private readonly XmlTransformer _xmlTransformer;
 
-        public DeploymentService(
-            DeployerConfiguration deployerConfiguration,
+        public DeploymentService(DeployerConfiguration deployerConfiguration,
             ILogger logger,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             IWebDeployHelper webDeployHelper,
@@ -85,126 +83,30 @@ namespace Milou.Deployer.Core.Deployment
 
         public DeployerConfiguration DeployerConfiguration { get; }
 
-        private ExitCode VerifyFiles(string fileListFile, DirectoryInfo contentDirectory)
+        public Task<ExitCode> DeployAsync(ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
+            SemanticVersion? explicitVersion,
+            CancellationToken cancellationToken = default)
         {
-            var existingFiles = contentDirectory
-                .GetFiles("*", SearchOption.AllDirectories)
-                .Select(file => new
-                {
-                    File = file,
-                    RelativePath = file.FullName[contentDirectory.FullName.Length..].TrimStart('\\')
-                })
-                .ToArray();
-
-            string[] contentFiles = existingFiles
-                .Select(s => s.RelativePath)
-                .ToArray();
-
-            string json = File.ReadAllText(fileListFile, Encoding.UTF8);
-
-            var fileList = JsonConvert.DeserializeAnonymousType(json,
-                new {files = new[] {new {file = "", sha512Base64Encoded = ""}}});
-
-            if (fileList is null)
+            if (!deploymentExecutionDefinitions.Any())
             {
-                throw new InvalidOperationException($"Could not get file list from json {json}");
+                throw new ArgumentException("Argument is empty collection", nameof(deploymentExecutionDefinitions));
             }
 
-            _logger.Debug("Verifying file list containing {FileCount} files", fileList.files.Length);
-
-            string[] expectedFiles = fileList.files
-                .Select(s => s.file.TrimStart('\\'))
-                .ToArray();
-
-            string[] extraFiles = contentFiles
-                .Except(expectedFiles, StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-
-            string[] missingFiles = expectedFiles
-                .Except(contentFiles, StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-
-            if (extraFiles.Length > 0 || missingFiles.Length > 0)
+            if (string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetExePath))
             {
-                if (extraFiles.Length > 0)
-                {
-                    _logger.Error("Found extra files {Files} on disk", extraFiles);
-                }
-
-                if (missingFiles.Length > 0)
-                {
-                    _logger.Error("Could not find defined files {Files} on disk defined in NuGet package",
-                        missingFiles);
-                }
-
-                return ExitCode.Failure;
+                throw new InvalidOperationException(
+                    $"The NuGet exe path is not defined, try set key '{ConfigurationKeys.NuGetExePath}'");
             }
 
-            var dictionary = fileList.files.ToDictionary(s => s.file.TrimStart('\\'),
-                s => s.sha512Base64Encoded,
-                StringComparer.OrdinalIgnoreCase);
-
-            using (var hashAlgorithm = SHA512.Create())
+            if (!File.Exists(DeployerConfiguration.NuGetExePath))
             {
-                foreach (var item in existingFiles)
-                {
-                    string expectedChecksum = dictionary[item.RelativePath];
+                _logger.Error("The nuget.exe at '{Path}' does not exist", DeployerConfiguration.NuGetExePath);
 
-                    using var fs = new FileStream(item.File.FullName, FileMode.Open);
-
-                    byte[] fileHash = hashAlgorithm.ComputeHash(fs);
-
-                    string base64 = Convert.ToBase64String(fileHash);
-
-                    if (!base64.Equals(expectedChecksum, StringComparison.Ordinal))
-                    {
-                        throw new InvalidOperationException($"Checksum differs for file {item}");
-                    }
-                }
+                throw new InvalidOperationException(
+                    $"The nuget.exe at '{DeployerConfiguration.NuGetExePath}' does not exist");
             }
 
-            _logger.Debug("Successfully verified all content files in extracted package directory");
-
-            return ExitCode.Success;
-        }
-
-        private static SemanticVersion GetSemanticVersionFromDefinition(
-            DeploymentExecutionDefinition deploymentExecutionDefinition,
-            DirectoryInfo packageDirectory,
-            SemanticVersion fallback)
-        {
-            SemanticVersion version = deploymentExecutionDefinition.SemanticVersion
-                                      ?? (SemanticVersion.TryParse(
-                                          packageDirectory.Name.Replace(
-                                              deploymentExecutionDefinition.PackageId,
-                                              "", StringComparison.Ordinal).TrimStart('.'),
-                                          out SemanticVersion semanticVersion)
-                                          ? semanticVersion
-                                          : fallback);
-
-            return version;
-        }
-
-        private static ImmutableArray<EnvironmentFile> GetEnvironmentFiles(
-            DirectoryInfo configContentDirectory,
-            DeploymentExecutionDefinition deploymentExecutionDefinition)
-        {
-            int patternLength = DeploymentConstants.EnvironmentPackagePattern.Split('.').Length;
-
-            var files =
-                configContentDirectory.GetFiles("*.*", SearchOption.AllDirectories)
-                    .Select(file => new EnvironmentFile(file, file.Name.Split('.')))
-                    .Where(file => file.FileNameParts.Length == patternLength
-                                   && file.FileNameParts.Skip(1)
-                                       .First()
-                                       .Equals(DeploymentConstants.EnvironmentLiteral,
-                                           StringComparison.OrdinalIgnoreCase)
-                                   && file.FileNameParts.Skip(2).First().Equals(
-                                       deploymentExecutionDefinition.EnvironmentConfig,
-                                       StringComparison.OrdinalIgnoreCase))
-                    .ToImmutableArray();
-
-            return files;
+            return InternalDeployAsync(deploymentExecutionDefinitions, explicitVersion, cancellationToken);
         }
 
         private async Task<EnvironmentPackageResult> AddEnvironmentPackageAsync(
@@ -220,11 +122,11 @@ namespace Milou.Deployer.Core.Deployment
                 deploymentExecutionDefinition.EnvironmentConfig);
 
             SemanticVersion expectedVersion = version;
+
             string expectedPackageId =
                 $"{deploymentExecutionDefinition.PackageId}.{DeploymentConstants.EnvironmentLiteral}.{deploymentExecutionDefinition.EnvironmentConfig}";
 
-            var allVersions = await _nugetPackageInstaller.GetAllVersionsAsync(
-                new NuGetPackageId(expectedPackageId),
+            var allVersions = await _nugetPackageInstaller.GetAllVersionsAsync(new NuGetPackageId(expectedPackageId),
                 allowPreRelease: expectedVersion.IsPrerelease,
                 nuGetSource: deploymentExecutionDefinition.NuGetPackageSource,
                 nugetConfig: deploymentExecutionDefinition.NuGetConfigFile,
@@ -233,12 +135,10 @@ namespace Milou.Deployer.Core.Deployment
                 adaptiveEnabled: deploymentExecutionDefinition.PackageListPrefixEnabled,
                 prefix: deploymentExecutionDefinition.PackageListPrefixEnabled == true
                     ? deploymentExecutionDefinition.PackageListPrefix ?? ""
-                    : ""
-            );
+                    : "");
 
             var matchingFoundEnvironmentPackage = allVersions
-                .Where(currentVersion => currentVersion == expectedVersion)
-                .ToList();
+                                                 .Where(currentVersion => currentVersion == expectedVersion).ToList();
 
             if (matchingFoundEnvironmentPackage.Count > 1)
             {
@@ -247,42 +147,31 @@ namespace Milou.Deployer.Core.Deployment
                     string.Join(", ",
                         matchingFoundEnvironmentPackage.Select(currentVersion =>
                             $"'{currentVersion.ToNormalizedString()}'")));
+
                 return new EnvironmentPackageResult(false);
             }
 
             if (matchingFoundEnvironmentPackage.Any())
             {
-                string tempName = deploymentExecutionDefinition.EnvironmentConfig!.Substring(0,4);
+                string tempName = deploymentExecutionDefinition.EnvironmentConfig!.Substring(0, 4);
 
-                var tempInstallDirectory =
-                    new DirectoryInfo(
-                        Path.Combine(
-                            tempDirectoryInfo.FullName,
-                           "t" + tempName));
+                var tempInstallDirectory = new DirectoryInfo(Path.Combine(tempDirectoryInfo.FullName, "t" + tempName));
 
-                var deploymentDefinition =
-                    new DeploymentExecutionDefinition(
-                        expectedPackageId,
-                        tempInstallDirectory.FullName,
-                        expectedVersion,
-                        nugetExePath: deploymentExecutionDefinition.NuGetExePath,
-                        nuGetPackageSource: deploymentExecutionDefinition.NuGetPackageSource,
-                        nuGetConfigFile: deploymentExecutionDefinition.NuGetConfigFile);
+                var deploymentDefinition = new DeploymentExecutionDefinition(expectedPackageId,
+                    tempInstallDirectory.FullName,
+                    expectedVersion,
+                    nugetExePath: deploymentExecutionDefinition.NuGetExePath,
+                    nuGetPackageSource: deploymentExecutionDefinition.NuGetPackageSource,
+                    nuGetConfigFile: deploymentExecutionDefinition.NuGetConfigFile);
 
-                var tempOutputDirectory =
-                    new DirectoryInfo(
-                        Path.Combine(
-                            tempDirectoryInfo.FullName,
-                            "o" + tempName));
+                var tempOutputDirectory = new DirectoryInfo(Path.Combine(tempDirectoryInfo.FullName, "o" + tempName));
 
-                var installedEnvironmentPackage =
-                    await
-                        _packageInstaller.InstallPackageAsync(
-                            deploymentDefinition,
-                            tempOutputDirectory,
-                            false,
-                            null,
-                            cancellationToken).ConfigureAwait(false);
+                var installedEnvironmentPackage = await _packageInstaller
+                                                       .InstallPackageAsync(deploymentDefinition,
+                                                            tempOutputDirectory,
+                                                            false,
+                                                            null,
+                                                            cancellationToken).ConfigureAwait(false);
 
                 if (installedEnvironmentPackage is null)
                 {
@@ -294,8 +183,7 @@ namespace Milou.Deployer.Core.Deployment
                 }
 
                 var configContentDirectory =
-                    new DirectoryInfo(
-                        Path.Combine(tempOutputDirectory.FullName, expectedPackageId, "content"));
+                    new DirectoryInfo(Path.Combine(tempOutputDirectory.FullName, expectedPackageId, "content"));
 
                 if (!configContentDirectory.Exists)
                 {
@@ -303,9 +191,7 @@ namespace Milou.Deployer.Core.Deployment
                 }
                 else
                 {
-                    var environmentFiles = GetEnvironmentFiles(
-                        configContentDirectory,
-                        deploymentExecutionDefinition);
+                    var environmentFiles = GetEnvironmentFiles(configContentDirectory, deploymentExecutionDefinition);
 
                     if (environmentFiles.Any())
                     {
@@ -321,8 +207,7 @@ namespace Milou.Deployer.Core.Deployment
 
                         string foundFiles = string.Join(", ", fileNamesToConcat);
 
-                        _logger.Debug("Could not find any action files in package, all files {FoundFiles}",
-                            foundFiles);
+                        _logger.Debug("Could not find any action files in package, all files {FoundFiles}", foundFiles);
                     }
                 }
 
@@ -351,52 +236,12 @@ namespace Milou.Deployer.Core.Deployment
                     expectedVersion.ToNormalizedString());
             }
 
-            SemanticVersion? foundPackage = matchingFoundEnvironmentPackage.SingleOrDefault();
+            var foundPackage = matchingFoundEnvironmentPackage.SingleOrDefault();
 
             return new EnvironmentPackageResult(true, foundPackage);
         }
 
-        private ReplaceResult ReplaceFileIfMatchingFiles(FileMatch replacement, DirectoryInfo contentDirectory)
-        {
-            var replacedFiles = new List<string>();
-
-            var matchingFiles = _fileMatcher.Matches(replacement, contentDirectory);
-
-            if (matchingFiles.Length > 1)
-            {
-                _logger.Error("Could not find a single matching file to transform, found multiple: {V}",
-                    string.Join(", ", matchingFiles.Select(file => $"'{file.FullName}'")));
-                return new ReplaceResult(false);
-            }
-
-            if (matchingFiles.Any())
-            {
-                FileInfo targetFileInfo = matchingFiles.Single();
-
-                var replaceExitCode = ReplaceFile(
-                    targetFileInfo,
-                    replacement.ActionFile,
-                    contentDirectory,
-                    replacement.ActionFileRootDirectory);
-
-                if (!replaceExitCode.IsSuccess)
-                {
-                    return new ReplaceResult(false);
-                }
-
-                replacedFiles.Add(targetFileInfo.Name);
-            }
-            else
-            {
-                _logger.Debug("Could not find any matching file for file replacement, looked for '{TargetName}'",
-                    replacement.TargetName);
-            }
-
-            return new ReplaceResult(true, replacedFiles);
-        }
-
-        private void FindMatches(
-            EnvironmentFile item,
+        private void FindMatches(EnvironmentFile item,
             List<FileMatch> possibleXmlTransformations,
             DirectoryInfo configContentDirectory,
             List<FileMatch> replaceFiles)
@@ -409,13 +254,11 @@ namespace Milou.Deployer.Core.Deployment
 
             if (action.Equals("XdtTransform", StringComparison.OrdinalIgnoreCase))
             {
-                possibleXmlTransformations.Add(
-                    new FileMatch(targetFile, item.File, configContentDirectory));
+                possibleXmlTransformations.Add(new FileMatch(targetFile, item.File, configContentDirectory));
             }
             else if (action.Equals("Replace", StringComparison.OrdinalIgnoreCase))
             {
-                replaceFiles.Add(
-                    new FileMatch(targetFile, item.File, configContentDirectory));
+                replaceFiles.Add(new FileMatch(targetFile, item.File, configContentDirectory));
             }
             else
             {
@@ -423,55 +266,39 @@ namespace Milou.Deployer.Core.Deployment
             }
         }
 
-        private ExitCode ReplaceFile(
-            FileInfo targetFileInfo,
-            FileInfo replacement,
-            DirectoryInfo targetRootDirectory,
-            DirectoryInfo replacementRootDirectory)
+        private static ImmutableArray<EnvironmentFile> GetEnvironmentFiles(DirectoryInfo configContentDirectory,
+            DeploymentExecutionDefinition deploymentExecutionDefinition)
         {
-            string targetFile = targetFileInfo.FullName;
+            int patternLength = DeploymentConstants.EnvironmentPackagePattern.Split('.').Length;
 
-            _logger.Debug("Replacing file '{TargetFile}' with new file '{FullName}'", targetFile, replacement.FullName);
+            var files = configContentDirectory.GetFiles("*.*", SearchOption.AllDirectories)
+                                              .Select(file => new EnvironmentFile(file, file.Name.Split('.'))).Where(
+                                                   file => file.FileNameParts.Length == patternLength &&
+                                                           file.FileNameParts.Skip(1).First()
+                                                               .Equals(DeploymentConstants.EnvironmentLiteral,
+                                                                    StringComparison.OrdinalIgnoreCase) &&
+                                                           file.FileNameParts.Skip(2).First().Equals(
+                                                               deploymentExecutionDefinition.EnvironmentConfig,
+                                                               StringComparison.OrdinalIgnoreCase)).ToImmutableArray();
 
-            File.Copy(replacement.FullName, targetFile, true);
-
-            string targetRelativePath = targetFileInfo.GetRelativePath(targetRootDirectory);
-            string replacementRelativePath = replacement.GetRelativePath(replacementRootDirectory);
-
-            _logger.Debug("Replaced file '{TargetRelativePath}' with new file '{ReplacementRelativePath}'",
-                targetRelativePath,
-                replacementRelativePath);
-
-            return ExitCode.Success;
+            return files;
         }
 
-        public Task<ExitCode> DeployAsync(
-            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
-            SemanticVersion? explicitVersion,
-            CancellationToken cancellationToken = default)
+        private static SemanticVersion GetSemanticVersionFromDefinition(
+            DeploymentExecutionDefinition deploymentExecutionDefinition,
+            DirectoryInfo packageDirectory,
+            SemanticVersion fallback)
         {
-            if (!deploymentExecutionDefinitions.Any())
-            {
-                throw new ArgumentException("Argument is empty collection", nameof(deploymentExecutionDefinitions));
-            }
+            SemanticVersion version = deploymentExecutionDefinition.SemanticVersion ??
+                                      (SemanticVersion.TryParse(
+                                          packageDirectory.Name.Replace(deploymentExecutionDefinition.PackageId,
+                                              "",
+                                              StringComparison.Ordinal).TrimStart('.'),
+                                          out SemanticVersion semanticVersion)
+                                          ? semanticVersion
+                                          : fallback);
 
-            if (string.IsNullOrWhiteSpace(DeployerConfiguration.NuGetExePath))
-            {
-                throw new InvalidOperationException(
-                    $"The NuGet exe path is not defined, try set key '{ConfigurationKeys.NuGetExePath}'");
-            }
-
-            if (!File.Exists(DeployerConfiguration.NuGetExePath))
-            {
-                _logger.Error("The nuget.exe at '{Path}' does not exist", DeployerConfiguration.NuGetExePath);
-                throw new InvalidOperationException(
-                    $"The nuget.exe at '{DeployerConfiguration.NuGetExePath}' does not exist");
-            }
-
-            return InternalDeployAsync(
-                deploymentExecutionDefinitions,
-                explicitVersion,
-                cancellationToken);
+            return version;
         }
 
         private async Task<ExitCode> InternalDeployAsync(
@@ -490,21 +317,21 @@ namespace Milou.Deployer.Core.Deployment
 
                 foreach (DeploymentExecutionDefinition deploymentExecutionDefinition in deploymentExecutionDefinitions)
                 {
-                    if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.TargetDirectoryPath)
-                        && string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
+                    if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.TargetDirectoryPath) &&
+                        string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))
                     {
                         throw new InvalidOperationException(
                             $"{nameof(deploymentExecutionDefinition.TargetDirectoryPath)} and {nameof(deploymentExecutionDefinition.PublishSettingsFile)} are both not set");
                     }
 
                     string asJson = JsonConvert.SerializeObject(deploymentExecutionDefinition, Formatting.Indented);
+
                     _logger.Information("Executing deployment execution definition: '{DeploymentExecutionDefinition}'",
                         asJson);
 
                     const string tempPrefix = "MD";
 
-                    string tempPath = Path.Combine(
-                        Path.GetTempPath(),
+                    string tempPath = Path.Combine(Path.GetTempPath(),
                         $"{tempPrefix}{DateTime.UtcNow.Ticks.ToString()[10..]}");
 
                     var tempWorkingDirectory = new DirectoryInfo(tempPath);
@@ -512,19 +339,19 @@ namespace Milou.Deployer.Core.Deployment
 
                     tempDirectoriesToClean.Add(packageInstallTempDirectory);
 
-                    var installedMainPackage =
-                        await _packageInstaller.InstallPackageAsync(
-                            deploymentExecutionDefinition,
-                            packageInstallTempDirectory,
-                            false,
-                            explicitVersion,
-                            cancellationToken).ConfigureAwait(false);
+                    var installedMainPackage = await _packageInstaller
+                                                    .InstallPackageAsync(deploymentExecutionDefinition,
+                                                         packageInstallTempDirectory,
+                                                         false,
+                                                         explicitVersion,
+                                                         cancellationToken).ConfigureAwait(false);
 
                     if (installedMainPackage is null)
                     {
                         _logger.Error(
                             "Could not install package defined in deployment execution definition {DeploymentExecutionDefinition}",
                             deploymentExecutionDefinition);
+
                         return ExitCode.Failure;
                     }
 
@@ -540,14 +367,13 @@ namespace Milou.Deployer.Core.Deployment
 
                     DirectoryInfo[] packagesDirectory = tempWorkingDirectory.GetDirectories();
 
-                    DirectoryInfo packageDirectory =
-                        packagesDirectory.Single(directory =>
-                            directory.Name.Equals(installedPackage.PackageId, StringComparison.OrdinalIgnoreCase));
+                    DirectoryInfo packageDirectory = packagesDirectory.Single(directory =>
+                        directory.Name.Equals(installedPackage.PackageId, StringComparison.OrdinalIgnoreCase));
 
-                    SemanticVersion version = explicitVersion ?? GetSemanticVersionFromDefinition(
-                        deploymentExecutionDefinition,
-                        packageDirectory,
-                        installedPackage.Version);
+                    SemanticVersion version = explicitVersion ??
+                                              GetSemanticVersionFromDefinition(deploymentExecutionDefinition,
+                                                  packageDirectory,
+                                                  installedPackage.Version);
 
                     _logger.Verbose("Package version is {Version}", version.ToNormalizedString());
 
@@ -556,16 +382,16 @@ namespace Milou.Deployer.Core.Deployment
 
                     var environmentPackageResult = new EnvironmentPackageResult(true);
 
-                    var contentDirectory =
-                        new DirectoryInfo(Path.Combine(packageDirectory.FullName, "Content"));
+                    var contentDirectory = new DirectoryInfo(Path.Combine(packageDirectory.FullName, "Content"));
 
                     if (!contentDirectory.Exists)
                     {
                         _logger.Error("Content directory '{FullName}' does not exist", contentDirectory.FullName);
+
                         return ExitCode.Failure;
                     }
 
-                    FileInfo? contentFilesJson = packageDirectory.GetFiles("contentFiles.json").SingleOrDefault();
+                    var contentFilesJson = packageDirectory.GetFiles("contentFiles.json").SingleOrDefault();
 
                     if (contentFilesJson?.Exists == true)
                     {
@@ -586,7 +412,8 @@ namespace Milou.Deployer.Core.Deployment
                     {
                         _logger.Information(
                             "Fetching environment packages for package {Package} and environment {Environment}",
-                            deploymentExecutionDefinition.PackageId, deploymentExecutionDefinition.EnvironmentConfig);
+                            deploymentExecutionDefinition.PackageId,
+                            deploymentExecutionDefinition.EnvironmentConfig);
 
                         environmentPackageResult = await AddEnvironmentPackageAsync(deploymentExecutionDefinition,
                             packageInstallTempDirectory,
@@ -601,7 +428,7 @@ namespace Milou.Deployer.Core.Deployment
                             return ExitCode.Failure;
                         }
 
-                        if (environmentPackageResult.Version is {})
+                        if (environmentPackageResult.Version is { })
                         {
                             _logger.Information("Installed environment package version {Version}",
                                 environmentPackageResult.Version.ToNormalizedString());
@@ -628,7 +455,8 @@ namespace Milou.Deployer.Core.Deployment
 
                     foreach (FileMatch possibleXmlTransformation in possibleXmlTransformations)
                     {
-                        TransformationResult result = _xmlTransformer.TransformMatch(possibleXmlTransformation,
+                        TransformationResult result = _xmlTransformer.TransformMatch(
+                            possibleXmlTransformation,
                             contentDirectory);
 
                         if (!result.IsSuccess)
@@ -669,17 +497,16 @@ namespace Milou.Deployer.Core.Deployment
                     string uniqueTargetTempSuffix =
                         DateTime.Now.ToString("MMddHHmmssfff", CultureInfo.InvariantCulture);
 
-                    string uniqueTargetTempPath = Path.Combine(
-                        Path.GetTempPath(),
+                    string uniqueTargetTempPath = Path.Combine(Path.GetTempPath(),
                         $"{tempPrefix}t{uniqueTargetTempSuffix}{Guid.NewGuid().ToString().Substring(0, 6)}");
 
-                    var targetTempDirectoryInfo =
-                        new DirectoryInfo(uniqueTargetTempPath);
+                    var targetTempDirectoryInfo = new DirectoryInfo(uniqueTargetTempPath);
 
                     if (!targetTempDirectoryInfo.Exists)
                     {
                         _logger.Debug("Creating temp target directory '{FullName}'",
                             packageInstallTempDirectory.FullName);
+
                         targetTempDirectoryInfo.Create();
                     }
 
@@ -690,8 +517,7 @@ namespace Milou.Deployer.Core.Deployment
                     DirectoryInfo applicationMetadataTargetDirectory =
                         wwwRootDirectory.Exists ? wwwRootDirectory : contentDirectory;
 
-                    string versionFile = ApplicationMetadataCreator.SetVersionFile(
-                        installedMainPackage,
+                    string versionFile = ApplicationMetadataCreator.SetVersionFile(installedMainPackage,
                         applicationMetadataTargetDirectory,
                         deploymentExecutionDefinition,
                         xmlTransformedFiles,
@@ -709,7 +535,8 @@ namespace Milou.Deployer.Core.Deployment
                     var targetAppOffline = new FileInfo(Path.Combine(targetTempDirectoryInfo.FullName,
                         DeploymentConstants.AppOfflineHtm));
 
-                    var ruleConfiguration = RuleConfiguration.Get(deploymentExecutionDefinition,
+                    var ruleConfiguration = RuleConfiguration.Get(
+                        deploymentExecutionDefinition,
                         DeployerConfiguration,
                         _logger);
 
@@ -727,8 +554,7 @@ namespace Milou.Deployer.Core.Deployment
                             if (DeployerConfiguration.DefaultWaitTimeAfterAppOffline > TimeSpan.Zero)
                             {
                                 await Task.Delay(DeployerConfiguration.DefaultWaitTimeAfterAppOffline,
-                                        cancellationToken)
-                                    .ConfigureAwait(false);
+                                    cancellationToken).ConfigureAwait(false);
                             }
 
                             tempFilesToClean.Add(targetAppOffline.FullName);
@@ -745,11 +571,12 @@ namespace Milou.Deployer.Core.Deployment
                     _logger.Debug("Copied content files from '{ContentDirectory}' to '{FullName}'",
                         contentDirectory,
                         targetTempDirectoryInfo.FullName);
+
                     tempDirectoriesToClean.Add(packageInstallTempDirectory);
 
                     bool hasPublishSettingsFile =
-                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile)
-                        && File.Exists(deploymentExecutionDefinition.PublishSettingsFile);
+                        !string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile) &&
+                        File.Exists(deploymentExecutionDefinition.PublishSettingsFile);
 
                     if (hasPublishSettingsFile)
                     {
@@ -773,6 +600,7 @@ namespace Milou.Deployer.Core.Deployment
                             if (args.EventLevel == TraceLevel.Verbose)
                             {
                                 _logger.Verbose("{Message}", args.Message);
+
                                 return;
                             }
 
@@ -780,7 +608,7 @@ namespace Milou.Deployer.Core.Deployment
                         };
                     }
 
-                    bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName is {};
+                    bool hasIisSiteName = deploymentExecutionDefinition.IisSiteName is { };
                     DeploySummary summary;
 
                     try
@@ -792,7 +620,7 @@ namespace Milou.Deployer.Core.Deployment
                             manager = _iisManager(deploymentExecutionDefinition);
                         }
 
-                        if (hasIisSiteName && manager is {})
+                        if (hasIisSiteName && manager is { })
                         {
                             bool stopped = manager.StopSiteIfApplicable();
 
@@ -801,6 +629,7 @@ namespace Milou.Deployer.Core.Deployment
                                 _logger.Error(
                                     "Could not stop IIS site for deployment execution definition {DeploymentExecutionDefinition}",
                                     deploymentExecutionDefinition);
+
                                 return ExitCode.Failure;
                             }
                         }
@@ -811,6 +640,7 @@ namespace Milou.Deployer.Core.Deployment
                             {
                                 _logger.Information("Deploying {Target} with WebDeploy",
                                     deploymentExecutionDefinition.TargetDirectoryPath);
+
                                 summary = await _webDeployHelper.DeployContentToOneSiteAsync(
                                     targetTempDirectoryInfo.FullName,
                                     deploymentExecutionDefinition.PublishSettingsFile,
@@ -821,16 +651,15 @@ namespace Milou.Deployer.Core.Deployment
                                     whatIf: ruleConfiguration.WhatIfEnabled,
                                     traceLevel: TraceLevel.Verbose,
                                     appDataSkipDirectiveEnabled: ruleConfiguration.AppDataSkipDirectiveEnabled,
-                                    applicationInsightsProfiler2SkipDirectiveEnabled:
-                                    ruleConfiguration.ApplicationInsightsProfiler2SkipDirectiveEnabled,
+                                    applicationInsightsProfiler2SkipDirectiveEnabled: ruleConfiguration
+                                       .ApplicationInsightsProfiler2SkipDirectiveEnabled,
                                     logAction: message => _logger.Debug("{Message}", message),
                                     targetPath: hasPublishSettingsFile
                                         ? string.Empty
-                                        : deploymentExecutionDefinition.TargetDirectoryPath
-                                ).ConfigureAwait(false);
+                                        : deploymentExecutionDefinition.TargetDirectoryPath).ConfigureAwait(false);
                             }
                             else if (deploymentExecutionDefinition.PublishType.IsAnyFtpType &&
-                                     deploymentExecutionDefinition.FtpPath is {})
+                                     deploymentExecutionDefinition.FtpPath is { })
                             {
                                 FtpPath basePath = deploymentExecutionDefinition.FtpPath;
 
@@ -841,25 +670,26 @@ namespace Milou.Deployer.Core.Deployment
                                 _logger.Information("Deploying {Target} with {PublishType}",
                                     deploymentExecutionDefinition.FtpPath?.Path,
                                     deploymentExecutionDefinition.PublishType);
+
                                 string? publishSettingsFile = deploymentExecutionDefinition.PublishSettingsFile;
 
                                 if (string.IsNullOrWhiteSpace(publishSettingsFile))
                                 {
-                                    _logger.Error(
-                                        "Deployment target type is set to {Type} but no publish file is set",
+                                    _logger.Error("Deployment target type is set to {Type} but no publish file is set",
                                         deploymentExecutionDefinition.PublishTypeValue);
+
                                     return ExitCode.Failure;
                                 }
 
                                 using IFtpHandler ftpHandler = await _ftpHandlerFactory.CreateWithPublishSettings(
                                     publishSettingsFile,
                                     ftpSettings,
-                                    _logger, cancellationToken);
+                                    _logger,
+                                    cancellationToken);
 
                                 _logger.Verbose("Created FTP handler, starting publish");
 
-                                summary = await ftpHandler.PublishAsync(
-                                    ruleConfiguration,
+                                summary = await ftpHandler.PublishAsync(ruleConfiguration,
                                     targetTempDirectoryInfo,
                                     cancellationToken);
                             }
@@ -902,22 +732,158 @@ namespace Milou.Deployer.Core.Deployment
             catch (Exception ex)
             {
                 _logger.Error(ex, "Deploy failed: {Message}", ex.Message);
+
                 return ExitCode.Failure;
             }
             finally
             {
                 string[] targetPaths = deploymentExecutionDefinitions
-                    .Select(deploymentExecutionDefinition =>
-                        deploymentExecutionDefinition.TargetDirectoryPath)
-                    .Where(targetPath => !string.IsNullOrWhiteSpace(targetPath))
-                    .Select(path => Path.Combine(path, DeploymentConstants.AppOfflineHtm))
-                    .ToArray();
+                                      .Select(deploymentExecutionDefinition =>
+                                           deploymentExecutionDefinition.TargetDirectoryPath)
+                                      .Where(targetPath => !string.IsNullOrWhiteSpace(targetPath)).Select(path =>
+                                           Path.Combine(path, DeploymentConstants.AppOfflineHtm)).ToArray();
 
                 tempFilesToClean.AddRange(targetPaths);
 
                 await _directoryCleaner.CleanFilesAsync(tempFilesToClean);
                 await _directoryCleaner.CleanDirectoriesAsync(tempDirectoriesToClean);
             }
+
+            return ExitCode.Success;
+        }
+
+        private ExitCode ReplaceFile(FileInfo targetFileInfo,
+            FileInfo replacement,
+            DirectoryInfo targetRootDirectory,
+            DirectoryInfo replacementRootDirectory)
+        {
+            string targetFile = targetFileInfo.FullName;
+
+            _logger.Debug("Replacing file '{TargetFile}' with new file '{FullName}'", targetFile, replacement.FullName);
+
+            File.Copy(replacement.FullName, targetFile, true);
+
+            string targetRelativePath = targetFileInfo.GetRelativePath(targetRootDirectory);
+            string replacementRelativePath = replacement.GetRelativePath(replacementRootDirectory);
+
+            _logger.Debug("Replaced file '{TargetRelativePath}' with new file '{ReplacementRelativePath}'",
+                targetRelativePath,
+                replacementRelativePath);
+
+            return ExitCode.Success;
+        }
+
+        private ReplaceResult ReplaceFileIfMatchingFiles(FileMatch replacement, DirectoryInfo contentDirectory)
+        {
+            var replacedFiles = new List<string>();
+
+            var matchingFiles = _fileMatcher.Matches(replacement, contentDirectory);
+
+            if (matchingFiles.Length > 1)
+            {
+                _logger.Error("Could not find a single matching file to transform, found multiple: {V}",
+                    string.Join(", ", matchingFiles.Select(file => $"'{file.FullName}'")));
+
+                return new ReplaceResult(false);
+            }
+
+            if (matchingFiles.Any())
+            {
+                FileInfo targetFileInfo = matchingFiles.Single();
+
+                var replaceExitCode = ReplaceFile(targetFileInfo,
+                    replacement.ActionFile,
+                    contentDirectory,
+                    replacement.ActionFileRootDirectory);
+
+                if (!replaceExitCode.IsSuccess)
+                {
+                    return new ReplaceResult(false);
+                }
+
+                replacedFiles.Add(targetFileInfo.Name);
+            }
+            else
+            {
+                _logger.Debug("Could not find any matching file for file replacement, looked for '{TargetName}'",
+                    replacement.TargetName);
+            }
+
+            return new ReplaceResult(true, replacedFiles);
+        }
+
+        private ExitCode VerifyFiles(string fileListFile, DirectoryInfo contentDirectory)
+        {
+            var existingFiles = contentDirectory.GetFiles("*", SearchOption.AllDirectories).Select(file =>
+                                                     new
+                                                         {
+                                                             File = file,
+                                                             RelativePath = file
+                                                                           .FullName[contentDirectory.FullName.Length..]
+                                                                           .TrimStart('\\')
+                                                         })
+                                                .ToArray();
+
+            string[] contentFiles = existingFiles.Select(s => s.RelativePath).ToArray();
+
+            string json = File.ReadAllText(fileListFile, Encoding.UTF8);
+
+            var fileList = JsonConvert.DeserializeAnonymousType(json,
+                new {files = new[] {new {file = "", sha512Base64Encoded = ""}}});
+
+            if (fileList is null)
+            {
+                throw new InvalidOperationException($"Could not get file list from json {json}");
+            }
+
+            _logger.Debug("Verifying file list containing {FileCount} files", fileList.files.Length);
+
+            string[] expectedFiles = fileList.files.Select(s => s.file.TrimStart('\\')).ToArray();
+
+            string[] extraFiles = contentFiles.Except(expectedFiles, StringComparer.OrdinalIgnoreCase).ToArray();
+
+            string[] missingFiles = expectedFiles.Except(contentFiles, StringComparer.OrdinalIgnoreCase).ToArray();
+
+            if (extraFiles.Length > 0 || missingFiles.Length > 0)
+            {
+                if (extraFiles.Length > 0)
+                {
+                    _logger.Error("Found extra files {Files} on disk", extraFiles);
+                }
+
+                if (missingFiles.Length > 0)
+                {
+                    _logger.Error("Could not find defined files {Files} on disk defined in NuGet package",
+                        missingFiles);
+                }
+
+                return ExitCode.Failure;
+            }
+
+            var dictionary = fileList.files.ToDictionary(s => s.file.TrimStart('\\'),
+                s => s.sha512Base64Encoded,
+                StringComparer.OrdinalIgnoreCase);
+
+            using (var hashAlgorithm = SHA512.Create())
+            {
+                foreach (var item in existingFiles)
+                {
+                    string expectedChecksum = dictionary[item.RelativePath];
+
+                    using var fs = new FileStream(item.File.FullName, FileMode.Open);
+
+                    byte[] fileHash = hashAlgorithm.ComputeHash(fs);
+
+                    string base64 = Convert.ToBase64String(fileHash);
+
+                    if (!base64.Equals(expectedChecksum, StringComparison.Ordinal))
+                    {
+                        throw new InvalidOperationException($"Checksum differs for file {item}");
+                    }
+                }
+            }
+
+            _logger.Debug("Successfully verified all content files in extracted package directory");
 
             return ExitCode.Success;
         }

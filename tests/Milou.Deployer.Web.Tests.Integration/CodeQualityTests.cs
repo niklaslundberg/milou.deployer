@@ -18,6 +18,19 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public CodeQualityTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
+        public static IEnumerable<object[]> GetAssemblyTypes()
+        {
+            Type notificationType = typeof(INotification);
+
+            yield return new object[] {typeof(BaseApiController).Assembly, notificationType};
+        }
+
+        public static IEnumerable<object[]> GetMartenDataTypes()
+        {
+            yield return new object[] {typeof(BaseApiController).Assembly, typeof(MartenDataAttribute)};
+            yield return new object[] {typeof(DeploymentTarget).Assembly, typeof(MartenDataAttribute)};
+        }
+
         [MemberData(nameof(GetAssemblyTypes))]
         [Theory]
         public void ShouldNotContainImplementations(Assembly assembly, Type checkForType)
@@ -27,9 +40,9 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             foreach (Type currentType in currentTypes)
             {
-                bool currentTypeIsClass = !currentType.IsAbstract
-                                          && currentType.IsClass
-                                          && checkForType.IsAssignableFrom(currentType);
+                bool currentTypeIsClass = !currentType.IsAbstract &&
+                                          currentType.IsClass &&
+                                          checkForType.IsAssignableFrom(currentType);
 
                 if (currentTypeIsClass)
                 {
@@ -40,10 +53,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 types[currentType] = currentTypeIsClass;
             }
 
-            var errors = types
-                .Where(pair => pair.Value)
-                .Select(pair => pair.Key)
-                .SafeToImmutableArray();
+            var errors = types.Where(pair => pair.Value).Select(pair => pair.Key).SafeToImmutableArray();
 
             Assert.Empty(errors);
         }
@@ -58,19 +68,6 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 Assert.Null(currentType.GetCustomAttribute(checkForType));
             }
-        }
-
-        public static IEnumerable<object[]> GetAssemblyTypes()
-        {
-            Type notificationType = typeof(INotification);
-
-            yield return new object[] {typeof(BaseApiController).Assembly, notificationType};
-        }
-
-        public static IEnumerable<object[]> GetMartenDataTypes()
-        {
-            yield return new object[] {typeof(BaseApiController).Assembly, typeof(MartenDataAttribute)};
-            yield return new object[] {typeof(DeploymentTarget).Assembly, typeof(MartenDataAttribute)};
         }
     }
 }

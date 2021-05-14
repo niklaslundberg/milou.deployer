@@ -29,9 +29,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         private readonly IDeploymentTargetReadService _targetSource;
 
-        public MonitoringController(
-            MonitoringService monitoringService,
-            IDeploymentTargetReadService targetSource)
+        public MonitoringController(MonitoringService monitoringService, IDeploymentTargetReadService targetSource)
         {
             _monitoringService = monitoringService;
             _targetSource = targetSource;
@@ -42,71 +40,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             IReadOnlyCollection<DeploymentTarget> targets =
-                (await _targetSource.GetOrganizationsAsync(cancellationToken))
-                .SelectMany(
-                    organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-                .SafeToReadOnlyCollection();
+                (await _targetSource.GetOrganizationsAsync(cancellationToken)).SelectMany(organization =>
+                    organization.Projects.SelectMany(project => project.DeploymentTargets)).SafeToReadOnlyCollection();
 
             IReadOnlyCollection<AppVersion> appVersions =
                 await _monitoringService.GetAppMetadataAsync(targets, cancellationToken);
 
             return View(new MonitoringViewOutputModel(appVersions));
-        }
-
-        [HttpGet]
-        [Route("~/api/targets")]
-        public async Task<IActionResult> Targets(CancellationToken cancellationToken,
-            [FromServices] IEnvironmentTypeService environmentTypeService)
-        {
-            var environmentTypes = await environmentTypeService.GetEnvironmentTypes(cancellationToken);
-
-            var targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
-                .SelectMany(
-                    organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-                .Select(deploymentTarget =>
-                {
-                    string editUrl = Url.RouteUrl(TargetConstants.EditTargetRouteName,
-                        new {deploymentTargetId = deploymentTarget.Id});
-                    string historyUrl = Url.RouteUrl(DeploymentConstants.HistoryRouteName,
-                        new {deploymentTargetId = deploymentTarget.Id});
-                    string statusUrl = Url.RouteUrl(TargetConstants.TargetStatusApiRouteName,
-                        new {deploymentTargetId = deploymentTarget.Id});
-
-                    EnvironmentType environmentType =
-                        environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTarget.EnvironmentTypeId)) ??
-                        EnvironmentType.Unknown;
-
-                    return new
-                    {
-                        targetId = deploymentTarget.Id,
-                        name = deploymentTarget.Name,
-                        url = deploymentTarget.Url,
-                        editUrl,
-                        historyUrl,
-                        statusKey = DeployStatus.Unknown.Key,
-                        statusDisplayName = DeployStatus.Unknown.DisplayName,
-                        statusUrl,
-                        isPreReleaseVersion = false,
-                        semanticVersion = "",
-                        preReleaseClass = "",
-                        intervalAgo = "",
-                        intervalAgoName = "",
-                        deployedAtLocalTime = "",
-                        environmentType = environmentType.Name,
-                        metadataUrl =
-                            deploymentTarget.Url is null
-                                ? null
-                                : $"{deploymentTarget.Url.AbsoluteUri.TrimEnd('/')}/applicationmetadata.json",
-                        statusMessage = "",
-                        latestNewerAvailabe = "",
-                        deployEnabled = deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
-                        packages = Array.Empty<object>(),
-                        packageId = deploymentTarget.PackageId
-                    };
-                })
-                .OrderBy(target => target.name);
-
-            return Json(new {targets});
         }
 
         [HttpGet]
@@ -116,14 +56,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [HttpGet]
         [Route(TargetConstants.TargetStatusApiRoute, Name = TargetConstants.TargetStatusApiRouteName)]
-        public async Task<IActionResult> Status(
-            DeploymentTargetId deploymentTargetId,
+        public async Task<IActionResult> Status(DeploymentTargetId deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromServices] MonitoringService monitoringService,
             [FromServices] ICustomClock clock)
         {
-            DeploymentTarget? deploymentTarget =
-                await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
             {
@@ -140,7 +78,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return Json(DeployStatus.Unavailable);
             }
 
-            AppVersion? appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
+            var appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
 
             if (appVersion is null)
             {
@@ -150,12 +88,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             var deploymentInterval = appVersion.DeployedAtUtc.IntervalAgo(clock);
 
             int selectedPackageIndex = appVersion.AvailablePackageVersions
-                .Select((item, index) => new
-                {
-                    Selected = item.PackageId == deploymentTarget.PackageId &&
-                               item.Version == appVersion.SemanticVersion,
-                    Index = index
-                }).SingleOrDefault(t => t.Selected)?.Index ?? -1;
+                                                 .Select((item, index) => new
+                                                  {
+                                                      Selected = item.PackageId == deploymentTarget.PackageId &&
+                                                                 item.Version == appVersion.SemanticVersion,
+                                                      Index = index
+                                                  }).SingleOrDefault(t => t.Selected)?.Index ??
+                                       -1;
 
             if (appVersion?.Status is null)
             {
@@ -175,8 +114,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 deployedAtLocalTime = appVersion.DeployedAtUtc.ToLocalTimeFormatted(clock),
                 statusMessage = appVersion.Message,
                 latestNewerAvailable = appVersion.LatestNewerAvailable?.ToNormalizedString() ?? "",
-                deployEnabled =
-                    deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
+                deployEnabled = deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
                 packageId = deploymentTarget.PackageId,
                 packages = appVersion.AvailablePackageVersions.Select(availableVersion => new
                 {
@@ -190,6 +128,64 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 }).ToArray(),
                 selectedPackageIndex
             });
+        }
+
+        [HttpGet]
+        [Route("~/api/targets")]
+        public async Task<IActionResult> Targets(CancellationToken cancellationToken,
+            [FromServices] IEnvironmentTypeService environmentTypeService)
+        {
+            var environmentTypes = await environmentTypeService.GetEnvironmentTypes(cancellationToken);
+
+            var targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
+                         .SelectMany(organization =>
+                              organization.Projects.SelectMany(project => project.DeploymentTargets)).Select(
+                              deploymentTarget =>
+                              {
+                                  string editUrl = Url.RouteUrl(TargetConstants.EditTargetRouteName,
+                                      new {deploymentTargetId = deploymentTarget.Id});
+
+                                  string historyUrl = Url.RouteUrl(DeploymentConstants.HistoryRouteName,
+                                      new {deploymentTargetId = deploymentTarget.Id});
+
+                                  string statusUrl = Url.RouteUrl(TargetConstants.TargetStatusApiRouteName,
+                                      new {deploymentTargetId = deploymentTarget.Id});
+
+                                  EnvironmentType environmentType =
+                                      environmentTypes.SingleOrDefault(type =>
+                                          type.Id.Equals(deploymentTarget.EnvironmentTypeId)) ??
+                                      EnvironmentType.Unknown;
+
+                                  return new
+                                  {
+                                      targetId = deploymentTarget.Id,
+                                      name = deploymentTarget.Name,
+                                      url = deploymentTarget.Url,
+                                      editUrl,
+                                      historyUrl,
+                                      statusKey = DeployStatus.Unknown.Key,
+                                      statusDisplayName = DeployStatus.Unknown.DisplayName,
+                                      statusUrl,
+                                      isPreReleaseVersion = false,
+                                      semanticVersion = "",
+                                      preReleaseClass = "",
+                                      intervalAgo = "",
+                                      intervalAgoName = "",
+                                      deployedAtLocalTime = "",
+                                      environmentType = environmentType.Name,
+                                      metadataUrl =
+                                          deploymentTarget.Url is null
+                                              ? null
+                                              : $"{deploymentTarget.Url.AbsoluteUri.TrimEnd('/')}/applicationmetadata.json",
+                                      statusMessage = "",
+                                      latestNewerAvailabe = "",
+                                      deployEnabled = deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
+                                      packages = Array.Empty<object>(),
+                                      packageId = deploymentTarget.PackageId
+                                  };
+                              }).OrderBy(target => target.name);
+
+            return Json(new {targets});
         }
     }
 }

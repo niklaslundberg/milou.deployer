@@ -10,18 +10,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     internal static class TcpHelper
     {
-        private static readonly ConcurrentDictionary<int, PortPoolRental> Rentals =
-            new();
-
-        private static void Return([NotNull] PortPoolRental rental)
-        {
-            if (rental is null)
-            {
-                throw new ArgumentNullException(nameof(rental));
-            }
-
-            Rentals.TryRemove(rental.Port, out _);
-        }
+        private static readonly ConcurrentDictionary<int, PortPoolRental> Rentals = new();
 
         public static PortPoolRental GetAvailablePort(in PortPoolRange range, IEnumerable<int>? excludes = null)
         {
@@ -31,6 +20,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             TcpConnectionInformation[] activeTcpConnections = ipGlobalProperties.GetActiveTcpConnections();
 
             var random = new Random();
+
             for (int attempt = 0; attempt < 50; attempt++)
             {
                 int port = random.Next(range.StartPort, range.EndPort);
@@ -49,6 +39,16 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
 
             throw new DeployerAppException($"Could not find any TCP port in range {range.Format()}");
+        }
+
+        private static void Return([NotNull] PortPoolRental rental)
+        {
+            if (rental is null)
+            {
+                throw new ArgumentNullException(nameof(rental));
+            }
+
+            Rentals.TryRemove(rental.Port, out _);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net.Mail;
 
 namespace Milou.Deployer.Web.Core.Security
@@ -18,16 +17,19 @@ namespace Milou.Deployer.Web.Core.Security
             if (string.IsNullOrWhiteSpace(email))
             {
                 emailAddress = default;
+
                 return false;
             }
 
             if (!MailAddress.TryCreate(email, out var mailAddress))
             {
                 emailAddress = default;
+
                 return false;
             }
 
             emailAddress = new EmailAddress(mailAddress.Address);
+
             return true;
         }
     }

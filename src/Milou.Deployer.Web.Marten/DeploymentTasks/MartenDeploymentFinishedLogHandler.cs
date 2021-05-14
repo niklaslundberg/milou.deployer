@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Messages;
-using Milou.Deployer.Web.Core.Deployment.Targets;
 using Serilog;
 
 namespace Milou.Deployer.Web.Marten.DeploymentTasks
@@ -30,12 +29,14 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 
             using (IDocumentSession session = _documentStore.OpenSession())
             {
-                IReadOnlyList<TaskLog> existing =
-                    await session.Query<TaskLog>().Where(taskLog => taskLog.Id == taskLogId).ToListAsync(token: cancellationToken);
+                IReadOnlyList<TaskLog> existing = await session.Query<TaskLog>()
+                                                               .Where(taskLog => taskLog.Id == taskLogId)
+                                                               .ToListAsync(cancellationToken);
 
                 if (existing.Any())
                 {
                     _logger.Warning("There is already a task log with id {TaskLogId}", taskLogId);
+
                     return;
                 }
 
@@ -55,8 +56,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
 
             if (!notification.LogLines.IsDefaultOrEmpty)
             {
-                foreach ((LogItem item, int index) notificationLogLine in notification.LogLines.Select((item, index) =>
-                    (item, index)))
+                foreach (var notificationLogLine in notification.LogLines.Select((item, index) => (item, index)))
                 {
                     notificationLogLine.item.TaskLogId = taskLogId;
                     notificationLogLine.item.Id = $"{taskLogId}/{notificationLogLine.index + 1}";

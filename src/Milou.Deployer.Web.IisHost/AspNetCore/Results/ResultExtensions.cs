@@ -23,13 +23,15 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Results
             return actionResult;
         }
 
-        public static IActionResult ToActionResult(this ControllerBase controller, ICommandResult result, string? routeName = null)
+        public static IActionResult ToActionResult(this ControllerBase controller,
+            ICommandResult result,
+            string? routeName = null)
         {
             var actionResult = new ObjectResult(result);
 
-            if (!string.IsNullOrWhiteSpace(routeName)
-                && controller.Url.RouteUrl(routeName) is { } routeUrl
-                && !controller.Request.Headers.ContainsKey("X-Transaction-Id"))
+            if (!string.IsNullOrWhiteSpace(routeName) &&
+                controller.Url.RouteUrl(routeName) is { } routeUrl &&
+                !controller.Request.Headers.ContainsKey("X-Transaction-Id"))
             {
                 controller.Response.Headers.Add("Location", routeUrl);
                 actionResult.StatusCode = StatusCodes.Status303SeeOther;

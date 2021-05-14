@@ -14,12 +14,15 @@ namespace Milou.Deployer.Web.Core.Logging
     [UsedImplicitly]
     public class LogLevelBackgroundService : BackgroundService
     {
-        private readonly LogLevelState _logLevelState;
         private readonly ICustomClock _customClock;
         private readonly ILogger _logger;
+        private readonly LogLevelState _logLevelState;
         private readonly IMediator _mediator;
 
-        public LogLevelBackgroundService(LogLevelState logLevelState, ICustomClock customClock, ILogger logger, IMediator mediator)
+        public LogLevelBackgroundService(LogLevelState logLevelState,
+            ICustomClock customClock,
+            ILogger logger,
+            IMediator mediator)
         {
             _logLevelState = logLevelState;
             _customClock = customClock;
@@ -42,8 +45,8 @@ namespace Milou.Deployer.Web.Core.Logging
                     continue;
                 }
 
-                if (_customClock.UtcNow() > _logLevelState.ValidToUtc
-                    && _logLevelState.LevelSwitch.MinimumLevel != defaultLevel)
+                if (_customClock.UtcNow() > _logLevelState.ValidToUtc &&
+                    _logLevelState.LevelSwitch.MinimumLevel != defaultLevel)
                 {
                     _logLevelState.LevelSwitch.MinimumLevel = defaultLevel;
                     _logLevelState.ValidToUtc = null;

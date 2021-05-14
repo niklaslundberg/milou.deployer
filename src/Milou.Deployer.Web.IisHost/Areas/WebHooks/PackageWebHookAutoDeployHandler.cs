@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using MediatR;
-using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
@@ -30,8 +29,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
         private readonly IDeploymentTargetReadService _targetSource;
 
-        public PackageWebHookAutoDeployHandler(
-            IDeploymentTargetReadService targetSource,
+        public PackageWebHookAutoDeployHandler(IDeploymentTargetReadService targetSource,
             DeploymentWorkerService deploymentService,
             ILogger logger,
             MonitoringService monitoringService,
@@ -49,6 +47,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             if (!(await _applicationSettingsStore.GetApplicationSettings(cancellationToken)).AutoDeploy.Enabled)
             {
                 _logger.Debug("Auto deploy is disabled, skipping package web hook notification");
+
                 return;
             }
 
@@ -63,7 +62,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             IReadOnlyCollection<DeploymentTarget> deploymentTargets =
                 (await _targetSource.GetDeploymentTargetsAsync(stoppingToken: cancellationToken))
-                .SafeToReadOnlyCollection();
+               .SafeToReadOnlyCollection();
 
             DeploymentTarget[] withAutoDeploy = deploymentTargets.Where(target => target.AutoDeployEnabled).ToArray();
 
@@ -75,21 +74,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             {
                 foreach (DeploymentTarget deploymentTarget in withAutoDeploy)
                 {
-                    if (deploymentTarget.PackageId.Equals(
-                        packageIdentifier.PackageId,
+                    if (deploymentTarget.PackageId.Equals(packageIdentifier.PackageId,
                         StringComparison.OrdinalIgnoreCase))
                     {
-                        if (deploymentTarget.NuGet.NuGetConfigFile is {}
-                            && !deploymentTarget.NuGet.NuGetConfigFile.Equals(notification.NugetConfig, StringComparison.Ordinal))
+                        if (deploymentTarget.NuGet.NuGetConfigFile is { } &&
+                            !deploymentTarget.NuGet.NuGetConfigFile.Equals(notification.NugetConfig,
+                                StringComparison.Ordinal))
                         {
                             _logger.Information("Target {Target} does not match NuGet config", deploymentTarget.Id);
+
                             continue;
                         }
 
-                        if (deploymentTarget.NuGet.NuGetPackageSource is {}
-                            && !deploymentTarget.NuGet.NuGetPackageSource.Equals(notification.NugetSource, StringComparison.Ordinal))
+                        if (deploymentTarget.NuGet.NuGetPackageSource is { } &&
+                            !deploymentTarget.NuGet.NuGetPackageSource.Equals(notification.NugetSource,
+                                StringComparison.Ordinal))
                         {
                             _logger.Information("Target {Target} does not match NuGet source", deploymentTarget.Id);
+
                             continue;
                         }
 
@@ -98,11 +100,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                         if (allowDeployment)
                         {
-                            AppVersion? metadata = await _monitoringService.GetAppMetadataAsync(
+                            var metadata = await _monitoringService.GetAppMetadataAsync(
                                 deploymentTarget,
                                 cancellationToken);
 
-                            if (metadata?.SemanticVersion is {})
+                            if (metadata?.SemanticVersion is { })
                             {
                                 if (packageIdentifier.Version > metadata!.SemanticVersion)
                                 {
@@ -111,12 +113,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                         packageIdentifier,
                                         deploymentTarget.Name);
 
-                                    await _deploymentService.Enqueue(
-                                        new DeploymentTask(
-                                            packageIdentifier,
-                                            deploymentTarget.Id,
-                                            Guid.NewGuid(),
-                                            "Web hook auto deploy"));
+                                    await _deploymentService.Enqueue(new DeploymentTask(packageIdentifier,
+                                        deploymentTarget.Id,
+                                        Guid.NewGuid(),
+                                        "Web hook auto deploy"));
 
                                     _logger.Debug(
                                         "Successfully enqueued package {PackageIdentifier} to target {Name} from web hook",
@@ -147,8 +147,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                     }
                     else
                     {
-                        _logger.Debug(
-                            "No package id matched {PackageIdentifier} for target {Name}",
+                        _logger.Debug("No package id matched {PackageIdentifier} for target {Name}",
                             packageIdentifier,
                             deploymentTarget.Name);
                     }

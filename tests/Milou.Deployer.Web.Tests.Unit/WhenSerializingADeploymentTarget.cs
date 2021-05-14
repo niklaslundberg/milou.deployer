@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             _testOutputHelper.WriteLine(json);
 
-            DeploymentTarget? deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
+            var deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
 
             _testOutputHelper.WriteLine(deserialized?.ToString());
 
@@ -40,7 +40,9 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void ItShouldBeDeserializableWithNuget()
         {
-            var target = new DeploymentTarget(new DeploymentTargetId("myid"), "myName", "tool",
+            var target = new DeploymentTarget(new DeploymentTargetId("myid"),
+                "myName",
+                "tool",
                 nuget: new TargetNuGetSettings
                 {
                     NuGetConfigFile = "123",
@@ -54,7 +56,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             _testOutputHelper.WriteLine(json);
 
-            DeploymentTarget? deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
+            var deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
 
             _testOutputHelper.WriteLine(deserialized?.ToString());
 

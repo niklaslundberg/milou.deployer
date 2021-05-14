@@ -4,8 +4,7 @@ namespace Milou.Deployer.Core.Deployment
 {
     public class EnvironmentPackageResult
     {
-        public EnvironmentPackageResult(bool isSuccess)
-            : this(isSuccess, null)
+        public EnvironmentPackageResult(bool isSuccess) : this(isSuccess, null)
         {
         }
 

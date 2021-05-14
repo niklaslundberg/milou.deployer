@@ -21,8 +21,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
         [Route("/me")]
         [HttpGet]
-        public IActionResult Me() =>
-            new ObjectResult(
-                new {Claims = HttpContext.User.Claims.Select(c => c.Type + " " + c.Value).ToArray()});
+        public IActionResult Me() => new ObjectResult(
+            new {Claims = HttpContext.User.Claims.Select(c => c.Type + " " + c.Value).ToArray()});
     }
 }

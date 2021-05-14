@@ -12,7 +12,6 @@ using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
-
 using NuGet.Packaging;
 using NuGet.Versioning;
 using Serilog;
@@ -26,8 +25,7 @@ namespace Milou.Deployer.Core.NuGet
 
         private readonly ILogger _logger;
 
-        public PackageInstaller(
-            ILogger logger,
+        public PackageInstaller(ILogger logger,
             DeployerConfiguration deployerConfiguration,
             IKeyValueConfiguration keyValueConfiguration)
         {
@@ -67,12 +65,7 @@ namespace Milou.Deployer.Core.NuGet
                 throw new InvalidOperationException($"The NuGet executable file '{executePath}' does not exist");
             }
 
-            var arguments = new List<string>
-            {
-                "install",
-                deploymentExecutionDefinition.PackageId,
-                "-DirectDownload"
-            };
+            var arguments = new List<string> {"install", deploymentExecutionDefinition.PackageId, "-DirectDownload"};
 
             void AddVersion(string value)
             {
@@ -80,11 +73,11 @@ namespace Milou.Deployer.Core.NuGet
                 arguments.Add(value);
             }
 
-            if (explicitVersion is {})
+            if (explicitVersion is { })
             {
                 AddVersion(explicitVersion.ToNormalizedString());
             }
-            else if (deploymentExecutionDefinition.SemanticVersion is {})
+            else if (deploymentExecutionDefinition.SemanticVersion is { })
             {
                 AddVersion(deploymentExecutionDefinition.SemanticVersion.ToNormalizedString());
             }
@@ -147,8 +140,7 @@ namespace Milou.Deployer.Core.NuGet
                 arguments.Add("-ExcludeVersion");
             }
 
-            if (_keyValueConfiguration[ConfigurationKeys.NuGetNoCache]
-                .ParseAsBooleanOrDefault(defaultValue: true))
+            if (_keyValueConfiguration[ConfigurationKeys.NuGetNoCache].ParseAsBooleanOrDefault(true))
             {
                 arguments.Add("-NoCache");
             }
@@ -190,48 +182,48 @@ namespace Milou.Deployer.Core.NuGet
                 Dictionary<string, string> environmentVariables = new();
 
                 string tempDirectoryValue = _keyValueConfiguration[ApplicationConstants.ApplicationTempDirectory];
+
                 if (!string.IsNullOrWhiteSpace(tempDirectoryValue))
                 {
                     environmentVariables.Add("TEMP", tempDirectoryValue);
                     environmentVariables.Add("TMP", tempDirectoryValue);
-                    _logger.Debug("Using environment temp variable when running NuGet.exe set to {Path}", tempDirectoryValue);
+
+                    _logger.Debug("Using environment temp variable when running NuGet.exe set to {Path}",
+                        tempDirectoryValue);
                 }
 
-                exitCode = await ProcessRunner.ExecuteProcessAsync(
-                    executePath,
+                exitCode = await ProcessRunner.ExecuteProcessAsync(executePath,
                     arguments,
                     (message, category) => _logger.Debug("{Category} {Message}", category, message),
                     (message, category) => _logger.Error("{Category} {Message}", category, message),
                     (message, category) => _logger.Debug("{Category} {Message}", category, message),
                     (message, category) => _logger.Verbose("{Category} {Message}", category, message),
-                    debugAction: (message, category) => _logger.Debug(
-                        "{Category} {Message}",
-                        category,
-                        message),
+                    debugAction: (message, category) => _logger.Debug("{Category} {Message}", category, message),
                     environmentVariables: environmentVariables,
                     cancellationToken: cancellationTokenSource.Token).ConfigureAwait(false);
             }
             catch (TaskCanceledException ex)
             {
-                _logger.Error(ex, "NuGet package install timed out for package id {PackageId}", deploymentExecutionDefinition.PackageId);
+                _logger.Error(ex,
+                    "NuGet package install timed out for package id {PackageId}",
+                    deploymentExecutionDefinition.PackageId);
             }
 
             if (exitCode?.IsSuccess != true)
             {
-                _logger.Error("The package installer process '{Process}' {Arguments} failed with exit code {ExitCode} for {PackageId}",
+                _logger.Error(
+                    "The package installer process '{Process}' {Arguments} failed with exit code {ExitCode} for {PackageId}",
                     executePath,
                     string.Join(" ", arguments.Select(arg => $"\"{arg}\"")),
                     exitCode,
                     deploymentExecutionDefinition.PackageId);
+
                 return default;
             }
 
-            var packageFiles =
-                tempDirectory.EnumerateFiles("*.nupkg", SearchOption.AllDirectories)
-                    .Where(
-                        file =>
-                            file.Name.Contains(deploymentExecutionDefinition.PackageId, StringComparison.InvariantCultureIgnoreCase))
-                    .ToList();
+            var packageFiles = tempDirectory.EnumerateFiles("*.nupkg", SearchOption.AllDirectories).Where(file =>
+                file.Name.Contains(deploymentExecutionDefinition.PackageId,
+                    StringComparison.InvariantCultureIgnoreCase)).ToList();
 
             if (!packageFiles.Any())
             {
@@ -276,9 +268,7 @@ namespace Milou.Deployer.Core.NuGet
                 return default;
             }
 
-            var installedPackage = InstalledPackage.Create(packageId,
-                semanticVersion,
-                foundPackageFile.FullName);
+            var installedPackage = InstalledPackage.Create(packageId, semanticVersion, foundPackageFile.FullName);
 
             return installedPackage;
         }

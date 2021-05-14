@@ -10,8 +10,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
         public OrganizationViewModel(OrganizationInfo organization)
         {
             Organization = organization.Organization;
+
             Projects = organization.Projects.Select(project => new ProjectViewModel(project))
-                .SafeToReadOnlyCollection();
+                                   .SafeToReadOnlyCollection();
         }
 
         public string Organization { get; }

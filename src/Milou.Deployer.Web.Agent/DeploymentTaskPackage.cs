@@ -2,8 +2,7 @@
 
 namespace Milou.Deployer.Web.Agent
 {
-    public sealed record DeploymentTaskPackage(
-        string DeploymentTaskId,
+    public sealed record DeploymentTaskPackage(string DeploymentTaskId,
         DeploymentTargetId DeploymentTargetId,
         string AgentId)
     {

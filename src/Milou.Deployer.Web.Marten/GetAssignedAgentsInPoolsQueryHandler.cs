@@ -14,7 +14,9 @@ using Milou.Deployer.Web.Marten.Agents;
 namespace Milou.Deployer.Web.Marten
 {
     [UsedImplicitly]
-    public class GetAssignedAgentsInPoolsQueryHandler : IRequestHandler<GetAssignedAgentsInPoolsQuery, AssignedAgentsInPoolsQueryResult>
+    public class
+        GetAssignedAgentsInPoolsQueryHandler : IRequestHandler<GetAssignedAgentsInPoolsQuery,
+            AssignedAgentsInPoolsQueryResult>
     {
         private readonly IDocumentStore _documentStore;
 
@@ -25,28 +27,32 @@ namespace Milou.Deployer.Web.Marten
         {
             using var session = _documentStore.QuerySession();
 
-            var agentPoolAssignmentData = await session.LoadAsync<AgentPoolAssignmentData>(DocumentConstants.AgentAssignmentsId, cancellationToken);
+            var agentPoolAssignmentData =
+                await session.LoadAsync<AgentPoolAssignmentData>(DocumentConstants.AgentAssignmentsId,
+                    cancellationToken);
 
-            var pools = await session.Query<AgentPoolData>().ToListAsync(token: cancellationToken);
-            var agents = await session.Query<AgentData>().ToListAsync(token: cancellationToken);
+            var pools = await session.Query<AgentPoolData>().ToListAsync(cancellationToken);
+            var agents = await session.Query<AgentData>().ToListAsync(cancellationToken);
 
-            return Map(agentPoolAssignmentData ?? new AgentPoolAssignmentData {Id = DocumentConstants.AgentAssignmentsId}, pools, agents);
+            return Map(agentPoolAssignmentData ??
+                       new AgentPoolAssignmentData {Id = DocumentConstants.AgentAssignmentsId},
+                pools,
+                agents);
         }
 
         private AssignedAgentsInPoolsQueryResult Map(AgentPoolAssignmentData agentPoolAssignmentData,
-            IReadOnlyList<AgentPoolData> pools, IReadOnlyList<AgentData> agents)
+            IReadOnlyList<AgentPoolData> pools,
+            IReadOnlyList<AgentData> agents)
         {
             (AgentId?, AgentPoolId?)[] agentTuples = agents.Select(a =>
                 !agentPoolAssignmentData.Agents.TryGetValue(a.AgentId, out string? value)
                     ? (null, null)
                     : (new AgentId(a.AgentId), new AgentPoolId(value))).ToArray();
 
-            var dictionary =  pools.ToImmutableDictionary(pool => new AgentPoolInfo(new AgentPoolId(pool.Id), new AgentPoolName(pool.Name ?? "N/A")),
-
-                pool => agentTuples.Where(t => string.Equals(pool.Id, t.Item2?.Value))
-                    .Select(t => t.Item1)
-                    .NotNull()
-                    .ToImmutableArray());
+            var dictionary = pools.ToImmutableDictionary(
+                pool => new AgentPoolInfo(new AgentPoolId(pool.Id), new AgentPoolName(pool.Name ?? "N/A")),
+                pool => agentTuples.Where(t => string.Equals(pool.Id, t.Item2?.Value)).Select(t => t.Item1).NotNull()
+                                   .ToImmutableArray());
 
             return new AssignedAgentsInPoolsQueryResult(dictionary);
         }

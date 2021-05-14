@@ -6,8 +6,7 @@ namespace Milou.Deployer.Web.Core.Agents
 {
     public class AgentInfo : IQueryResult
     {
-        public AgentInfo(
-            AgentId id,
+        public AgentInfo(AgentId id,
             DateTimeOffset? connectedAt = null,
             string? connectionId = null,
             string? currentDeploymentTaskId = null,

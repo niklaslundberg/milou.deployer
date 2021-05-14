@@ -26,8 +26,7 @@ namespace Milou.Deployer.Web.IisHost
 {
     public static class AppStarter
     {
-        public static async Task<int> StartAsync(
-            string[]? args,
+        public static async Task<int> StartAsync(string[]? args,
             IReadOnlyDictionary<string, string?> environmentVariables,
             CancellationTokenSource? cancellationTokenSource = null,
             IReadOnlyCollection<Assembly>? scanAssemblies = null,
@@ -49,21 +48,21 @@ namespace Milou.Deployer.Web.IisHost
 
                 bool ownsCancellationToken = cancellationTokenSource is null;
 
-                if (int.TryParse(
-                    environmentVariables.GetValueOrDefault(ConfigurationConstants.RestartTimeInSeconds),
-                    out int intervalInSeconds) && intervalInSeconds > 0)
+                if (int.TryParse(environmentVariables.GetValueOrDefault(ConfigurationConstants.RestartTimeInSeconds),
+                        out int intervalInSeconds) &&
+                    intervalInSeconds > 0)
                 {
                     cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
                 }
 
-                var types = new[]{ typeof(IKeyValueConfiguration)};
+                var types = new[] {typeof(IKeyValueConfiguration)};
 
                 foreach (var type in types)
                 {
                     TempLogger.WriteLine($"Loaded type {type.FullName}");
                 }
 
-                scanAssemblies ??= ApplicationAssemblies.FilteredAssemblies(new[] { "Arbor", "Milou" });
+                scanAssemblies ??= ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});
 
                 foreach (var scanAssembly in scanAssemblies)
                 {
@@ -82,24 +81,24 @@ namespace Milou.Deployer.Web.IisHost
 
                 cancellationTokenSource ??= new CancellationTokenSource();
 
-                cancellationTokenSource.Token.Register(
-                    () => TempLogger.WriteLine("App cancellation token triggered"));
+                cancellationTokenSource.Token.Register(() => TempLogger.WriteLine("App cancellation token triggered"));
 
-                using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(
-                    cancellationTokenSource, args,
-                    environmentVariables, scanAssemblies, instances ?? Array.Empty<object>());
+                using App<ApplicationPipeline> app = await App<ApplicationPipeline>.CreateAsync(cancellationTokenSource,
+                    args,
+                    environmentVariables,
+                    scanAssemblies,
+                    instances ?? Array.Empty<object>());
 
                 TempPathHelper.SetTempPath(app.Configuration, app.Logger);
 
-                bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
-                                    && !Debugger.IsAttached;
+                bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService) &&
+                                    !Debugger.IsAttached;
 
                 app.Logger.Debug("Starting application {Application}", app.AppInstance);
 
                 if (intervalInSeconds > 0)
                 {
-                    app.Logger.Debug(
-                        "Restart time is set to {RestartIntervalInSeconds} seconds for {App}",
+                    app.Logger.Debug("Restart time is set to {RestartIntervalInSeconds} seconds for {App}",
                         intervalInSeconds,
                         app.AppInstance);
                 }
@@ -112,9 +111,7 @@ namespace Milou.Deployer.Web.IisHost
 
                 if (!args.Contains(ApplicationConstants.RunAsService) && runAsService)
                 {
-                    runArgs = args
-                        .Concat(new[] {ApplicationConstants.RunAsService})
-                        .ToArray();
+                    runArgs = args.Concat(new[] {ApplicationConstants.RunAsService}).ToArray();
                 }
                 else
                 {
@@ -130,18 +127,16 @@ namespace Milou.Deployer.Web.IisHost
                     await app.Host.WaitForShutdownAsync(cancellationTokenSource.Token);
                 }
 
-                app.Logger.Information(
-                    "Stopping application {Application}",
-                    app.AppInstance);
+                app.Logger.Information("Stopping application {Application}", app.AppInstance);
 
                 if (ownsCancellationToken)
                 {
                     cancellationTokenSource.SafeDispose();
                 }
 
-                if (int.TryParse(
-                    environmentVariables.GetValueOrDefault(ConfigurationConstants.ShutdownTimeInSeconds),
-                    out int shutDownTimeInSeconds) && shutDownTimeInSeconds > 0)
+                if (int.TryParse(environmentVariables.GetValueOrDefault(ConfigurationConstants.ShutdownTimeInSeconds),
+                        out int shutDownTimeInSeconds) &&
+                    shutDownTimeInSeconds > 0)
                 {
                     await Task.Delay(TimeSpan.FromSeconds(shutDownTimeInSeconds), CancellationToken.None);
                 }
@@ -152,12 +147,13 @@ namespace Milou.Deployer.Web.IisHost
 
                 string? exceptionLogDirectory = args?.ParseParameter("exceptionDir");
 
-                string logDirectory = (exceptionLogDirectory ?? AppContext.BaseDirectory);
+                string logDirectory = exceptionLogDirectory ?? AppContext.BaseDirectory;
 
                 string fatalLogFile = Path.Combine(logDirectory, "Fatal.log");
 
-                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                    .WriteTo.File(fatalLogFile, flushToDiskInterval: TimeSpan.FromMilliseconds(50));
+                LoggerConfiguration loggerConfiguration =
+                    new LoggerConfiguration().WriteTo.File(fatalLogFile,
+                        flushToDiskInterval: TimeSpan.FromMilliseconds(50));
 
                 if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string? url) &&
                     Uri.TryCreate(url, UriKind.Absolute, out var uri))
@@ -165,9 +161,7 @@ namespace Milou.Deployer.Web.IisHost
                     loggerConfiguration = loggerConfiguration.WriteTo.Seq(uri.AbsoluteUri);
                 }
 
-                Logger logger = loggerConfiguration
-                    .MinimumLevel.Verbose()
-                    .CreateLogger();
+                Logger logger = loggerConfiguration.MinimumLevel.Verbose().CreateLogger();
 
                 using (logger)
                 {

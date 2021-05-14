@@ -13,8 +13,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
 
-        public DeploymentTaskPackageService(IHttpClientFactory httpClientFactory,
-            ILogger logger)
+        public DeploymentTaskPackageService(IHttpClientFactory httpClientFactory, ILogger logger)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
@@ -28,7 +27,8 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
             using var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{AgentConstants.DeploymentTaskPackageRoute.Replace("{deploymentTaskId}", deploymentTaskId, StringComparison.Ordinal)}");
 
-            return await httpClient.TrySendAndReadResponseJson<DeploymentTaskPackage>(request, _logger,
+            return await httpClient.TrySendAndReadResponseJson<DeploymentTaskPackage>(request,
+                _logger,
                 cancellationToken);
         }
     }

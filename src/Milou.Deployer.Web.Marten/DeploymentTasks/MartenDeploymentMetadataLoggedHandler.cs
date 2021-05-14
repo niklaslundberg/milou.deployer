@@ -19,6 +19,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
         public async Task Handle(DeploymentMetadataLogged notification, CancellationToken cancellationToken)
         {
             using IDocumentSession session = _documentStore.OpenSession();
+
             var taskMetadata = new TaskMetadata
             {
                 PackageId = notification.DeploymentTask.PackageId,

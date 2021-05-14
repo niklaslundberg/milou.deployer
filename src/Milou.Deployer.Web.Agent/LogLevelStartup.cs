@@ -22,8 +22,8 @@ namespace Milou.Deployer.Web.Agent
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (!TimeSpan.TryParse(_keyValueConfiguration["urn:milou:deployer:log-level-start-reset-time"],
-                    out var timeStamp)
-                || Math.Abs(timeStamp.TotalSeconds) < 1)
+                    out var timeStamp) ||
+                Math.Abs(timeStamp.TotalSeconds) < 1)
             {
                 return;
             }

@@ -19,30 +19,28 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
         private readonly Func<Task<IReadOnlyCollection<OrganizationInfo>>>? _dataCreator;
         private readonly ILogger _logger;
 
-        public InMemoryDeploymentTargetReadService(
-            ILogger logger,
+        public InMemoryDeploymentTargetReadService(ILogger logger,
             Func<Task<IReadOnlyCollection<OrganizationInfo>>>? dataCreator = null)
         {
             _logger = logger;
             _dataCreator = dataCreator;
         }
 
-        public async Task<DeploymentTarget?> GetDeploymentTargetAsync(
-            DeploymentTargetId deploymentTargetId,
+        public async Task<DeploymentTarget?> GetDeploymentTargetAsync(DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
             var organizations = await GetOrganizationsAsync(cancellationToken);
 
-            DeploymentTarget? foundDeploymentTarget = organizations
-                .SelectMany(organizationInfo => organizationInfo.Projects)
-                .SelectMany(projectInfo => projectInfo.DeploymentTargets)
-                .SingleOrDefault(deploymentTarget => deploymentTarget.Id == deploymentTargetId);
+            var foundDeploymentTarget = organizations.SelectMany(organizationInfo => organizationInfo.Projects)
+                                                     .SelectMany(projectInfo => projectInfo.DeploymentTargets)
+                                                     .SingleOrDefault(deploymentTarget =>
+                                                          deploymentTarget.Id == deploymentTargetId);
 
             return foundDeploymentTarget;
         }
 
-        public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
-            CancellationToken cancellationToken = default)
+        public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(CancellationToken cancellationToken =
+            default)
         {
             IReadOnlyCollection<OrganizationInfo> organizations = await GetTargetsAsync();
 
@@ -64,21 +62,18 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
                 return true;
             }
 
-            return organizations
-                .SelectMany(organizationInfo => organizationInfo.Projects)
-                .SelectMany(projectInfo => projectInfo.DeploymentTargets)
-                .Where(Filter)
-                .ToImmutableArray();
+            return organizations.SelectMany(organizationInfo => organizationInfo.Projects)
+                                .SelectMany(projectInfo => projectInfo.DeploymentTargets).Where(Filter)
+                                .ToImmutableArray();
         }
 
-        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(
-            string organizationId,
+        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(string organizationId,
             CancellationToken cancellationToken = default) => Task.FromResult(ImmutableArray<ProjectInfo>.Empty);
 
         [PublicAPI]
         public Task<IReadOnlyCollection<OrganizationInfo>> GetTargetsAsync()
         {
-            if (_dataCreator is {})
+            if (_dataCreator is { })
             {
                 return _dataCreator.Invoke();
             }
@@ -87,26 +82,18 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
 
             var targets = new List<OrganizationInfo>
             {
-                new OrganizationInfo("testorg",
-                    new List<ProjectInfo>
+                new("testorg", new List<ProjectInfo>
+                {
+                    new("testorg", "testproject", new List<DeploymentTarget>
                     {
-                        new ProjectInfo("testorg",
-                            "testproject",
-                            new List<DeploymentTarget>
-                            {
-                                new DeploymentTarget(new DeploymentTargetId("TestTarget"),
-                                    "Test target",
-                                    "MilouDeployer",
-                                    null,
-                                    true,
-                                    null,
-                                    targetDirectory: Path.Combine(
-                                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                                        "Milou.Deployer.Web",
-                                        "TestTarget"),
-                                    emailNotificationAddresses: new StringValues("noreply@localhost.local"))
-                            })
+                        new(new DeploymentTargetId("TestTarget"), "Test target", "MilouDeployer", null, true
+                            , null, targetDirectory: Path.Combine(
+                                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                                "Milou.Deployer.Web",
+                                "TestTarget"), emailNotificationAddresses: new StringValues(
+                                "noreply@localhost.local"))
                     })
+                })
             };
 
             return Task.FromResult<IReadOnlyCollection<OrganizationInfo>>(targets);

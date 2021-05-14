@@ -10,8 +10,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
 {
     public class DeploymentViewOutputModel
     {
-        public DeploymentViewOutputModel(
-            [NotNull] IReadOnlyCollection<PackageVersion> packageVersions,
+        public DeploymentViewOutputModel([NotNull] IReadOnlyCollection<PackageVersion> packageVersions,
             [NotNull] IReadOnlyCollection<DeploymentTarget> targets)
         {
             if (packageVersions is null)
@@ -24,8 +23,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
                 throw new ArgumentNullException(nameof(targets));
             }
 
-            PackageVersions =
-                packageVersions.OrderBy(packageVersion => packageVersion.PackageId).SafeToReadOnlyCollection();
+            PackageVersions = packageVersions.OrderBy(packageVersion => packageVersion.PackageId)
+                                             .SafeToReadOnlyCollection();
+
             Targets = targets.OrderBy(target => target.Name).SafeToReadOnlyCollection();
         }
 

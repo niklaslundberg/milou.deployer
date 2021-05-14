@@ -11,6 +11,7 @@ namespace Milou.Deployer.Development
         public Task StartAsync(CancellationToken cancellationToken)
         {
             IsCompleted = true;
+
             return Task.CompletedTask;
         }
 

@@ -12,6 +12,7 @@ namespace Milou.Deployer.IIS
 #pragma warning disable CA1416 // Validate platform compatibility
                 var identity = WindowsIdentity.GetCurrent();
                 var principal = new WindowsPrincipal(identity);
+
                 return principal.IsInRole(WindowsBuiltInRole.Administrator);
 #pragma warning restore CA1416 // Validate platform compatibility
             }

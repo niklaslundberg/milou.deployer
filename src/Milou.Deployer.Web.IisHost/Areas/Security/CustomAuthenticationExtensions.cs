@@ -5,8 +5,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
     public static class CustomAuthenticationExtensions
     {
-        public static AuthenticationBuilder AddMilouAuthentication(
-            this AuthenticationBuilder builder,
+        public static AuthenticationBuilder AddMilouAuthentication(this AuthenticationBuilder builder,
             string authenticationScheme,
             string displayName,
             Action<MilouAuthenticationOptions> configureOptions) =>

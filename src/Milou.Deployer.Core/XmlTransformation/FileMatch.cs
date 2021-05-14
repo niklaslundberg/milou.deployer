@@ -9,6 +9,7 @@ namespace Milou.Deployer.Core.XmlTransformation
         {
             TargetName = targetName ?? throw new ArgumentNullException(nameof(targetName));
             ActionFile = actionFile ?? throw new ArgumentNullException(nameof(actionFile));
+
             ActionFileRootDirectory = actionFileRootDirectory ??
                                       throw new ArgumentNullException(nameof(actionFileRootDirectory));
         }

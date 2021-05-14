@@ -2,8 +2,7 @@
 {
     public class WebDeployRulesConfig
     {
-        public WebDeployRulesConfig(
-            bool doNotDeleteRuleEnabled,
+        public WebDeployRulesConfig(bool doNotDeleteRuleEnabled,
             bool appOfflineRuleEnabled,
             bool useChecksumRuleEnabled,
             bool appDataSkipDirectiveEnabled,

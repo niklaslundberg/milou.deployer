@@ -7,9 +7,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class DeploymentMetadataLogged : IEvent
     {
-        public DeploymentMetadataLogged(
-            [NotNull] DeploymentTask deploymentTask,
-            [NotNull] DeploymentTaskResult result)
+        public DeploymentMetadataLogged([NotNull] DeploymentTask deploymentTask, [NotNull] DeploymentTaskResult result)
         {
             if (result is null)
             {

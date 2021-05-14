@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -16,7 +17,6 @@ using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.NuGet;
 using Serilog;
 using Serilog.Events;
-using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {
@@ -34,8 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
         private readonly NuGetPackageInstaller _packageInstaller;
 
-        public PackageService(
-            [NotNull] NuGetListConfiguration deploymentConfiguration,
+        public PackageService([NotNull] NuGetListConfiguration deploymentConfiguration,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ILogger logger,
             [NotNull] NuGetConfiguration nuGetConfiguration,
@@ -43,15 +42,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         {
             _deploymentConfiguration = deploymentConfiguration ??
                                        throw new ArgumentNullException(nameof(deploymentConfiguration));
+
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _nuGetConfiguration = nuGetConfiguration ?? throw new ArgumentNullException(nameof(nuGetConfiguration));
             _packageInstaller = packageInstaller ?? throw new ArgumentNullException(nameof(packageInstaller));
         }
 
-        public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
-            string packageId,
+        public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(string packageId,
             bool useCache = true,
             bool includePreReleased = false,
             string? nugetPackageSource = null,
@@ -97,7 +97,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             string? configFile =
                 nugetConfigFile.WithDefault(_keyValueConfiguration[DeployerAppConstants.NugetConfigFile]);
 
-            if (configFile is {} && File.Exists(configFile))
+            if (configFile is { } && File.Exists(configFile))
             {
                 _logger.Debug("Using NuGet config file {NuGetConfigFile} for package {Package}", configFile, packageId);
             }
@@ -109,8 +109,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             var stopwatch = Stopwatch.StartNew();
 
-            var allVersions = await _packageInstaller.GetAllVersionsAsync(
-                new NuGetPackageId(packageId),
+            var allVersions = await _packageInstaller.GetAllVersionsAsync(new NuGetPackageId(packageId),
                 nuGetSource: nugetPackageSource,
                 nugetConfig: nugetConfigFile,
                 allowPreRelease: includePreReleased,
@@ -118,20 +117,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             stopwatch.Stop();
 
-            _logger.Debug(
-                "Get package versions external process took {Elapsed} milliseconds",
+            _logger.Debug("Get package versions external process took {Elapsed} milliseconds",
                 stopwatch.ElapsedMilliseconds);
 
             var addedPackages = new List<string>();
 
             IReadOnlyCollection<PackageVersion> packageVersions = allVersions
-                .Select(version => new PackageVersion(packageId, version))
-                .ToArray();
+                                                                 .Select(version =>
+                                                                      new PackageVersion(packageId, version)).ToArray();
 
             foreach (PackageVersion packageVersion in packageVersions)
             {
-                _logger.Debug(
-                    "Found package {Package} {Version}",
+                _logger.Debug("Found package {Package} {Version}",
                     packageVersion.PackageId,
                     packageVersion.Version.ToNormalizedString());
 
@@ -140,26 +137,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (_logger.IsEnabled(LogEventLevel.Verbose))
             {
-                _logger.Verbose(
-                    "Added {Count} packages for package id {PackageId} {PackageVersions}",
+                _logger.Verbose("Added {Count} packages for package id {PackageId} {PackageVersions}",
                     addedPackages.Count,
                     packageId,
                     addedPackages);
             }
             else if (addedPackages.Count is > 0 and < 20)
             {
-                _logger.Debug(
-                    "Added {Count} packages for package id {PackageId} {PackageVersions}",
+                _logger.Debug("Added {Count} packages for package id {PackageId} {PackageVersions}",
                     addedPackages.Count,
                     packageId,
                     addedPackages);
             }
             else if (addedPackages.Any())
             {
-                _logger.Debug(
-                    "Added {Count} packages for package id {PackageId}",
-                    addedPackages.Count,
-                    packageId);
+                _logger.Debug("Added {Count} packages for package id {PackageId}", addedPackages.Count, packageId);
             }
 
             return packageVersions;

@@ -13,9 +13,10 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
-            DeploymentTask =
-                new DeploymentTaskItem(deploymentTask.DeploymentTaskId, deploymentTask.PackageId,
-                    deploymentTask.DeploymentTargetId, deploymentTask.StartedBy);
+            DeploymentTask = new DeploymentTaskItem(deploymentTask.DeploymentTaskId,
+                deploymentTask.PackageId,
+                deploymentTask.DeploymentTargetId,
+                deploymentTask.StartedBy);
         }
 
         public DeploymentTaskItem DeploymentTask { get; }

@@ -11,15 +11,13 @@ using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
-
 using Serilog;
 
 namespace Milou.Deployer.Core.ApplicationMetadata
 {
     public static class ApplicationMetadataCreator
     {
-        public static string SetVersionFile(
-            [NotNull] InstalledPackage installedPackage,
+        public static string SetVersionFile([NotNull] InstalledPackage installedPackage,
             [NotNull] DirectoryInfo targetDirectoryInfo,
             [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition,
             [NotNull] IEnumerable<string> xmlTransformedFiles,
@@ -80,12 +78,9 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 installedPackage.Version.ToNormalizedString(),
                 null);
 
-            var packageId = new KeyValue(ConfigurationKeys.PackageId,
-                installedPackage.PackageId,
-                null);
+            var packageId = new KeyValue(ConfigurationKeys.PackageId, installedPackage.PackageId, null);
 
-            var deployStartTimeUtc = new KeyValue(
-                ConfigurationKeys.DeployStartTimeUtc,
+            var deployStartTimeUtc = new KeyValue(ConfigurationKeys.DeployStartTimeUtc,
                 DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
                 null);
 
@@ -99,13 +94,11 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 GetAssemblyVersion(),
                 null);
 
-            var deployerAssemblyFileVersion = new KeyValue(
-                ConfigurationKeys.DeployerAssemblyFileVersion,
+            var deployerAssemblyFileVersion = new KeyValue(ConfigurationKeys.DeployerAssemblyFileVersion,
                 GetAssemblyFileVersion(),
                 null);
 
-            var environmentConfiguration = new KeyValue(
-                ConfigurationKeys.DeployerEnvironmentConfiguration,
+            var environmentConfiguration = new KeyValue(ConfigurationKeys.DeployerEnvironmentConfiguration,
                 deploymentExecutionDefinition.EnvironmentConfig,
                 null);
 
@@ -118,7 +111,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
                 packageId
             };
 
-            if (environmentPackageResult.Version is {})
+            if (environmentPackageResult.Version is { })
             {
                 keys.Add(environmentConfiguration);
             }

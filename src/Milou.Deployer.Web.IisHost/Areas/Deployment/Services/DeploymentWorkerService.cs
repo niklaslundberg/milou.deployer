@@ -21,16 +21,11 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
-    public sealed class DeploymentWorkerService : BackgroundService,
-        INotificationHandler<WorkerCreated>,
-        INotificationHandler<TargetEnabled>,
-        INotificationHandler<TargetDisabled>,
-        INotificationHandler<DeploymentTaskLogged>,
-        IRequestHandler<StartWorker>,
-        INotificationHandler<AgentDeploymentDone>,
-        INotificationHandler<AgentDeploymentFailed>,
-        IRequestHandler<ClearAgentWorkTasks, ClearAgentWorkTasksResult>,
-        IAsyncDisposable
+    public sealed class DeploymentWorkerService : BackgroundService, INotificationHandler<WorkerCreated>,
+        INotificationHandler<TargetEnabled>, INotificationHandler<TargetDisabled>,
+        INotificationHandler<DeploymentTaskLogged>, IRequestHandler<StartWorker>,
+        INotificationHandler<AgentDeploymentDone>, INotificationHandler<AgentDeploymentFailed>,
+        IRequestHandler<ClearAgentWorkTasks, ClearAgentWorkTasksResult>, IAsyncDisposable
     {
         private readonly AgentsData _agents;
         private readonly Dictionary<DeploymentTargetId, CancellationTokenSource> _cancellations;
@@ -39,13 +34,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly IMediator _mediator;
         private readonly Dictionary<DeploymentTargetId, Task> _tasks;
         private readonly TimeoutHelper _timeoutHelper;
-        private List<DeploymentTargetWorker> _workers;
-        private CancellationToken _stoppingToken;
-        private bool _isDisposing;
         private bool _isDisposed;
+        private bool _isDisposing;
+        private CancellationToken _stoppingToken;
+        private List<DeploymentTargetWorker> _workers;
 
-        public DeploymentWorkerService(
-            ConfigurationInstanceHolder configurationInstanceHolder,
+        public DeploymentWorkerService(ConfigurationInstanceHolder configurationInstanceHolder,
             ILogger logger,
             IMediator mediator,
             AgentsData agents,
@@ -60,13 +54,78 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _cancellations = new Dictionary<DeploymentTargetId, CancellationTokenSource>();
         }
 
+        public async ValueTask DisposeAsync()
+        {
+            if (_isDisposing || _isDisposed)
+            {
+                return;
+            }
+
+            _isDisposing = true;
+
+            foreach (var deploymentTargetWorker in _workers)
+            {
+                await deploymentTargetWorker.StopAsync(CancellationToken.None);
+            }
+
+            foreach (CancellationTokenSource cancellationTokenSource in _cancellations.Values)
+            {
+                if (!cancellationTokenSource.IsCancellationRequested)
+                {
+                    cancellationTokenSource.Cancel();
+                }
+            }
+
+            bool isRunning = true;
+
+            while (isRunning)
+            {
+                isRunning = false;
+
+                foreach (var deploymentTargetWorker in _workers)
+                {
+                    if (deploymentTargetWorker.IsRunning)
+                    {
+                        isRunning = true;
+                    }
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(50));
+            }
+
+            foreach (CancellationTokenSource cancellationTokenSource in _cancellations.Values)
+            {
+                try
+                {
+                    cancellationTokenSource.Cancel();
+                    cancellationTokenSource.Dispose();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // ignore
+                }
+            }
+
+            foreach (var worker in _workers)
+            {
+                worker.SafeDispose();
+            }
+
+            _workers.Clear();
+            _cancellations.Clear();
+
+            _isDisposed = true;
+            _isDisposing = false;
+        }
+
         public Task Handle(AgentDeploymentDone notification, CancellationToken cancellationToken)
         {
             var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
             if (workerByTargetId is null)
             {
-                _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify success", notification.DeploymentTargetId);
+                _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify success",
+                    notification.DeploymentTargetId);
             }
 
             workerByTargetId?.NotifyDeploymentDone(notification);
@@ -76,35 +135,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        public Task<ClearAgentWorkTasksResult> Handle(ClearAgentWorkTasks request,
-            CancellationToken cancellationToken)
-        {
-            var foundAgent = _agents.Agents.SingleOrDefault(agent => request.AgentId == agent.Id);
-
-            if (foundAgent?.CurrentDeploymentTargetId is {} deploymentTargetId && foundAgent.CurrentDeploymentTaskId is {} taskId && foundAgent.Id is {} agentId)
-            {
-                var workerByTargetId = GetWorkerByTargetId(deploymentTargetId);
-
-                if (workerByTargetId is null)
-                {
-                    _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify success", deploymentTargetId);
-                }
-
-                workerByTargetId?.NotifyDeploymentFailed(new AgentDeploymentFailed(taskId, deploymentTargetId, agentId.Value));
-            }
-
-            _agents.AgentDone(request.AgentId);
-
-            return Task.FromResult(new ClearAgentWorkTasksResult(request.AgentId));
-        }
-
         public Task Handle(AgentDeploymentFailed notification, CancellationToken cancellationToken)
         {
             var workerByTargetId = GetWorkerByTargetId(notification.DeploymentTargetId);
 
             if (workerByTargetId is null)
             {
-                _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify failure", notification.DeploymentTargetId);
+                _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify failure",
+                    notification.DeploymentTargetId);
             }
 
             workerByTargetId?.NotifyDeploymentFailed(notification);
@@ -120,7 +158,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (workerByTargetId is null)
             {
-                _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify progress", notification.DeploymentTargetId);
+                _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify progress",
+                    notification.DeploymentTargetId);
             }
 
             workerByTargetId?.LogProgress(notification);
@@ -130,10 +169,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public async Task Handle(TargetDisabled notification, CancellationToken cancellationToken)
         {
-            if (!_configurationInstanceHolder.TryGet(notification.TargetId,
-                out DeploymentTargetWorker? worker))
+            if (!_configurationInstanceHolder.TryGet(notification.TargetId, out DeploymentTargetWorker? worker))
             {
                 _logger.Warning("Could not get worker for target id {TargetId}", notification.TargetId);
+
                 return;
             }
 
@@ -146,6 +185,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 out DeploymentTargetWorker? worker))
             {
                 _logger.Warning("Could not get worker for target id {TargetId}", notification.TargetId);
+
                 return Task.CompletedTask;
             }
 
@@ -156,17 +196,42 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(WorkerCreated notification, CancellationToken cancellationToken)
         {
-            if (!_configurationInstanceHolder.TryGet(
-                notification.Worker.TargetId.TargetId,
+            if (!_configurationInstanceHolder.TryGet(notification.Worker.TargetId.TargetId,
                 out DeploymentTargetWorker _))
             {
-                _configurationInstanceHolder.Add(
-                    new NamedInstance<IDeploymentTargetWorker>(notification.Worker, notification.Worker.TargetId.TargetId));
+                _configurationInstanceHolder.Add(new NamedInstance<IDeploymentTargetWorker>(notification.Worker,
+                    notification.Worker.TargetId.TargetId));
             }
 
             StartWorker(notification.Worker, cancellationToken);
 
             return Task.CompletedTask;
+        }
+
+        public Task<ClearAgentWorkTasksResult> Handle(ClearAgentWorkTasks request, CancellationToken cancellationToken)
+        {
+            var foundAgent = _agents.Agents.SingleOrDefault(agent => request.AgentId == agent.Id);
+
+            if (foundAgent?.CurrentDeploymentTargetId is { } deploymentTargetId &&
+                foundAgent.CurrentDeploymentTaskId is { } taskId &&
+                foundAgent.Id is { } agentId)
+            {
+                var workerByTargetId = GetWorkerByTargetId(deploymentTargetId);
+
+                if (workerByTargetId is null)
+                {
+                    _logger.Warning("Worker not found for target id {DeploymentTargetId}, cannot notify success",
+                        deploymentTargetId);
+                }
+
+                workerByTargetId?.NotifyDeploymentFailed(new AgentDeploymentFailed(taskId,
+                    deploymentTargetId,
+                    agentId.Value));
+            }
+
+            _agents.AgentDone(request.AgentId);
+
+            return Task.FromResult(new ClearAgentWorkTasksResult(request.AgentId));
         }
 
         public Task<Unit> Handle(StartWorker request, CancellationToken cancellationToken)
@@ -176,26 +241,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.FromResult(Unit.Value);
         }
 
-        private DeploymentTargetWorker? GetWorkerByTargetId([NotNull] DeploymentTargetId targetId)
-        {
-            if (!_configurationInstanceHolder.TryGet(targetId.TargetId,
-                out DeploymentTargetWorker? worker))
-            {
-                int registered = _configurationInstanceHolder.RegisteredTypes
-                    .Count(type => type == typeof(DeploymentTargetWorker));
-
-                _logger.Warning("Could not get worker for target id {TargetId}, {Count} worker types registered",
-                    targetId, registered);
-            }
-
-            return worker;
-        }
-
         public async Task Enqueue([NotNull] DeploymentTask deploymentTask)
         {
             if (_stoppingToken.IsCancellationRequested)
             {
                 _logger.Warning("Cancellation is request, deployment task is not enqueued");
+
                 return;
             }
 
@@ -207,7 +258,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     deploymentTask.DeploymentTargetId);
 
                 await _mediator.Publish(new DeploymentTaskNotCreated(deploymentTask,
-                    $"Could not find worker for deployment target id {deploymentTask.DeploymentTargetId}"), _stoppingToken);
+                        $"Could not find worker for deployment target id {deploymentTask.DeploymentTargetId}"),
+                    _stoppingToken);
 
                 return;
             }
@@ -241,9 +293,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             await Task.Yield();
 
-            _workers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
-                .NotNull()
-                .ToList();
+            _workers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values.NotNull().ToList();
 
             foreach (var deploymentTargetWorker in _workers)
             {
@@ -254,10 +304,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 try
                 {
-                    var completedTaskKeys = _tasks
-                        .Where(pair => pair.Value.IsCompletedSuccessfully)
-                        .Select(pair => pair.Key)
-                        .ToArray();
+                    var completedTaskKeys = _tasks.Where(pair => pair.Value.IsCompletedSuccessfully)
+                                                  .Select(pair => pair.Key).ToArray();
 
                     foreach (var completedTaskKey in completedTaskKeys)
                     {
@@ -278,6 +326,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             await Task.WhenAll(_tasks.Values.Where(task => !task.IsCompleted));
         }
 
+        private DeploymentTargetWorker? GetWorkerByTargetId([NotNull] DeploymentTargetId targetId)
+        {
+            if (!_configurationInstanceHolder.TryGet(targetId.TargetId, out DeploymentTargetWorker? worker))
+            {
+                int registered =
+                    _configurationInstanceHolder.RegisteredTypes.Count(type => type == typeof(DeploymentTargetWorker));
+
+                _logger.Warning("Could not get worker for target id {TargetId}, {Count} worker types registered",
+                    targetId,
+                    registered);
+            }
+
+            return worker;
+        }
+
         private void StartWorker(IDeploymentTargetWorker deploymentTargetWorker, CancellationToken stoppingToken)
         {
             try
@@ -287,6 +350,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             catch (Exception ex)
             {
                 _logger.Error(ex, "Could not start worker for target id {TargetId}", deploymentTargetWorker.TargetId);
+            }
+        }
+
+        private async Task StopWorkerAsync(DeploymentTargetWorker? worker, CancellationToken cancellationToken)
+        {
+            if (worker is { })
+            {
+                _logger.Debug("Stopping worker for target id {TargetId}", worker.TargetId);
+                await worker.StopAsync(cancellationToken);
             }
         }
 
@@ -300,6 +372,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     _logger.Debug("Worker for target id {TargetId} is already running",
                         deploymentTargetWorker.TargetId);
+
                     return;
                 }
 
@@ -342,78 +415,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             _tasks.Add(deploymentTargetWorker.TargetId,
                 Task.Run(() => deploymentTargetWorker.ExecuteAsync(linked.Token), linked.Token));
-        }
-
-        private async Task StopWorkerAsync(DeploymentTargetWorker? worker, CancellationToken cancellationToken)
-        {
-            if (worker is { })
-            {
-                _logger.Debug("Stopping worker for target id {TargetId}", worker.TargetId);
-                await worker.StopAsync(cancellationToken);
-            }
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            if (_isDisposing || _isDisposed)
-            {
-                return;
-            }
-
-            _isDisposing = true;
-
-            foreach (var deploymentTargetWorker in _workers)
-            {
-                await deploymentTargetWorker.StopAsync(CancellationToken.None);
-            }
-
-            foreach (CancellationTokenSource cancellationTokenSource in _cancellations.Values)
-            {
-                if (!cancellationTokenSource.IsCancellationRequested)
-                {
-                    cancellationTokenSource.Cancel();
-                }
-            }
-
-            bool isRunning = true;
-
-            while (isRunning)
-            {
-                isRunning = false;
-                foreach (var deploymentTargetWorker in _workers)
-                {
-                    if (deploymentTargetWorker.IsRunning)
-                    {
-                        isRunning = true;
-                    }
-                }
-
-                await Task.Delay(TimeSpan.FromMilliseconds(50));
-            }
-
-            foreach (CancellationTokenSource cancellationTokenSource in _cancellations.Values)
-            {
-                try
-                {
-                    cancellationTokenSource.Cancel();
-                    cancellationTokenSource.Dispose();
-                }
-                catch (ObjectDisposedException)
-                {
-                    // ignore
-                }
-            }
-
-            foreach (var worker in _workers)
-            {
-                worker.SafeDispose();
-            }
-
-            _workers.Clear();
-            _cancellations.Clear();
-
-            _isDisposed = true;
-            _isDisposing = false;
         }
     }
 }

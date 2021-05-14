@@ -26,9 +26,8 @@ namespace Milou.Deployer.Web.Marten
     {
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
-        public MartenModule([NotNull] IKeyValueConfiguration keyValueConfiguration) =>
-            _keyValueConfiguration =
-                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+        public MartenModule([NotNull] IKeyValueConfiguration keyValueConfiguration) => _keyValueConfiguration =
+            keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
 
         public IServiceCollection Register(IServiceCollection builder)
         {
@@ -40,15 +39,18 @@ namespace Milou.Deployer.Web.Marten
                 builder.AddSingleton<IApplicationSettingsStore, InMemoryApplicationSettingsStore>();
 
                 builder.AddSingleton<IEnvironmentTypeService, EmptyEnvironmentTypeService>();
+
                 return builder;
             }
 
             if (configurations.Length > 1)
             {
                 builder.AddSingleton(new MartenConfiguration(string.Empty), this);
+
                 builder.AddSingleton(new ConfigurationError(
                         $"Expected exactly 1 instance of type {nameof(MartenConfiguration)} but got {configurations.Length}"),
                     this);
+
                 return builder;
             }
 
@@ -65,9 +67,7 @@ namespace Milou.Deployer.Web.Marten
                 builder.AddSingleton<IEnvironmentTypeService, EnvironmentTypeService>();
 
                 Type[] genericInterfaces = typeof(MartenStore)
-                    .GetInterfaces()
-                    .Where(type => type.IsGenericType)
-                    .ToArray();
+                                          .GetInterfaces().Where(type => type.IsGenericType).ToArray();
 
                 foreach (Type genericInterface in genericInterfaces)
                 {

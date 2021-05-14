@@ -5,18 +5,17 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public sealed class FtpMethod : IEquatable<FtpMethod>
     {
-        public static readonly FtpMethod ListDirectory = new(nameof(WebRequestMethods.Ftp.ListDirectory),
-            WebRequestMethods.Ftp.ListDirectory);
+        public static readonly FtpMethod ListDirectory =
+            new(nameof(WebRequestMethods.Ftp.ListDirectory), WebRequestMethods.Ftp.ListDirectory);
 
-        public static readonly FtpMethod ListDirectoryDetails = new(
-            nameof(WebRequestMethods.Ftp.ListDirectoryDetails),
-            WebRequestMethods.Ftp.ListDirectoryDetails);
+        public static readonly FtpMethod ListDirectoryDetails =
+            new(nameof(WebRequestMethods.Ftp.ListDirectoryDetails), WebRequestMethods.Ftp.ListDirectoryDetails);
 
         public static readonly FtpMethod DeleteFile =
             new(nameof(WebRequestMethods.Ftp.DeleteFile), WebRequestMethods.Ftp.DeleteFile);
 
-        public static readonly FtpMethod RemoveDirectory = new(nameof(WebRequestMethods.Ftp.RemoveDirectory),
-            WebRequestMethods.Ftp.RemoveDirectory);
+        public static readonly FtpMethod RemoveDirectory =
+            new(nameof(WebRequestMethods.Ftp.RemoveDirectory), WebRequestMethods.Ftp.RemoveDirectory);
 
         public static readonly FtpMethod UploadFile =
             new(nameof(WebRequestMethods.Ftp.UploadFile), WebRequestMethods.Ftp.UploadFile);

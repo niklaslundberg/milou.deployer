@@ -60,6 +60,12 @@ namespace Milou.Deployer.Core.Logging
                 case LogEventLevel.Verbose:
                     logger.Verbose(MessageTemplateWithCategory, category, parsedMessage);
                     break;
+                case LogEventLevel.Warning:
+                    logger.Warning(MessageTemplateWithCategory, category, parsedMessage);
+                    break;
+                default:
+                    logger.Information(MessageTemplateWithCategory, category, parsedMessage);
+                    break;
             }
         }
 

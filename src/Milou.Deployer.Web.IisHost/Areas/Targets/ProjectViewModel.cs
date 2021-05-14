@@ -13,12 +13,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
         public ProjectViewModel(ProjectInfo projectInfo)
         {
             ProjectName = projectInfo?.ProjectInvariantName ?? throw new ArgumentNullException(nameof(projectInfo));
-            Targets =
-                projectInfo.DeploymentTargets
-                    .Select(target =>
-                        new DeploymentTargetViewOutputModel(target,
-                            Array.Empty<StringPair>())) // TODO improve view models
-                    .SafeToReadOnlyCollection();
+
+            Targets = projectInfo.DeploymentTargets
+                                 .Select(target =>
+                                      new DeploymentTargetViewOutputModel(target,
+                                          Array.Empty<StringPair>())) // TODO improve view models
+                                 .SafeToReadOnlyCollection();
         }
 
         public string ProjectName { get; }

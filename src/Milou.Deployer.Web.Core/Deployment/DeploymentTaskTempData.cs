@@ -14,7 +14,9 @@ namespace Milou.Deployer.Web.Core.Deployment
         }
 
         public ILogger TempLogger { get; }
+
         public string DeploymentTaskId { get; }
+
         public List<LogItem> LogBuilder { get; }
     }
 }

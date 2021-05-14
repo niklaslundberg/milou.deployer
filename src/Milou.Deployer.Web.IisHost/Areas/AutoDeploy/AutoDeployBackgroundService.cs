@@ -31,28 +31,32 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly DeploymentWorkerService _deploymentWorkerService;
         private readonly ILogger _logger;
+        private readonly IMediator _mediator;
         private readonly MonitoringService _monitoringService;
         private readonly IPackageService _packageService;
         private readonly TimeoutHelper _timeoutHelper;
-        private readonly IMediator _mediator;
 
-        public AutoDeployBackgroundService(
-            [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
+        public AutoDeployBackgroundService([NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] MonitoringService monitoringService,
             [NotNull] DeploymentWorkerService deploymentWorkerService,
             [NotNull] AutoDeployConfiguration autoDeployConfiguration,
             [NotNull] ILogger logger,
             [NotNull] IPackageService packageService,
             TimeoutHelper timeoutHelper,
-            IApplicationSettingsStore applicationSettingsStore, IMediator mediator)
+            IApplicationSettingsStore applicationSettingsStore,
+            IMediator mediator)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
+
             _monitoringService = monitoringService ?? throw new ArgumentNullException(nameof(monitoringService));
+
             _deploymentWorkerService = deploymentWorkerService ??
                                        throw new ArgumentNullException(nameof(deploymentWorkerService));
+
             _autoDeployConfiguration = autoDeployConfiguration ??
                                        throw new ArgumentNullException(nameof(autoDeployConfiguration));
+
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
             _timeoutHelper = timeoutHelper;
@@ -70,12 +74,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             if (!applicationSettings.AutoDeploy.Enabled)
             {
                 _logger.Debug("Auto deploy is disabled");
+
                 return;
             }
 
             if (!applicationSettings.AutoDeploy.PollingEnabled)
             {
                 _logger.Debug("Auto deploy polling is disabled");
+
                 return;
             }
 
@@ -91,14 +97,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         "Found no deployment targets with auto deployment enabled, waiting {DelayInSeconds} seconds",
                         _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
 
-                    await Task.Delay(
-                        TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
+                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
                         stoppingToken);
 
                     continue;
                 }
 
-                var targetsWithUrl = deploymentTargets.Where(target => target.Url is {}).ToImmutableArray();
+                var targetsWithUrl = deploymentTargets.Where(target => target.Url is { }).ToImmutableArray();
 
                 if (targetsWithUrl.IsDefaultOrEmpty)
                 {
@@ -106,8 +111,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         "Found no deployment targets with auto deployment enabled and URL defined, waiting {DelayInSeconds} seconds",
                         _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
 
-                    await Task.Delay(
-                        TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
+                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
                         stoppingToken);
 
                     continue;
@@ -117,17 +121,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 foreach (DeploymentTarget deploymentTarget in targetsWithUrl)
                 {
-                    AppVersion? appVersion = appVersions.SingleOrDefault(version =>
-                        version.Target.Id == deploymentTarget.Id);
+                    var appVersion = appVersions.SingleOrDefault(version => version.Target.Id == deploymentTarget.Id);
 
                     if (appVersion?.SemanticVersion is null)
                     {
-                        _logger.Verbose("No semantic version was found for target {Target}, {Url}", deploymentTarget.Id, deploymentTarget.Url);
+                        _logger.Verbose("No semantic version was found for target {Target}, {Url}",
+                            deploymentTarget.Id,
+                            deploymentTarget.Url);
                     }
 
                     if (string.IsNullOrWhiteSpace(appVersion?.PackageId))
                     {
-                        _logger.Verbose("No package id was found for target {Target}, {Url}", deploymentTarget.Id, deploymentTarget.Url);
+                        _logger.Verbose("No package id was found for target {Target}, {Url}",
+                            deploymentTarget.Id,
+                            deploymentTarget.Url);
                     }
 
                     if (appVersion?.SemanticVersion is null || string.IsNullOrWhiteSpace(appVersion.PackageId))
@@ -135,12 +142,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         continue;
                     }
 
-                    var result = await _mediator.Send(new DeploymentHistoryRequest(deploymentTarget.Id.TargetId), stoppingToken);
-                    var latestDeploy = result.DeploymentTasks.OrderByDescending(task=>task.FinishedAtUtc).SingleOrDefault();
+                    var result = await _mediator.Send(new DeploymentHistoryRequest(deploymentTarget.Id.TargetId),
+                        stoppingToken);
 
-                    if (latestDeploy is {} && latestDeploy.ExitCode != ExitCode.Success.Code)
+                    var latestDeploy = result.DeploymentTasks.OrderByDescending(task => task.FinishedAtUtc)
+                                             .SingleOrDefault();
+
+                    if (latestDeploy is { } && latestDeploy.ExitCode != ExitCode.Success.Code)
                     {
-                        _logger.Warning("Latest deploy at {LatestDeployUtc} was not successful, pausing auto deploy for deployment target id {DeploymentTargetId}", latestDeploy.FinishedAtUtc, deploymentTarget.Id);
+                        _logger.Warning(
+                            "Latest deploy at {LatestDeployUtc} was not successful, pausing auto deploy for deployment target id {DeploymentTargetId}",
+                            latestDeploy.FinishedAtUtc,
+                            deploymentTarget.Id);
+
                         continue;
                     }
 
@@ -154,7 +168,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                     ImmutableHashSet<PackageVersion> filteredPackages = !deploymentTarget.AllowPreRelease
                         ? packageVersions.Where(packageVersion => !packageVersion.Version.IsPrerelease)
-                            .ToImmutableHashSet()
+                                         .ToImmutableHashSet()
                         : packageVersions;
 
                     if (filteredPackages.IsEmpty)
@@ -162,27 +176,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         _logger.Debug(
                             "Found no auto deploy versions of package {Package} for target {TargetId} allowing pre-release {AllowPreRelease}",
                             deploymentTarget.PackageId,
-                            deploymentTarget.Id, deploymentTarget.AllowPreRelease);
+                            deploymentTarget.Id,
+                            deploymentTarget.AllowPreRelease);
+
                         continue;
                     }
 
-                    var newerPackages = filteredPackages
-                        .Where(package =>
-                            package.PackageId.Equals(appVersion.PackageId, StringComparison.OrdinalIgnoreCase)
-                            && package.Version > appVersion.SemanticVersion)
-                        .ToImmutableHashSet();
+                    var newerPackages = filteredPackages.Where(package =>
+                        package.PackageId.Equals(appVersion.PackageId, StringComparison.OrdinalIgnoreCase) &&
+                        package.Version > appVersion.SemanticVersion).ToImmutableHashSet();
 
-                    PackageVersion? packageToDeploy = newerPackages
-                        .OrderByDescending(package => package.Version)
-                        .FirstOrDefault();
+                    var packageToDeploy = newerPackages.OrderByDescending(package => package.Version).FirstOrDefault();
 
-                    if (packageToDeploy is {})
+                    if (packageToDeploy is { })
                     {
-                        var task = new DeploymentTask(packageToDeploy, deploymentTarget.Id, Guid.NewGuid(),
+                        var task = new DeploymentTask(packageToDeploy,
+                            deploymentTarget.Id,
+                            Guid.NewGuid(),
                             nameof(AutoDeployBackgroundService));
 
-                        _logger.Information(
-                            "Enqueuing auto deploy package {Package} to target {TargetId}",
+                        _logger.Information("Enqueuing auto deploy package {Package} to target {TargetId}",
                             packageToDeploy,
                             deploymentTarget.Id);
 
@@ -192,46 +205,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     {
                         _logger.Debug(
                             "Found no newer auto deploy versions for target {TargetId} allowing pre-release {AllowPreRelease}",
-                            deploymentTarget.Id, deploymentTarget.AllowPreRelease);
+                            deploymentTarget.Id,
+                            deploymentTarget.AllowPreRelease);
                     }
                 }
 
-                await Task.Delay(
-                    TimeSpan.FromSeconds(_autoDeployConfiguration.AfterDeployDelayInSeconds),
+                await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.AfterDeployDelayInSeconds),
                     stoppingToken);
-            }
-        }
-
-        private async Task<ImmutableHashSet<PackageVersion>> GetPackageVersions(CancellationToken stoppingToken,
-            DeploymentTarget deploymentTarget)
-        {
-            try
-            {
-                var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
-
-                using CancellationTokenSource packageVersionCancellationTokenSource =
-                    _timeoutHelper.CreateCancellationTokenSource(
-                        TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds));
-
-                using var linked =
-                    CancellationTokenSource.CreateLinkedTokenSource(
-                        stoppingToken,
-                        packageVersionCancellationTokenSource.Token);
-
-                var packageVersions = (await _packageService.GetPackageVersionsAsync(
-                        deploymentTarget.PackageId,
-                        nugetConfigFile: deploymentTarget.NuGet.NuGetConfigFile.WithDefault(applicationSettings.DefaultNuGetConfig.NuGetConfig),
-                        nugetPackageSource: deploymentTarget.NuGet.NuGetPackageSource.WithDefault(applicationSettings.DefaultNuGetConfig.NuGetSource),
-                        cancellationToken: linked.Token))
-                    .ToImmutableHashSet();
-
-                return packageVersions;
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Error(ex, "Could not get package versions for auto deploy of target {TargetId}",
-                    deploymentTarget.Id);
-                return ImmutableHashSet<PackageVersion>.Empty;
             }
         }
 
@@ -243,13 +223,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                 using CancellationTokenSource cancellationTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds));
+
                 using var linkedCancellationTokenSource =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken);
+
                 var cancellationToken = linkedCancellationTokenSource.Token;
 
-                IEnumerable<Task<AppVersion?>> tasks = targetsWithUrl.Select(
-                    target =>
-                        _monitoringService.GetAppMetadataAsync(target, cancellationToken));
+                IEnumerable<Task<AppVersion?>> tasks = targetsWithUrl.Select(target =>
+                    _monitoringService.GetAppMetadataAsync(target, cancellationToken));
 
                 AppVersion[] appVersions = (await Task.WhenAll(tasks)).NotNull().ToArray();
 
@@ -269,18 +250,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             try
             {
                 ImmutableArray<DeploymentTarget> deploymentTargets;
+
                 using (CancellationTokenSource targetsTokenSource =
                     _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {
                     using var linked =
-                        CancellationTokenSource.CreateLinkedTokenSource(
-                            stoppingToken,
-                            targetsTokenSource.Token);
+                        CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, targetsTokenSource.Token);
+
                     deploymentTargets =
                         (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linked.Token))
-                        .Where(target => target.Enabled && target.AutoDeployEnabled)
-                        .ToImmutableArray();
+                       .Where(target => target.Enabled && target.AutoDeployEnabled).ToImmutableArray();
                 }
 
                 return deploymentTargets;
@@ -290,6 +270,39 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                 _logger.Error(ex, "Could not get targets with auto deploy enabled");
 
                 return ImmutableArray<DeploymentTarget>.Empty;
+            }
+        }
+
+        private async Task<ImmutableHashSet<PackageVersion>> GetPackageVersions(CancellationToken stoppingToken,
+            DeploymentTarget deploymentTarget)
+        {
+            try
+            {
+                var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
+
+                using CancellationTokenSource packageVersionCancellationTokenSource =
+                    _timeoutHelper.CreateCancellationTokenSource(
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds));
+
+                using var linked = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
+                    packageVersionCancellationTokenSource.Token);
+
+                var packageVersions = (await _packageService.GetPackageVersionsAsync(deploymentTarget.PackageId,
+                    nugetConfigFile: deploymentTarget.NuGet.NuGetConfigFile.WithDefault(
+                        applicationSettings.DefaultNuGetConfig.NuGetConfig),
+                    nugetPackageSource: deploymentTarget.NuGet.NuGetPackageSource.WithDefault(applicationSettings
+                       .DefaultNuGetConfig.NuGetSource),
+                    cancellationToken: linked.Token)).ToImmutableHashSet();
+
+                return packageVersions;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex,
+                    "Could not get package versions for auto deploy of target {TargetId}",
+                    deploymentTarget.Id);
+
+                return ImmutableHashSet<PackageVersion>.Empty;
             }
         }
     }

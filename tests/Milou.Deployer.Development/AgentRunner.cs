@@ -8,13 +8,14 @@ namespace Milou.Deployer.Development
     public class AgentRunner
     {
         private readonly Task<int> _appTask;
-        public CancellationTokenSource CancellationTokenSource { get; }
 
         public AgentRunner(CancellationTokenSource cancellationTokenSource, Task<int> appTask)
         {
             _appTask = appTask;
             CancellationTokenSource = cancellationTokenSource;
         }
+
+        public CancellationTokenSource CancellationTokenSource { get; }
 
         public async Task StopAsync()
         {

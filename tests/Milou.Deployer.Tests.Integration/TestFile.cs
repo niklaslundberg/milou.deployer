@@ -11,7 +11,9 @@ namespace Milou.Deployer.Tests.Integration
             {
                 VcsTestPathHelper.FindVcsRootPath(), "tests", "Milou.Deployer.Tests.Integration", path
             };
+
             allPaths.AddRange(paths);
+
             return Path.Combine(allPaths.ToArray());
         }
     }

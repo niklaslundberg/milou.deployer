@@ -7,8 +7,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 {
     public interface IPackageWebHook
     {
-        Task<PackageUpdatedEvent?> TryGetWebHookNotification(
-            HttpRequest request,
+        Task<PackageUpdatedEvent?> TryGetWebHookNotification(HttpRequest request,
             string content,
             CancellationToken cancellationToken);
     }

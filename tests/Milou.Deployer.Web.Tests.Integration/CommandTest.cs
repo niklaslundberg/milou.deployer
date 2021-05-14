@@ -13,16 +13,19 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         public static IEnumerable<object[]> GetTestAssemblyTypes()
         {
-            string[] assemblyNameStartsWith = { "Milou" };
-            var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith: assemblyNameStartsWith,
-useCache: false);
+            string[] assemblyNameStartsWith = {"Milou"};
+
+            var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith, false);
 
             var allTypes = filteredAssemblies.SelectMany(a => a.GetExportedTypes()).ToArray();
 
-            var requestTypes = allTypes.Where(type => type.Closes(typeof(IRequest<>))
-                                                      && type.IsPublic && !type.IsAbstract
-                                                      && !type.GetInterfaces().Any(item => item.GenericTypeArguments.Length > 0
-                                                      && item.GenericTypeArguments.Any(arg => arg == typeof(Unit))));
+            var requestTypes = allTypes.Where(type =>
+                type.Closes(typeof(IRequest<>)) &&
+                type.IsPublic &&
+                !type.IsAbstract &&
+                !type.GetInterfaces().Any(item =>
+                    item.GenericTypeArguments.Length > 0 && item.GenericTypeArguments.Any(arg => arg == typeof(Unit))));
+
             foreach (var type in requestTypes)
             {
                 yield return new object[] {type};

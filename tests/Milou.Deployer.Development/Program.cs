@@ -20,12 +20,12 @@ namespace Milou.Deployer.Development
         {
             new LoggerConfiguration().WriteTo.Seq("http://localhost:5341");
 
-
             byte[] key = TokenHelper.GenerateKey();
 
-            var agents = new List<string>() {"Agent1"};
+            var agents = new List<string> {"Agent1"};
 
-            var devConfiguration = new DevConfiguration { ServerUrl = "http://localhost:34343", Key = new KeyData(key) };
+            var devConfiguration = new DevConfiguration {ServerUrl = "http://localhost:34343", Key = new KeyData(key)};
+
             foreach (string agent in agents)
             {
                 var agentId = new AgentId(agent);
@@ -34,9 +34,11 @@ namespace Milou.Deployer.Development
             }
 
             var variables = EnvironmentVariables.GetEnvironmentVariables().Variables
-                .ToDictionary(s => s.Key, s=>s.Value);
+                                                .ToDictionary(s => s.Key, s => s.Value);
 
-            variables.Add("urn:milou:deployer:web:milou-authentication:default:bearerTokenIssuerKey", devConfiguration.Key.KeyAsBase64);
+            variables.Add("urn:milou:deployer:web:milou-authentication:default:bearerTokenIssuerKey",
+                devConfiguration.Key.KeyAsBase64);
+
             variables.Add("urn:milou:deployer:web:milou-authentication:default:enabled", "true");
             variables.Add("urn:milou:deployer:web:milou-authentication:default:bearerTokenEnabled", "true");
             variables.Add(LoggingConstants.SerilogSeqEnabledDefault, "true");
@@ -46,10 +48,17 @@ namespace Milou.Deployer.Development
 
             using var cancellationTokenSource = new CancellationTokenSource();
             var commonAssemblies = ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});
+
             IReadOnlyCollection<Assembly> serverAssemblies = commonAssemblies
-                .Where(assembly => !assembly.GetName().Name!.Contains("Agent.Host")).ToImmutableArray();
-            var serverTask = AppStarter.StartAsync(args, variables,
-                cancellationTokenSource, serverAssemblies, new object[] {devConfiguration});
+                                                            .Where(assembly =>
+                                                                 !assembly.GetName().Name!.Contains("Agent.Host"))
+                                                            .ToImmutableArray();
+
+            var serverTask = AppStarter.StartAsync(args,
+                variables,
+                cancellationTokenSource,
+                serverAssemblies,
+                new object[] {devConfiguration});
 
             return await serverTask;
         }

@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.ErrorHandling
         {
             var endpoint = context.GetEndpoint();
 
-            if (endpoint is {})
+            if (endpoint is { })
             {
                 // TODO
             }

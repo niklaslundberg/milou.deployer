@@ -14,6 +14,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         public PortPoolRental Port { get; }
+
         public DirectoryInfo TempDir { get; }
 
         public void Configure(EnvironmentConfiguration environmentConfiguration)

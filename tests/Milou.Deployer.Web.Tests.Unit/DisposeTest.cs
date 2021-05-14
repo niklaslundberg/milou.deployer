@@ -27,6 +27,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         {
             Exception? exception = null;
             object o = new();
+
             try
             {
                 o.SafeDispose();

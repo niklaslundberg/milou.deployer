@@ -12,12 +12,13 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
     [UsedImplicitly]
     public class DeploymentTaskAgentResultHandler : IRequestHandler<DeploymentTaskAgentResult>
     {
+        private readonly AgentConfiguration _agentConfiguration;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
-        private readonly AgentConfiguration _agentConfiguration;
 
         public DeploymentTaskAgentResultHandler(IHttpClientFactory httpClientFactory,
-            ILogger logger, AgentConfiguration agentConfiguration)
+            ILogger logger,
+            AgentConfiguration agentConfiguration)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
@@ -35,7 +36,10 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.Error("Response for deployment task agent result {@Result} failed with status code {StatusCode}", request, response.StatusCode);
+                _logger.Error(
+                    "Response for deployment task agent result {@Result} failed with status code {StatusCode}",
+                    request,
+                    response.StatusCode);
             }
             else
             {

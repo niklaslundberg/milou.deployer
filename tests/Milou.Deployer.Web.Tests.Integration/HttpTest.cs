@@ -17,31 +17,28 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected readonly TestServer _server;
 
-
         protected HttpTest(ITestOutputHelper outputHelper)
         {
             _logger = outputHelper.CreateTestLogger();
 
-            var webHostBuilder = new WebHostBuilder()
-                .ConfigureServices(services =>
-                {
-                    services.AddSingleton<IAuthorizationHandler, TestRequirementHandler>();
-                    services.AddRouting();
-                    services.AddControllers();
-                    services.AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = "Basic";
-                    });
+            var webHostBuilder = new WebHostBuilder().ConfigureServices(services =>
+            {
+                services.AddSingleton<IAuthorizationHandler, TestRequirementHandler>();
+                services.AddRouting();
+                services.AddControllers();
 
-                    services.AddAuthentication(BasicDefaults.AuthenticationScheme)
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = "Basic";
+                });
+
+                services.AddAuthentication(BasicDefaults.AuthenticationScheme)
                         .AddBasic<TestBasicUserValidationService>(options => options.Realm = "Test");
 
-                    services.AddAuthorization(options =>
-                        options.AddPolicy(AuthorizationPolicies.Agent,
-                            new AuthorizationPolicy(new IAuthorizationRequirement[] {new TestRequirement()},
-                                new[] {BasicDefaults.AuthenticationScheme})));
-                })
-                .UseStartup<Startup>();
+                services.AddAuthorization(options => options.AddPolicy(AuthorizationPolicies.Agent,
+                    new AuthorizationPolicy(new IAuthorizationRequirement[] {new TestRequirement()},
+                        new[] {BasicDefaults.AuthenticationScheme})));
+            }).UseStartup<Startup>();
 
             _server = new TestServer(webHostBuilder);
         }

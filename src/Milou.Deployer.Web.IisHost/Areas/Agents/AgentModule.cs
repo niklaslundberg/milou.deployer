@@ -7,9 +7,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class AgentModule : IModule
     {
-        public IServiceCollection Register(IServiceCollection builder) =>
-            builder.AddSingleton<IAgentService, RemoteAgentService>()
-                .AddSingleton<AgentHub>(this)
-                .AddSingleton<AgentsData>(this);
+        public IServiceCollection Register(IServiceCollection builder) => builder
+                                                                         .AddSingleton<IAgentService,
+                                                                              RemoteAgentService>()
+                                                                         .AddSingleton<AgentHub>(this)
+                                                                         .AddSingleton<AgentsData>(this);
     }
 }

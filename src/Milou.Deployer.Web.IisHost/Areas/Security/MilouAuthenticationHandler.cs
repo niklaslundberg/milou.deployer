@@ -18,40 +18,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     {
         private readonly ILogger _logger;
 
-        public MilouAuthenticationHandler(
-            [NotNull] ILogger logger,
+        public MilouAuthenticationHandler([NotNull] ILogger logger,
             IOptionsMonitor<MilouAuthenticationOptions> options,
             ILoggerFactory loggerFactory,
             UrlEncoder encoder,
-            ISystemClock clock)
-            : base(options, loggerFactory, encoder, clock) =>
+            ISystemClock clock) : base(options, loggerFactory, encoder, clock) =>
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-        protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
-        {
-            if (_logger.IsEnabled(LogEventLevel.Verbose))
-            {
-                string? address = Context.Connection.RemoteIpAddress?.ToString();
-                _logger.Verbose(
-                    "User ip from address {Address} is forbidden, challenge not supported",
-                    address);
-            }
-
-            return base.HandleForbiddenAsync(properties);
-        }
-
-        protected override Task HandleChallengeAsync(AuthenticationProperties properties)
-        {
-            if (_logger.IsEnabled(LogEventLevel.Verbose))
-            {
-                string? address = Context.Connection.RemoteIpAddress?.ToString();
-                _logger.Verbose(
-                    "Could not authenticate current user ip from address {Address}, challenge not supported",
-                    address);
-            }
-
-            return base.HandleChallengeAsync(properties);
-        }
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
@@ -66,11 +38,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 claims.Add(new Claim(ClaimTypes.NameIdentifier, address));
                 claims.Add(new Claim("unique_name", address));
 
-                authenticateResult = AuthenticateResult.Success(
-                    new AuthenticationTicket(
-                        new ClaimsPrincipal(new ClaimsIdentity(claims)),
-                        new AuthenticationProperties(),
-                        Scheme.Name));
+                authenticateResult = AuthenticateResult.Success(new AuthenticationTicket(
+                    new ClaimsPrincipal(new ClaimsIdentity(claims)),
+                    new AuthenticationProperties(),
+                    Scheme.Name));
 
                 if (_logger.IsEnabled(LogEventLevel.Verbose))
 
@@ -89,6 +60,32 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             }
 
             return Task.FromResult(authenticateResult);
+        }
+
+        protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+        {
+            if (_logger.IsEnabled(LogEventLevel.Verbose))
+            {
+                string? address = Context.Connection.RemoteIpAddress?.ToString();
+
+                _logger.Verbose(
+                    "Could not authenticate current user ip from address {Address}, challenge not supported",
+                    address);
+            }
+
+            return base.HandleChallengeAsync(properties);
+        }
+
+        protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
+        {
+            if (_logger.IsEnabled(LogEventLevel.Verbose))
+            {
+                string? address = Context.Connection.RemoteIpAddress?.ToString();
+
+                _logger.Verbose("User ip from address {Address} is forbidden, challenge not supported", address);
+            }
+
+            return base.HandleForbiddenAsync(properties);
         }
     }
 }

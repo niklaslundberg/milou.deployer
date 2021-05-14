@@ -16,8 +16,6 @@ using JetBrains.Annotations;
 using Milou.Deployer.Core;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
-
-using Milou.Deployer.Core.IO;
 using Serilog;
 using Serilog.Core;
 using FtpException = Milou.Deployer.Core.Deployment.Ftp.FtpException;
@@ -31,8 +29,7 @@ namespace Milou.Deployer.Ftp
         private readonly ILogger _logger;
 
         [PublicAPI]
-        public FtpHandler(
-            [NotNull] FtpClient ftpClient,
+        public FtpHandler([NotNull] FtpClient ftpClient,
             [CanBeNull] ILogger? logger = default,
             FtpSettings? ftpSettings = null)
         {
@@ -51,16 +48,16 @@ namespace Milou.Deployer.Ftp
 
             if (dir.Type != FileSystemType.Directory)
             {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, Resources.FtpFtpPathMustBeADirectoryPath, dir.Path),
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                        Resources.FtpFtpPathMustBeADirectoryPath,
+                        dir.Path),
                     nameof(dir));
             }
 
             return DirectoryExistsInternalAsync(dir, cancellationToken);
         }
 
-        public Task UploadFileAsync(
-            FtpPath filePath,
+        public Task UploadFileAsync(FtpPath filePath,
             FileInfo sourceFile,
             CancellationToken cancellationToken = default)
         {
@@ -142,8 +139,7 @@ namespace Milou.Deployer.Ftp
             return CreateDirectoryInternalAsync(directoryPath, cancellationToken);
         }
 
-        public Task<ImmutableArray<FtpPath>> ListDirectoryAsync(
-            FtpPath path,
+        public Task<ImmutableArray<FtpPath>> ListDirectoryAsync(FtpPath path,
             CancellationToken cancellationToken = default)
         {
             if (path is null)
@@ -154,8 +150,7 @@ namespace Milou.Deployer.Ftp
             return ListDirectoryInternalAsync(path, cancellationToken);
         }
 
-        public Task<DeploySummary> UploadDirectoryAsync(
-            RuleConfiguration ruleConfiguration,
+        public Task<DeploySummary> UploadDirectoryAsync(RuleConfiguration ruleConfiguration,
             DirectoryInfo sourceDirectory,
             DirectoryInfo baseDirectory,
             FtpPath basePath,
@@ -184,8 +179,7 @@ namespace Milou.Deployer.Ftp
             return UploadDirectoryInternalAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
         }
 
-        public Task<DeploySummary> PublishAsync(
-            RuleConfiguration ruleConfiguration,
+        public Task<DeploySummary> PublishAsync(RuleConfiguration ruleConfiguration,
             DirectoryInfo sourceDirectory,
             CancellationToken cancellationToken)
         {
@@ -204,6 +198,170 @@ namespace Milou.Deployer.Ftp
 
         public void Dispose() => _ftpClient?.Dispose();
 
+        public static async Task<FtpHandler> Create(Uri fullUri,
+            FtpSettings? ftpSettings = null,
+            NetworkCredential? credentials = null,
+            ILogger? logger = default)
+        {
+            logger ??= Logger.None;
+
+            var ftpClient = new FtpClient(fullUri.Host, credentials)
+            {
+                SocketPollInterval = 1000,
+                ConnectTimeout = 2000,
+                ReadTimeout = 5000,
+                DataConnectionConnectTimeout = 2000,
+                DataConnectionReadTimeout = 2000,
+                DataConnectionType = FtpDataConnectionType.PASV,
+                Port = fullUri.Port
+            };
+
+            if (ftpSettings?.IsSecure ?? false)
+            {
+                logger.Debug("Using secure FTP connection");
+                ftpClient.EncryptionMode = FtpEncryptionMode.Explicit;
+                ftpClient.SslProtocols = SslProtocols.Tls12;
+            }
+
+            try
+            {
+                logger.Debug("Connecting to FTP");
+                await ftpClient.ConnectAsync();
+                logger.Debug("Connected to FTP");
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                throw new FtpException($"Could not connect to FTP {fullUri.Host}", ex);
+            }
+
+            return new FtpHandler(ftpClient, logger, ftpSettings);
+        }
+
+        public static async Task<FtpHandler> CreateWithPublishSettings([NotNull] string publishSettingsFile,
+            [NotNull] FtpSettings ftpSettings,
+            ILogger? logger = default)
+        {
+            if (ftpSettings is null)
+            {
+                throw new ArgumentNullException(nameof(ftpSettings));
+            }
+
+            logger ??= Logger.None;
+
+            if (string.IsNullOrWhiteSpace(publishSettingsFile))
+            {
+                throw new ArgumentException(Resources.ValueCannotBeNullOrWhitespace, nameof(publishSettingsFile));
+            }
+
+            var ftpPublishSettings = FtpPublishSettings.Load(publishSettingsFile);
+
+            var credentials = new NetworkCredential(ftpPublishSettings.UserName, ftpPublishSettings.Password, "");
+
+            Uri fullUri = ftpPublishSettings.FtpBaseUri;
+
+            if (ftpSettings.BasePath is { })
+            {
+                var builder = new UriBuilder(fullUri) {Path = ftpSettings.BasePath.Path};
+
+                fullUri = builder.Uri;
+            }
+
+            return await Create(fullUri, ftpSettings, credentials, logger);
+        }
+
+        private async Task CreateDirectoryInternalAsync([NotNull] FtpPath directoryPath,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _ftpClient.CreateDirectoryAsync(directoryPath.Path, cancellationToken);
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                throw new FtpException($"Could not created directory {directoryPath}", ex);
+            }
+        }
+
+        private async Task DeleteDirectoryInternalAsync([NotNull] FtpPath path, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _ftpClient.DeleteDirectoryAsync(path.Path, FtpListOption.Recursive, cancellationToken);
+
+                _logger.Verbose("Deleted directory {Path}", path.Path);
+            }
+            catch (Exception ex)
+            {
+                throw new FtpException($"Could not delete directory '{path.Path}'", ex);
+            }
+        }
+
+        private async Task DeleteFileInternalAsync([NotNull] FtpPath filePath, CancellationToken cancellationToken)
+        {
+            int attempt = 1;
+            const int maxAttempts = 5;
+
+            while (true)
+            {
+                try
+                {
+                    await _ftpClient.DeleteFileAsync(filePath.Path, cancellationToken);
+
+                    _logger.Verbose("Delete file {FilePath}", filePath.Path);
+
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    if (attempt > maxAttempts)
+                    {
+                        throw new FtpException($"Could not delete file '{filePath.Path}'", ex);
+                    }
+
+                    if (!await _ftpClient.FileExistsAsync(filePath.Path, cancellationToken))
+                    {
+                        _logger.Verbose(ex, "Could not delete file because it does not exists");
+
+                        return;
+                    }
+
+                    attempt++;
+                    _logger.Verbose(ex, "FPT Error, retrying");
+                    await Task.Delay(TimeSpan.FromMilliseconds(attempt * 50), cancellationToken);
+                }
+            }
+        }
+
+        private async Task<DeploySummary> DeleteFilesAsync(RuleConfiguration ruleConfiguration,
+            ImmutableArray<FtpPath> fileSystemItems,
+            CancellationToken cancellationToken)
+        {
+            var deploymentChangeSummary = new DeploySummary();
+
+            foreach (FtpPath fileSystemItem in fileSystemItems.Where(fileSystemItem =>
+                fileSystemItem.Type == FileSystemType.File))
+            {
+                if (ruleConfiguration.AppDataSkipDirectiveEnabled && fileSystemItem.IsAppDataDirectoryOrFile)
+                {
+                    continue;
+                }
+
+                if (ruleConfiguration.Excludes.Any(value =>
+                    fileSystemItem.Path.StartsWith(value, StringComparison.OrdinalIgnoreCase)))
+                {
+                    deploymentChangeSummary.IgnoredFiles.Add(fileSystemItem.Path);
+
+                    continue;
+                }
+
+                await DeleteFileAsync(fileSystemItem, cancellationToken);
+
+                deploymentChangeSummary.DeletedFiles.Add(fileSystemItem.Path);
+            }
+
+            return deploymentChangeSummary;
+        }
+
         private async Task<bool> DirectoryExistsInternalAsync(FtpPath dir, CancellationToken cancellationToken)
         {
             try
@@ -220,8 +378,238 @@ namespace Milou.Deployer.Ftp
             }
         }
 
-        private async Task UploadFileInternalAsync(
-            [NotNull] FtpPath filePath,
+        private async Task<bool> FileExistsInternalAsync([NotNull] FtpPath filePath,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                bool exists = await _ftpClient.FileExistsAsync(filePath.Path, cancellationToken);
+
+                _logger.Verbose("File {File} exists: {Exists}", filePath.Path, exists);
+
+                return exists;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                throw new FtpException($"Could not determine if file '{filePath.Path}' exists", ex);
+            }
+        }
+
+        private void FtpClientOnLogEvent(FtpTraceLevel level, string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
+            int indexOf = message.IndexOf("at System.Net.Sockets.Socket", StringComparison.Ordinal);
+
+            if (indexOf >= 0)
+            {
+                message = message.Substring(0, indexOf).Trim();
+            }
+
+            const string messageTemplate = "{FtpMessage}";
+
+            switch (level)
+            {
+                case FtpTraceLevel.Info:
+                    _logger.Debug(messageTemplate, message);
+
+                    break;
+                case FtpTraceLevel.Error:
+                    _logger.Warning(messageTemplate, message);
+
+                    break;
+                case FtpTraceLevel.Verbose:
+                    _logger.Debug(messageTemplate, message);
+
+                    break;
+                case FtpTraceLevel.Warn:
+                    _logger.Warning(messageTemplate, message);
+
+                    break;
+            }
+        }
+
+        private IProgress<FtpProgress> GetProgressAction()
+        {
+            IProgress<FtpProgress> progress = new Progress<FtpProgress>(p =>
+                _logger.Information("Progress {Percent}", p.Progress.ToString("F0", CultureInfo.InvariantCulture)));
+
+            return progress;
+        }
+
+        private static bool KeepFile(FtpPath fileSystemItem, RuleConfiguration ruleConfiguration)
+        {
+            if (ruleConfiguration.AppDataSkipDirectiveEnabled && fileSystemItem.IsAppDataDirectoryOrFile)
+            {
+                return true;
+            }
+
+            if (ruleConfiguration.Excludes.Any(value =>
+                fileSystemItem.Path.StartsWith(value, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private async Task<ImmutableArray<FtpPath>> ListDirectoryInternalAsync([NotNull] FtpPath path,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                FtpListItem[] ftpListItems = await _ftpClient.GetListingAsync(path.Path,
+                    FtpListOption.AllFiles | FtpListOption.Recursive,
+                    cancellationToken);
+
+                return ftpListItems.Select(s => new FtpPath(s.FullName,
+                                        s.Type == FtpFileSystemObjectType.File
+                                            ? FileSystemType.File
+                                            : FileSystemType.Directory))
+                                   .ToImmutableArray();
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                throw new FtpException($"Could not list files for directory '{path}'", ex);
+            }
+        }
+
+        private async Task<DeploySummary> PublishInternalAsync([NotNull] RuleConfiguration ruleConfiguration,
+            [NotNull] DirectoryInfo sourceDirectory,
+            CancellationToken cancellationToken)
+        {
+            var deploymentChangeSummary = new DeploySummary();
+
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                FtpPath basePath = _ftpSettings.BasePath ?? FtpPath.Root;
+
+                if (!await DirectoryExistsAsync(basePath, cancellationToken))
+                {
+                    await CreateDirectoryAsync(basePath, cancellationToken);
+                }
+
+                _logger.Debug("Listing files in remote path '{Path}'", basePath.Path);
+
+                var fileSystemItems = await ListDirectoryAsync(basePath, cancellationToken);
+
+                FtpPath[] sourceFiles = sourceDirectory.GetFiles("*", SearchOption.AllDirectories).Select(s =>
+                                                            basePath.Append(new FtpPath(
+                                                                PathHelper.RelativePath(s, sourceDirectory),
+                                                                FileSystemType.File)))
+                                                       .ToArray();
+
+                FtpPath[] filesToKeep = fileSystemItems.Where(s => KeepFile(s, ruleConfiguration))
+                                                       .Where(s => s.Type == FileSystemType.File).ToArray();
+
+                var filesToRemove = fileSystemItems.Except(sourceFiles).Except(filesToKeep)
+                                                   .Where(s => s.Type == FileSystemType.File).ToImmutableArray();
+
+                IEnumerable<FtpPath> updated = fileSystemItems.Except(filesToRemove)
+                                                              .Where(s => s.Type == FileSystemType.File);
+
+                if (ruleConfiguration.AppOfflineEnabled)
+                {
+                    using var tempFile = TempFile.CreateTempFile("App_Offline", ".htm");
+                    var appOfflinePath = new FtpPath($"/{tempFile.File!.Name}", FileSystemType.File);
+
+                    FtpPath appOfflineFullPath =
+                        (_ftpSettings.PublicRootPath ?? _ftpSettings.BasePath ?? FtpPath.Root).Append(appOfflinePath);
+
+                    await UploadFileAsync(appOfflineFullPath, tempFile.File, cancellationToken);
+
+                    _logger.Debug("Uploaded file '{App_Offline}'", appOfflineFullPath.Path);
+                }
+
+                DeploySummary deleteFiles = await DeleteFilesAsync(ruleConfiguration, filesToRemove, cancellationToken);
+
+                deploymentChangeSummary.Add(deleteFiles);
+
+                foreach (FtpPath ftpPath in filesToRemove)
+                {
+                    deploymentChangeSummary.DeletedFiles.Add(ftpPath.Path);
+                }
+
+                foreach (FtpPath ftpPath in updated)
+                {
+                    deploymentChangeSummary.UpdatedFiles.Add(ftpPath.Path);
+                }
+
+                DeploySummary uploadDirectoryAsync = await UploadDirectoryAsync(ruleConfiguration,
+                    sourceDirectory,
+                    sourceDirectory,
+                    basePath,
+                    cancellationToken);
+
+                deploymentChangeSummary.Add(uploadDirectoryAsync);
+
+                if (ruleConfiguration.AppOfflineEnabled)
+                {
+                    FtpPath[] appOfflineFiles = sourceFiles.Intersect(fileSystemItems)
+                                                           .Where(file =>
+                                                                file.Path is { } &&
+                                                                Path.GetFileName(file.Path)
+                                                                    .Equals(DeploymentConstants.AppOfflineHtm,
+                                                                         StringComparison.OrdinalIgnoreCase))
+                                                           .Select(file => file.Path)
+                                                           .Distinct(StringComparer.OrdinalIgnoreCase).Select(file =>
+                                                                new FtpPath(file, FileSystemType.File)).ToArray();
+
+                    foreach (FtpPath appOfflineFile in appOfflineFiles)
+                    {
+                        bool fileExists = await FileExistsAsync(appOfflineFile, cancellationToken);
+
+                        if (fileExists)
+                        {
+                            await DeleteFileAsync(appOfflineFile, cancellationToken);
+
+                            _logger.Debug("Deleted {App_Offline}", appOfflineFile.Path);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                stopwatch.Stop();
+            }
+
+            deploymentChangeSummary.TotalTime = stopwatch.Elapsed;
+
+            return deploymentChangeSummary;
+        }
+
+        private async Task<DeploySummary> UploadDirectoryInternalAsync([NotNull] DirectoryInfo sourceDirectory,
+            [NotNull] DirectoryInfo baseDirectory,
+            FtpPath basePath,
+            CancellationToken cancellationToken)
+        {
+            FtpPath dir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
+                FileSystemType.Directory));
+
+            var summary = new DeploySummary();
+
+            bool directoryExists = await DirectoryExistsAsync(dir, cancellationToken);
+
+            if (!directoryExists)
+            {
+                await CreateDirectoryAsync(dir, cancellationToken);
+                summary.CreatedDirectories.Add(dir.Path);
+            }
+
+            DeploySummary uploadSummary =
+                await UploadFilesAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
+
+            summary.Add(uploadSummary);
+
+            return summary;
+        }
+
+        private async Task UploadFileInternalAsync([NotNull] FtpPath filePath,
             [NotNull] FileInfo sourceFile,
             CancellationToken cancellationToken = default)
         {
@@ -251,157 +639,14 @@ namespace Milou.Deployer.Ftp
             }
         }
 
-        private IProgress<FtpProgress> GetProgressAction()
-        {
-            IProgress<FtpProgress> progress = new Progress<FtpProgress>(p =>
-                _logger.Information("Progress {Percent}", p.Progress.ToString("F0", CultureInfo.InvariantCulture)));
-
-            return progress;
-        }
-
-        private async Task DeleteFileInternalAsync([NotNull] FtpPath filePath, CancellationToken cancellationToken)
-        {
-            int attempt = 1;
-            const int maxAttempts = 5;
-
-            while (true)
-            {
-                try
-                {
-                    await _ftpClient.DeleteFileAsync(filePath.Path, cancellationToken);
-
-                    _logger.Verbose("Delete file {FilePath}", filePath.Path);
-
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    if (attempt > maxAttempts)
-                    {
-                        throw new FtpException($"Could not delete file '{filePath.Path}'", ex);
-                    }
-
-                    if (!await _ftpClient.FileExistsAsync(filePath.Path, cancellationToken))
-                    {
-                        _logger.Verbose(ex, "Could not delete file because it does not exists");
-                        return;
-                    }
-
-                    attempt++;
-                    _logger.Verbose(ex, "FPT Error, retrying");
-                    await Task.Delay(TimeSpan.FromMilliseconds(attempt * 50), cancellationToken);
-                }
-            }
-        }
-
-        private async Task DeleteDirectoryInternalAsync([NotNull] FtpPath path, CancellationToken cancellationToken)
-        {
-            try
-            {
-                await _ftpClient.DeleteDirectoryAsync(path.Path, FtpListOption.Recursive, cancellationToken);
-
-                _logger.Verbose("Deleted directory {Path}", path.Path);
-            }
-            catch (Exception ex)
-            {
-                throw new FtpException($"Could not delete directory '{path.Path}'", ex);
-            }
-        }
-
-        private async Task<bool> FileExistsInternalAsync(
-            [NotNull] FtpPath filePath,
-            CancellationToken cancellationToken)
-        {
-            try
-            {
-                bool exists = await _ftpClient.FileExistsAsync(filePath.Path, cancellationToken);
-
-                _logger.Verbose("File {File} exists: {Exists}", filePath.Path, exists);
-
-                return exists;
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                throw new FtpException($"Could not determine if file '{filePath.Path}' exists", ex);
-            }
-        }
-
-        private async Task CreateDirectoryInternalAsync(
-            [NotNull] FtpPath directoryPath,
-            CancellationToken cancellationToken)
-        {
-            try
-            {
-                await _ftpClient.CreateDirectoryAsync(directoryPath.Path, cancellationToken);
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                throw new FtpException($"Could not created directory {directoryPath}", ex);
-            }
-        }
-
-        private async Task<ImmutableArray<FtpPath>> ListDirectoryInternalAsync(
-            [NotNull] FtpPath path,
-            CancellationToken cancellationToken)
-        {
-            try
-            {
-                FtpListItem[] ftpListItems =
-                    await _ftpClient.GetListingAsync(path.Path,
-                        FtpListOption.AllFiles | FtpListOption.Recursive,
-                        cancellationToken);
-
-                return ftpListItems.Select(s => new FtpPath(s.FullName,
-                        s.Type == FtpFileSystemObjectType.File
-                            ? FileSystemType.File
-                            : FileSystemType.Directory))
-                    .ToImmutableArray();
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                throw new FtpException($"Could not list files for directory '{path}'", ex);
-            }
-        }
-
-        private async Task<DeploySummary> UploadDirectoryInternalAsync(
-            [NotNull] DirectoryInfo sourceDirectory,
-            [NotNull] DirectoryInfo baseDirectory,
-            FtpPath basePath,
-            CancellationToken cancellationToken)
-        {
-            FtpPath dir = basePath.Append(new FtpPath(PathHelper.RelativePath(sourceDirectory, baseDirectory),
-                FileSystemType.Directory));
-
-            var summary = new DeploySummary();
-
-            bool directoryExists = await DirectoryExistsAsync(dir, cancellationToken);
-
-            if (!directoryExists)
-            {
-                await CreateDirectoryAsync(dir, cancellationToken);
-                summary.CreatedDirectories.Add(dir.Path);
-            }
-
-            DeploySummary uploadSummary =
-                await UploadFilesAsync(sourceDirectory, baseDirectory, basePath, cancellationToken);
-
-            summary.Add(uploadSummary);
-
-            return summary;
-        }
-
-        private async Task<DeploySummary> UploadFilesAsync(
-            DirectoryInfo sourceDirectory,
+        private async Task<DeploySummary> UploadFilesAsync(DirectoryInfo sourceDirectory,
             DirectoryInfo baseDirectory,
             FtpPath basePath,
             CancellationToken cancellationToken)
         {
             var summary = new DeploySummary();
 
-            string[] localPaths = sourceDirectory
-                .GetFiles()
-                .Select(f => f.FullName)
-                .ToArray();
+            string[] localPaths = sourceDirectory.GetFiles().Select(f => f.FullName).ToArray();
 
             int totalCount = localPaths.Length;
 
@@ -451,6 +696,7 @@ namespace Milou.Deployer.Ftp
                             if (uploadedFiles == files.Length)
                             {
                                 batchSuccessful = true;
+
                                 break;
                             }
 
@@ -482,7 +728,7 @@ namespace Milou.Deployer.Ftp
                     uploaded += files.Length;
                     string elapsed = $"{stopwatch.Elapsed.TotalSeconds:F2}";
 
-                    string percentage = $"{(100.0D * uploaded) / totalCount:F1}";
+                    string percentage = $"{100.0D * uploaded / totalCount:F1}";
 
                     string paddedPercentage = new string(' ', 5 - percentage.Length) + percentage;
 
@@ -540,270 +786,6 @@ namespace Milou.Deployer.Ftp
             }
 
             return summary;
-        }
-
-        private async Task<DeploySummary> PublishInternalAsync(
-            [NotNull] RuleConfiguration ruleConfiguration,
-            [NotNull] DirectoryInfo sourceDirectory,
-            CancellationToken cancellationToken)
-        {
-            var deploymentChangeSummary = new DeploySummary();
-
-            var stopwatch = Stopwatch.StartNew();
-
-            try
-            {
-                FtpPath basePath = _ftpSettings.BasePath ?? FtpPath.Root;
-
-                if (!await DirectoryExistsAsync(basePath, cancellationToken))
-                {
-                    await CreateDirectoryAsync(basePath, cancellationToken);
-                }
-
-                _logger.Debug("Listing files in remote path '{Path}'", basePath.Path);
-
-                var fileSystemItems =
-                    await ListDirectoryAsync(basePath, cancellationToken);
-
-                FtpPath[] sourceFiles = sourceDirectory
-                    .GetFiles("*", SearchOption.AllDirectories)
-                    .Select(s =>
-                        basePath.Append(new FtpPath(PathHelper.RelativePath(s, sourceDirectory), FileSystemType.File)))
-                    .ToArray();
-
-                FtpPath[] filesToKeep = fileSystemItems
-                    .Where(s => KeepFile(s, ruleConfiguration))
-                    .Where(s => s.Type == FileSystemType.File)
-                    .ToArray();
-
-                var filesToRemove = fileSystemItems
-                    .Except(sourceFiles)
-                    .Except(filesToKeep)
-                    .Where(s => s.Type == FileSystemType.File)
-                    .ToImmutableArray();
-
-                IEnumerable<FtpPath> updated = fileSystemItems.Except(filesToRemove)
-                    .Where(s => s.Type == FileSystemType.File);
-
-                if (ruleConfiguration.AppOfflineEnabled)
-                {
-                    using var tempFile = TempFile.CreateTempFile("App_Offline", ".htm");
-                    var appOfflinePath = new FtpPath($"/{tempFile.File!.Name}", FileSystemType.File);
-
-                    FtpPath appOfflineFullPath =
-                        (_ftpSettings.PublicRootPath ?? _ftpSettings.BasePath ?? FtpPath.Root).Append(
-                            appOfflinePath);
-
-                    await UploadFileAsync(appOfflineFullPath, tempFile.File, cancellationToken);
-
-                    _logger.Debug("Uploaded file '{App_Offline}'", appOfflineFullPath.Path);
-                }
-
-                DeploySummary deleteFiles = await DeleteFilesAsync(ruleConfiguration, filesToRemove, cancellationToken);
-
-                deploymentChangeSummary.Add(deleteFiles);
-
-                foreach (FtpPath ftpPath in filesToRemove)
-                {
-                    deploymentChangeSummary.DeletedFiles.Add(ftpPath.Path);
-                }
-
-                foreach (FtpPath ftpPath in updated)
-                {
-                    deploymentChangeSummary.UpdatedFiles.Add(ftpPath.Path);
-                }
-
-                DeploySummary uploadDirectoryAsync =
-                    await UploadDirectoryAsync(ruleConfiguration,
-                        sourceDirectory,
-                        sourceDirectory,
-                        basePath,
-                        cancellationToken);
-
-                deploymentChangeSummary.Add(uploadDirectoryAsync);
-
-                if (ruleConfiguration.AppOfflineEnabled)
-                {
-                    FtpPath[] appOfflineFiles = sourceFiles.Intersect(fileSystemItems)
-                        .Where(file => file.Path is {} &&
-                                       Path.GetFileName(file.Path)
-                                           .Equals(DeploymentConstants.AppOfflineHtm,
-                                               StringComparison.OrdinalIgnoreCase))
-                        .Select(file => file.Path)
-                        .Distinct(StringComparer.OrdinalIgnoreCase)
-                        .Select(file => new FtpPath(file, FileSystemType.File))
-                        .ToArray();
-
-                    foreach (FtpPath appOfflineFile in appOfflineFiles)
-                    {
-                        bool fileExists = await FileExistsAsync(appOfflineFile, cancellationToken);
-
-                        if (fileExists)
-                        {
-                            await DeleteFileAsync(appOfflineFile, cancellationToken);
-
-                            _logger.Debug("Deleted {App_Offline}", appOfflineFile.Path);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                stopwatch.Stop();
-            }
-
-            deploymentChangeSummary.TotalTime = stopwatch.Elapsed;
-
-            return deploymentChangeSummary;
-        }
-
-        private async Task<DeploySummary> DeleteFilesAsync(
-            RuleConfiguration ruleConfiguration,
-            ImmutableArray<FtpPath> fileSystemItems,
-            CancellationToken cancellationToken)
-        {
-            var deploymentChangeSummary = new DeploySummary();
-
-            foreach (FtpPath fileSystemItem in fileSystemItems
-                .Where(fileSystemItem => fileSystemItem.Type == FileSystemType.File))
-            {
-                if (ruleConfiguration.AppDataSkipDirectiveEnabled && fileSystemItem.IsAppDataDirectoryOrFile)
-                {
-                    continue;
-                }
-
-                if (ruleConfiguration.Excludes.Any(value =>
-                    fileSystemItem.Path.StartsWith(value, StringComparison.OrdinalIgnoreCase)))
-                {
-                    deploymentChangeSummary.IgnoredFiles.Add(fileSystemItem.Path);
-                    continue;
-                }
-
-                await DeleteFileAsync(fileSystemItem, cancellationToken);
-
-                deploymentChangeSummary.DeletedFiles.Add(fileSystemItem.Path);
-            }
-
-            return deploymentChangeSummary;
-        }
-
-        private static bool KeepFile(FtpPath fileSystemItem, RuleConfiguration ruleConfiguration)
-        {
-            if (ruleConfiguration.AppDataSkipDirectiveEnabled && fileSystemItem.IsAppDataDirectoryOrFile)
-            {
-                return true;
-            }
-
-            if (ruleConfiguration.Excludes.Any(value =>
-                fileSystemItem.Path.StartsWith(value, StringComparison.OrdinalIgnoreCase)))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private void FtpClientOnLogEvent(FtpTraceLevel level, string message)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return;
-            }
-
-            int indexOf = message.IndexOf("at System.Net.Sockets.Socket", StringComparison.Ordinal);
-
-            if (indexOf >= 0)
-            {
-                message = message.Substring(0, indexOf).Trim();
-            }
-
-            const string messageTemplate = "{FtpMessage}";
-
-            switch (level)
-            {
-                case FtpTraceLevel.Info:
-                    _logger.Debug(messageTemplate, message);
-                    break;
-                case FtpTraceLevel.Error:
-                    _logger.Warning(messageTemplate, message);
-                    break;
-                case FtpTraceLevel.Verbose:
-                    _logger.Debug(messageTemplate, message);
-                    break;
-                case FtpTraceLevel.Warn:
-                    _logger.Warning(messageTemplate, message);
-                    break;
-            }
-        }
-
-        public static async Task<FtpHandler> CreateWithPublishSettings(
-            [NotNull] string publishSettingsFile,
-            [NotNull] FtpSettings ftpSettings,
-            ILogger? logger = default)
-        {
-            if (ftpSettings is null)
-            {
-                throw new ArgumentNullException(nameof(ftpSettings));
-            }
-
-            logger ??= Logger.None;
-
-            if (string.IsNullOrWhiteSpace(publishSettingsFile))
-            {
-                throw new ArgumentException(Resources.ValueCannotBeNullOrWhitespace, nameof(publishSettingsFile));
-            }
-
-            var ftpPublishSettings = FtpPublishSettings.Load(publishSettingsFile);
-
-            var credentials = new NetworkCredential(ftpPublishSettings.UserName, ftpPublishSettings.Password, "");
-
-            Uri fullUri = ftpPublishSettings.FtpBaseUri;
-
-            if (ftpSettings.BasePath is {})
-            {
-                var builder = new UriBuilder(fullUri) {Path = ftpSettings.BasePath.Path};
-
-                fullUri = builder.Uri;
-            }
-
-            return await Create(fullUri, ftpSettings, credentials, logger);
-        }
-
-        public static async Task<FtpHandler> Create(Uri fullUri, FtpSettings? ftpSettings = null, NetworkCredential? credentials = null,
-            ILogger? logger = default)
-        {
-            logger ??= Logger.None;
-
-            var ftpClient = new FtpClient(fullUri.Host, credentials)
-            {
-                SocketPollInterval = 1000,
-                ConnectTimeout = 2000,
-                ReadTimeout = 5000,
-                DataConnectionConnectTimeout = 2000,
-                DataConnectionReadTimeout = 2000,
-                DataConnectionType = FtpDataConnectionType.PASV,
-                Port = fullUri.Port
-            };
-
-            if (ftpSettings?.IsSecure ?? false)
-            {
-                logger.Debug("Using secure FTP connection");
-                ftpClient.EncryptionMode = FtpEncryptionMode.Explicit;
-                ftpClient.SslProtocols = SslProtocols.Tls12;
-            }
-
-            try
-            {
-                logger.Debug("Connecting to FTP");
-                await ftpClient.ConnectAsync();
-                logger.Debug("Connected to FTP");
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                throw new FtpException($"Could not connect to FTP {fullUri.Host}", ex);
-            }
-
-            return new FtpHandler(ftpClient, logger, ftpSettings);
         }
     }
 }

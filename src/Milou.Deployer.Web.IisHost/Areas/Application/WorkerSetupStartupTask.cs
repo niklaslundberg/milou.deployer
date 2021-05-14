@@ -32,8 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private readonly TimeoutHelper _timeoutHelper;
         private readonly WorkerConfiguration _workerConfiguration;
 
-        public WorkerSetupStartupTask(
-            IKeyValueConfiguration configuration,
+        public WorkerSetupStartupTask(IKeyValueConfiguration configuration,
             ILogger logger,
             IDeploymentTargetReadService deploymentTargetReadService,
             ConfigurationInstanceHolder holder,
@@ -64,8 +63,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             try
             {
-                if (!int.TryParse(
-                        _configuration[DeployerAppConstants.StartupTargetsTimeoutInSeconds],
+                if (!int.TryParse(_configuration[DeployerAppConstants.StartupTargetsTimeoutInSeconds],
                         out int startupTimeoutInSeconds) ||
                     startupTimeoutInSeconds <= 0)
                 {
@@ -74,13 +72,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 using CancellationTokenSource startupToken =
                     _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds));
-                using var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
-                    stoppingToken,
-                    startupToken.Token);
+
+                using var linkedToken =
+                    CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, startupToken.Token);
+
                 targetIds =
                     (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linkedToken.Token))
-                    .Select(deploymentTarget => deploymentTarget.Id)
-                    .ToArray();
+                   .Select(deploymentTarget => deploymentTarget.Id).ToArray();
 
                 _logger.Debug("Found deployment target IDs {IDs}", targetIds);
             }
@@ -88,17 +86,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             {
                 _logger.Warning(ex, "Could not get target ids");
                 IsCompleted = true;
+
                 return;
             }
 
             foreach (var targetId in targetIds)
             {
-                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _logger, _mediator,
-                    _workerConfiguration, _timeoutHelper, _clock, _serviceProvider);
+                var deploymentTargetWorker = new DeploymentTargetWorker(targetId,
+                    _logger,
+                    _mediator,
+                    _workerConfiguration,
+                    _timeoutHelper,
+                    _clock,
+                    _serviceProvider);
 
-                _holder.Add(new NamedInstance<DeploymentTargetWorker>(
-                    deploymentTargetWorker,
-                    targetId.TargetId));
+                _holder.Add(new NamedInstance<DeploymentTargetWorker>(deploymentTargetWorker, targetId.TargetId));
 
                 await _mediator.Send(new StartWorker(deploymentTargetWorker), stoppingToken);
             }

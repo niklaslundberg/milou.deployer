@@ -13,11 +13,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents.Pools
     [UsedImplicitly]
     public class AgentPoolSeeder : IDataSeeder
     {
-        private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
+        private readonly ILogger _logger;
         private readonly IMediator _mediator;
 
-        public AgentPoolSeeder(IMediator mediator, ILogger logger, IDeploymentTargetReadService deploymentTargetReadService)
+        public AgentPoolSeeder(IMediator mediator,
+            ILogger logger,
+            IDeploymentTargetReadService deploymentTargetReadService)
         {
             _mediator = mediator;
             _logger = logger;
@@ -34,11 +36,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents.Pools
             }
 
             var agentPoolId = new AgentPoolId("Default");
-            var result = await _mediator.Send(new CreateAgentPool(agentPoolId, new AgentPoolName("Default")), cancellationToken);
+
+            var result = await _mediator.Send(new CreateAgentPool(agentPoolId, new AgentPoolName("Default")),
+                cancellationToken);
 
             _logger.Debug("CreateAgentPool result for Id {Id}: {Status}", agentPoolId, result);
 
-            var deploymentTargets = await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: cancellationToken);
+            var deploymentTargets =
+                await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: cancellationToken);
 
             foreach (var deploymentTarget in deploymentTargets)
             {
@@ -52,11 +57,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents.Pools
             foreach (var agent in agents.Agents)
             {
                 bool assigned = false;
+
                 foreach (var assignedAgentsAssignedAgent in assignedAgents.AssignedAgents)
                 {
                     if (assignedAgentsAssignedAgent.Value.Contains(agent.Id))
                     {
                         assigned = true;
+
                         break;
                     }
                 }

@@ -27,21 +27,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             _logger = logger;
         }
 
-        public override async Task OnDisconnectedAsync(Exception? exception) => await _mediator.Publish(new AgentDisconnected(new AgentId(Context.UserIdentifier ?? throw new InvalidOperationException("Missing user identifier on context"))));
-
-        public override Task OnConnectedAsync()
-        {
-            _logger.Verbose("SignalR Agent client connected, identity {Identity}", Context.User?.Identity?.Name);
-
-            return base.OnConnectedAsync();
-        }
-
         [PublicAPI]
         public async Task AgentConfig(string agentConfig)
         {
-            if (!AgentId.TryParse(Context.UserIdentifier, out AgentId? agentId))
+            if (!AgentId.TryParse(Context.UserIdentifier, out var agentId))
             {
                 _logger.Warning("The connected agent has no agent id");
+
                 return;
             }
 
@@ -58,22 +50,36 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         [PublicAPI]
         public async Task AgentConnect()
         {
-            if (!AgentId.TryParse(Context.UserIdentifier, out AgentId? agentId))
+            if (!AgentId.TryParse(Context.UserIdentifier, out var agentId))
             {
                 _logger.Warning("The connected agent has no agent id");
+
                 return;
             }
 
-            AgentInfo? agentInfo = await _mediator.Send(new GetAgentRequest(agentId));
+            var agentInfo = await _mediator.Send(new GetAgentRequest(agentId));
 
             if (agentInfo is null)
             {
                 await _mediator.Publish(new UnknownAgentConnected(agentId, Context.ConnectionId));
                 _logger.Warning("Unknown agent {AgentId} connected", agentId);
+
                 return;
             }
 
             await _mediator.Publish(new AgentConnected(agentId, Context.ConnectionId));
         }
+
+        public override Task OnConnectedAsync()
+        {
+            _logger.Verbose("SignalR Agent client connected, identity {Identity}", Context.User?.Identity?.Name);
+
+            return base.OnConnectedAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception) => await _mediator.Publish(
+            new AgentDisconnected(new AgentId(Context.UserIdentifier ??
+                                              throw new InvalidOperationException(
+                                                  "Missing user identifier on context"))));
     }
 }

@@ -16,10 +16,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
                 throw new ArgumentNullException(nameof(organizations));
             }
 
-            Organizations =
-                organizations.Select(organization => new OrganizationViewModel(organization))
-                    .OrderBy(organizationInfo => organizationInfo.Organization)
-                    .SafeToReadOnlyCollection();
+            Organizations = organizations.Select(organization => new OrganizationViewModel(organization))
+                                         .OrderBy(organizationInfo => organizationInfo.Organization)
+                                         .SafeToReadOnlyCollection();
         }
 
         public IReadOnlyCollection<OrganizationViewModel> Organizations { get; }

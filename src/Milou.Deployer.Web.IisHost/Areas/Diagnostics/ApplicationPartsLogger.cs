@@ -23,7 +23,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Diagnostics
         {
             if (_partManager is null)
             {
-                _logger.Debug("Application parts logging is disabled due to missing {Manager}", nameof(ApplicationPartManager));
+                _logger.Debug("Application parts logging is disabled due to missing {Manager}",
+                    nameof(ApplicationPartManager));
+
                 return Task.CompletedTask;
             }
 
@@ -36,7 +38,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Diagnostics
 
             _logger.Debug(
                 "Found the following application parts: '{ApplicationParts}' with the following controllers: '{Controllers}'",
-                string.Join(", ", applicationParts), string.Join(", ", controllers));
+                string.Join(", ", applicationParts),
+                string.Join(", ", controllers));
 
             return Task.CompletedTask;
         }

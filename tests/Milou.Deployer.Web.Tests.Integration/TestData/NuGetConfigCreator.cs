@@ -7,8 +7,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
 {
     public static class NuGetConfigCreator
     {
-        public static async Task CreateNuGetConfig(
-            FileInfo filePath,
+        public static async Task CreateNuGetConfig(FileInfo filePath,
             DirectoryInfo packageDirectory,
             CancellationToken cancellationToken = default)
         {

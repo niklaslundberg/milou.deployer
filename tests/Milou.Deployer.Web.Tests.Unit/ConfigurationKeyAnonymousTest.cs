@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void PasswordShouldBeHidden()
         {
-            var configurationKeyInfo = new ConfigurationKeyInfo("password", "abc123", null);
+            var configurationKeyInfo = new ConfigurationKeyInfo("password", "abc123");
 
             Assert.Equal("password", configurationKeyInfo.Key);
             Assert.Equal("*****", configurationKeyInfo.Value);

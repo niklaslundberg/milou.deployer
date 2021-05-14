@@ -21,8 +21,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public static readonly DeploymentTarget None =
             new(new DeploymentTargetId(Constants.NotAvailable), Constants.NotAvailable, Constants.NotAvailable);
 
-        public DeploymentTarget(
-            [NotNull] DeploymentTargetId id,
+        public DeploymentTarget([NotNull] DeploymentTargetId id,
             [NotNull] string name,
             string packageId,
             string? publishSettingsXml = null,
@@ -113,8 +112,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public bool? AllowExplicitExplicitPreRelease { get; }
 
         public bool AllowPreRelease =>
-            AllowExplicitExplicitPreRelease == true ||
-            EnvironmentType?.PreReleaseBehavior == PreReleaseBehavior.Allow;
+            AllowExplicitExplicitPreRelease == true || EnvironmentType?.PreReleaseBehavior == PreReleaseBehavior.Allow;
 
         public string? EnvironmentTypeId { get; }
 

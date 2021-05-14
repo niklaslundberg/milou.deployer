@@ -11,6 +11,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Network
             if (string.IsNullOrWhiteSpace(value))
             {
                 network = default;
+
                 return false;
             }
 
@@ -19,31 +20,37 @@ namespace Milou.Deployer.Web.IisHost.Areas.Network
             if (parts.Length != 2)
             {
                 network = default;
+
                 return false;
             }
 
-            if (!IPAddress.TryParse(parts[0], out IPAddress? address))
+            if (!IPAddress.TryParse(parts[0], out var address))
             {
                 network = default;
+
                 return false;
             }
 
             if (!int.TryParse(parts[1], out int length))
             {
                 network = default;
+
                 return false;
             }
 
             if (length < 0)
             {
                 network = default;
+
                 return false;
             }
 
             const int maxIpv4Length = 32;
+
             if (address.AddressFamily == AddressFamily.InterNetwork && length > maxIpv4Length)
             {
                 network = default;
+
                 return false;
             }
 

@@ -16,10 +16,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Milou.Deployer.Web.Core.Json;
@@ -36,104 +34,102 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 {
     public static class RegistrationExtensions
     {
-        public static IServiceCollection AddDeploymentAuthentication(
-            this IServiceCollection serviceCollection,
+        public static IServiceCollection AddDeploymentAuthentication(this IServiceCollection serviceCollection,
             ILogger logger,
             EnvironmentConfiguration environmentConfiguration,
             MilouAuthenticationConfiguration? milouAuthenticationConfiguration = null,
             CustomOpenIdConnectConfiguration? openIdConnectConfiguration = null)
         {
-            AuthenticationBuilder authenticationBuilder = serviceCollection
-                .AddAuthentication(
-                    option =>
-                    {
-                        option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            AuthenticationBuilder authenticationBuilder = serviceCollection.AddAuthentication(option =>
+            {
+                option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
-                        if (openIdConnectConfiguration?.Enabled == true)
-                        {
-                            option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-                        }
-                        else
-                        {
-                            option.DefaultAuthenticateScheme = MilouAuthenticationConstants.MilouAuthenticationScheme;
-                        }
-                    })
-                .AddCookie();
+                if (openIdConnectConfiguration?.Enabled == true)
+                {
+                    option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                }
+                else
+                {
+                    option.DefaultAuthenticateScheme = MilouAuthenticationConstants.MilouAuthenticationScheme;
+                }
+            }).AddCookie();
 
             if (openIdConnectConfiguration?.Enabled == true)
             {
-                authenticationBuilder = authenticationBuilder.AddOpenIdConnect(
-                    openIdConnectOptions =>
+                authenticationBuilder = authenticationBuilder.AddOpenIdConnect(openIdConnectOptions =>
+                {
+                    openIdConnectOptions.ClientId = openIdConnectConfiguration.ClientId;
+                    openIdConnectOptions.ClientSecret = openIdConnectConfiguration.ClientSecret;
+                    openIdConnectOptions.Authority = openIdConnectConfiguration.Authority;
+                    openIdConnectOptions.ResponseType = "code";
+                    openIdConnectOptions.GetClaimsFromUserInfoEndpoint = true;
+                    openIdConnectOptions.MetadataAddress = openIdConnectConfiguration.MetadataAddress;
+                    openIdConnectOptions.Scope.Add("email");
+
+                    openIdConnectOptions.TokenValidationParameters.ValidIssuer = openIdConnectConfiguration.Issuer;
+
+                    openIdConnectOptions.TokenValidationParameters.IssuerValidator = (issuer, _, __) =>
                     {
-                        openIdConnectOptions.ClientId = openIdConnectConfiguration.ClientId;
-                        openIdConnectOptions.ClientSecret = openIdConnectConfiguration.ClientSecret;
-                        openIdConnectOptions.Authority = openIdConnectConfiguration.Authority;
-                        openIdConnectOptions.ResponseType = "code";
-                        openIdConnectOptions.GetClaimsFromUserInfoEndpoint = true;
-                        openIdConnectOptions.MetadataAddress = openIdConnectConfiguration.MetadataAddress;
-                        openIdConnectOptions.Scope.Add("email");
-                        openIdConnectOptions.TokenValidationParameters.ValidIssuer = openIdConnectConfiguration.Issuer;
-
-                        openIdConnectOptions.TokenValidationParameters.IssuerValidator = (issuer, _, __) =>
+                        if (string.Equals(issuer, openIdConnectConfiguration.Issuer, StringComparison.Ordinal))
                         {
-                            if (string.Equals(issuer, openIdConnectConfiguration.Issuer, StringComparison.Ordinal))
-                            {
-                                return issuer;
-                            }
+                            return issuer;
+                        }
 
-                            throw new InvalidOperationException("Invalid issuer");
-                        };
+                        throw new InvalidOperationException("Invalid issuer");
+                    };
 
-                        openIdConnectOptions.Events.OnRemoteFailure = context =>
+                    openIdConnectOptions.Events.OnRemoteFailure = context =>
+                    {
+                        logger.Error(context.Failure,
+                            "Remote call to OpenIDConnect {Uri} failed",
+                            context.Options.Backchannel.BaseAddress);
+
+                        return Task.CompletedTask;
+                    };
+
+                    openIdConnectOptions.Events.OnRedirectToIdentityProvider = context =>
+                    {
+                        var redirectUrl = new Uri("http://localhost/signin-oidc");
+
+                        var builder = new UriBuilder(redirectUrl);
+
+                        if (!string.IsNullOrWhiteSpace(environmentConfiguration.PublicHostname))
                         {
-                            logger.Error(context.Failure, "Remote call to OpenIDConnect {Uri} failed",
-                                context.Options.Backchannel.BaseAddress);
+                            builder.Host = environmentConfiguration.PublicHostname;
 
-                            return Task.CompletedTask;
-                        };
-
-                        openIdConnectOptions.Events.OnRedirectToIdentityProvider = context =>
+                            if (logger.IsEnabled(LogEventLevel.Verbose))
+                            {
+                                logger.Verbose("Using redirect from environment public host name {HostName}",
+                                    environmentConfiguration.PublicHostname);
+                            }
+                        }
+                        else if (logger.IsEnabled(LogEventLevel.Verbose))
                         {
-                            var redirectUrl = new Uri("http://localhost/signin-oidc");
+                            logger.Verbose("Using default redirect for OpenId Connect");
+                        }
 
-                            var builder = new UriBuilder(redirectUrl);
+                        if (environmentConfiguration.PublicPortIsHttps == true)
+                        {
+                            builder.Scheme = "https";
+                            builder.Port = environmentConfiguration.HttpsPort ?? 443;
+                        }
 
-                            if (!string.IsNullOrWhiteSpace(environmentConfiguration.PublicHostname))
-                            {
-                                builder.Host = environmentConfiguration.PublicHostname;
+                        context.ProtocolMessage.RedirectUri = builder.Uri.AbsoluteUri;
 
-                                if (logger.IsEnabled(LogEventLevel.Verbose))
-                                {
-                                    logger.Verbose("Using redirect from environment public host name {HostName}", environmentConfiguration.PublicHostname);
-                                }
-                            }
-                            else if (logger.IsEnabled(LogEventLevel.Verbose))
-                            {
-                                logger.Verbose("Using default redirect for OpenId Connect");
-                            }
-
-                            if (environmentConfiguration.PublicPortIsHttps == true)
-                            {
-                                builder.Scheme = "https";
-                                builder.Port = environmentConfiguration.HttpsPort ?? 443;
-                            }
-
-                            context.ProtocolMessage.RedirectUri = builder.Uri.AbsoluteUri;
-
-                            return Task.CompletedTask;
-                        };
-                    });
+                        return Task.CompletedTask;
+                    };
+                });
             }
 
             if (milouAuthenticationConfiguration?.Enabled == true)
             {
-                authenticationBuilder.AddMilouAuthentication(
-                    MilouAuthenticationConstants.MilouAuthenticationScheme,
-                    "Milou", _ => { });
+                authenticationBuilder.AddMilouAuthentication(MilouAuthenticationConstants.MilouAuthenticationScheme,
+                    "Milou",
+                    _ => { });
             }
 
-            if (milouAuthenticationConfiguration?.BearerTokenEnabled == true
-                && !string.IsNullOrWhiteSpace(milouAuthenticationConfiguration.BearerTokenIssuerKey))
+            if (milouAuthenticationConfiguration?.BearerTokenEnabled == true &&
+                !string.IsNullOrWhiteSpace(milouAuthenticationConfiguration.BearerTokenIssuerKey))
             {
                 logger.Information("Bearer token authentication is enabled");
 
@@ -141,14 +137,14 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                 {
                     byte[] bytes = Convert.FromBase64String(milouAuthenticationConfiguration.BearerTokenIssuerKey);
 
-                    options.TokenValidationParameters = new ()
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
                         IssuerSigningKeys = new List<SecurityKey> {new SymmetricSecurityKey(bytes)},
                         ValidateAudience = false,
                         ValidateIssuer = false
                     };
 
-                    options.Events = new ()
+                    options.Events = new JwtBearerEvents
                     {
                         OnMessageReceived = OnMessageReceived,
                         OnChallenge = OnChallenge,
@@ -164,89 +160,21 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return serviceCollection;
         }
 
-        private static Task OnChallenge(JwtBearerChallengeContext arg) => Task.CompletedTask;
-
-        private static Task OnTokenValidated(TokenValidatedContext arg) => Task.CompletedTask;
-
-        private static Task OnMessageReceived(MessageReceivedContext arg) => Task.CompletedTask;
-
-        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services,
-            EnvironmentConfiguration environmentConfiguration,
-            IKeyValueConfiguration configuration,
-            ILogger logger,
-            IApplicationAssemblyResolver applicationAssemblyResolver)
-        {
-            ViewAssemblyLoader.LoadViewAssemblies(logger);
-            var filteredAssemblies = applicationAssemblyResolver.GetAssemblies();
-            IMvcBuilder mvcBuilder = services.AddMvc(
-                    options =>
-                    {
-                        options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
-                        options.Filters.Add<ModelValidatorFilterAttribute>();
-                    })
-                .AddNewtonsoftJson(
-                    options =>
-                    {
-                        options.SerializerSettings.Converters.Add(new DateConverter());
-                        options.SerializerSettings.Formatting = Formatting.Indented;
-                    });
-
-            foreach (Assembly filteredAssembly in filteredAssemblies)
-            {
-                logger.Debug("Adding assembly {Assembly} to MVC application parts", filteredAssembly.FullName);
-                mvcBuilder.AddApplicationPart(filteredAssembly);
-            }
-
-            var viewAssemblies = AssemblyLoadContext.Default.Assemblies
-                .Where(assembly => !assembly.IsDynamic && (assembly.GetName().Name?.Contains("View") ?? false))
-                .ToArray();
-
-            foreach (var item in viewAssemblies )
-            {
-                mvcBuilder.AddApplicationPart(item);
-            }
-
-            if (environmentConfiguration.ToHostEnvironment().IsDevelopment()
-                || configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled))
-            {
-                mvcBuilder.AddRazorRuntimeCompilation();
-            }
-
-            mvcBuilder
-                .AddControllersAsServices();
-
-            services.AddAntiforgery();
-
-            return services;
-        }
-
-        public static IServiceCollection AddServerFeatures(this IServiceCollection services)
-        {
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-            services.AddSingleton<IServerAddressesFeature, ServerAddressesFeature>();
-
-            return services;
-        }
-
-        public static IServiceCollection AddDeploymentAuthorization(
-            this IServiceCollection services,
+        public static IServiceCollection AddDeploymentAuthorization(this IServiceCollection services,
             EnvironmentConfiguration environmentConfiguration)
         {
-            services.AddAuthorization(
-                options =>
-                {
-                    options.AddPolicy(
-                        AuthorizationPolicies.IpOrToken,
-                        policy => policy.Requirements.Add(new DefaultAuthorizationRequirement()));
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(AuthorizationPolicies.IpOrToken,
+                    policy => policy.Requirements.Add(new DefaultAuthorizationRequirement()));
 
-                    options.AddPolicy(
-                        AuthorizationPolicies.Agent,
-                        policy =>
-                        {
-                            policy.Requirements.Add(new AgentAuthorizationRequirement());
-                            policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
-                        });
-                });
+                options.AddPolicy(AuthorizationPolicies.Agent,
+                    policy =>
+                    {
+                        policy.Requirements.Add(new AgentAuthorizationRequirement());
+                        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+                    });
+            });
 
             services.AddSingleton<IAuthorizationHandler, DefaultAuthorizationHandler>();
             services.AddSingleton<IAuthorizationHandler, AgentAuthorizationHandler>();
@@ -259,16 +187,77 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return services;
         }
 
-        public static IServiceCollection AddDeploymentSignalR(this IServiceCollection services)
+        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services,
+            EnvironmentConfiguration environmentConfiguration,
+            IKeyValueConfiguration configuration,
+            ILogger logger,
+            IApplicationAssemblyResolver applicationAssemblyResolver)
         {
-            services.AddSignalR(
-                options =>
-                {
-                    options.EnableDetailedErrors = true;
-                    options.KeepAliveInterval = TimeSpan.FromSeconds(5);
-                });
+            ViewAssemblyLoader.LoadViewAssemblies(logger);
+            var filteredAssemblies = applicationAssemblyResolver.GetAssemblies();
+
+            IMvcBuilder mvcBuilder = services.AddMvc(options =>
+            {
+                options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
+
+                options.Filters.Add<ModelValidatorFilterAttribute>();
+            }).AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.Converters.Add(new DateConverter());
+
+                options.SerializerSettings.Formatting = Formatting.Indented;
+            });
+
+            foreach (Assembly filteredAssembly in filteredAssemblies)
+            {
+                logger.Debug("Adding assembly {Assembly} to MVC application parts", filteredAssembly.FullName);
+                mvcBuilder.AddApplicationPart(filteredAssembly);
+            }
+
+            var viewAssemblies = AssemblyLoadContext.Default.Assemblies.Where(assembly =>
+                !assembly.IsDynamic && (assembly.GetName().Name?.Contains("View") ?? false)).ToArray();
+
+            foreach (var item in viewAssemblies)
+            {
+                mvcBuilder.AddApplicationPart(item);
+            }
+
+            if (environmentConfiguration.ToHostEnvironment().IsDevelopment() ||
+                configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled))
+            {
+                mvcBuilder.AddRazorRuntimeCompilation();
+            }
+
+            mvcBuilder.AddControllersAsServices();
+
+            services.AddAntiforgery();
 
             return services;
         }
+
+        public static IServiceCollection AddDeploymentSignalR(this IServiceCollection services)
+        {
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+                options.KeepAliveInterval = TimeSpan.FromSeconds(5);
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddServerFeatures(this IServiceCollection services)
+        {
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddSingleton<IServerAddressesFeature, ServerAddressesFeature>();
+
+            return services;
+        }
+
+        private static Task OnChallenge(JwtBearerChallengeContext arg) => Task.CompletedTask;
+
+        private static Task OnMessageReceived(MessageReceivedContext arg) => Task.CompletedTask;
+
+        private static Task OnTokenValidated(TokenValidatedContext arg) => Task.CompletedTask;
     }
 }

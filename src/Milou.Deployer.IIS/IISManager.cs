@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using Microsoft.Web.Administration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
-
 using Serilog;
 using Serilog.Events;
 
@@ -20,8 +19,7 @@ namespace Milou.Deployer.IIS
         private ServerManager _serverManager;
         private Site _site;
 
-        private IisManager(
-            ServerManager serverManager,
+        private IisManager(ServerManager serverManager,
             DeployerConfiguration configuration,
             ILogger logger,
             DeploymentExecutionDefinition deploymentExecutionDefinition)
@@ -63,6 +61,7 @@ namespace Milou.Deployer.IIS
             if (!UserHelper.IsAdministrator())
             {
                 _logger.Warning("Current user does not have administrative privileges, cannot start/stop site");
+
                 return false;
             }
 
@@ -74,6 +73,7 @@ namespace Milou.Deployer.IIS
                 _logger.Error(
                     "There is no ServerManager instance when trying to stop IIS site defined in {DeploymentExecutionDefinition}",
                     _deploymentExecutionDefinition);
+
                 return false;
             }
 
@@ -93,9 +93,9 @@ namespace Milou.Deployer.IIS
 
                 if (!_configuration.StopStartIisWebSiteEnabled)
                 {
-                    _logger.Warning(
-                        "The deployer configuration has {Property} set to false",
+                    _logger.Warning("The deployer configuration has {Property} set to false",
                         nameof(_configuration.StopStartIisWebSiteEnabled));
+
                     return false;
                 }
 
@@ -107,13 +107,13 @@ namespace Milou.Deployer.IIS
                         "Could not find IIS site {SiteName} defined in deployment execution definition {DeploymentExecutionDefinition}",
                         _deploymentExecutionDefinition.IisSiteName,
                         _deploymentExecutionDefinition);
+
                     return false;
                 }
 
                 _previousSiteState = _site.State;
 
-                if (_previousSiteState == ObjectState.Starting
-                    || _previousSiteState == ObjectState.Started)
+                if (_previousSiteState == ObjectState.Starting || _previousSiteState == ObjectState.Started)
                 {
                     if (_logger.IsEnabled(LogEventLevel.Debug))
                     {
@@ -121,6 +121,7 @@ namespace Milou.Deployer.IIS
                     }
 
                     var objectState = _site.Stop();
+
                     if (objectState == ObjectState.Stopped && _logger.IsEnabled(LogEventLevel.Debug))
                     {
                         _logger.Debug("Stopped IIS site '{IISSiteName}'", _site.Name);
@@ -135,14 +136,14 @@ namespace Milou.Deployer.IIS
             catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(ex, "Error while trying to stop IIS site");
+
                 return false;
             }
 
             return true;
         }
 
-        public static IisManager Create(
-            [NotNull] DeployerConfiguration configuration,
+        public static IisManager Create([NotNull] DeployerConfiguration configuration,
             [NotNull] ILogger logger,
             [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition)
         {
@@ -171,15 +172,15 @@ namespace Milou.Deployer.IIS
                 if (!UserHelper.IsAdministrator())
                 {
                     _logger.Warning("Current user does not have administrative privileges, cannot start/stop site");
+
                     return false;
                 }
 
-                if (_serverManager is {}
-                    && _site is {}
-                    && _site.State != ObjectState.Starting
-                    && _site.State != ObjectState.Started
-                    && (_previousSiteState == ObjectState.Starting
-                        || _previousSiteState == ObjectState.Started))
+                if (_serverManager is { } &&
+                    _site is { } &&
+                    _site.State != ObjectState.Starting &&
+                    _site.State != ObjectState.Started &&
+                    (_previousSiteState == ObjectState.Starting || _previousSiteState == ObjectState.Started))
                 {
                     if (_logger.IsEnabled(LogEventLevel.Debug))
                     {

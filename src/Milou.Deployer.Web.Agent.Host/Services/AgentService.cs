@@ -38,8 +38,7 @@ namespace Milou.Deployer.Web.Agent.Host.Services
         private bool _isDisposing;
         private CancellationToken _stoppingToken;
 
-        public AgentService(
-            IDeploymentPackageAgent deploymentPackageAgent,
+        public AgentService(IDeploymentPackageAgent deploymentPackageAgent,
             ILogger logger,
             IMediator mediator,
             IHostApplicationLifetime lifetime,
@@ -94,6 +93,7 @@ namespace Milou.Deployer.Web.Agent.Host.Services
             }
 
             bool connected = false;
+
             try
             {
                 _logger.Debug("Connecting to server via SignalR {Url}", _connectionUrl);
@@ -118,16 +118,17 @@ namespace Milou.Deployer.Web.Agent.Host.Services
         private void CreateSignalRConnection(string connectionUrl)
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl(connectionUrl, options => options.AccessTokenProvider = GetAccessToken)
-                .Build();
+                            .WithUrl(connectionUrl, options => options.AccessTokenProvider = GetAccessToken).Build();
 
             _hubConnection.Closed += HubConnectionOnClosed;
 
             _subscriptions.Add(_hubConnection.On<string, string>(AgentConstants.SignalRServerToAgentDeployCommand,
                 ExecuteDeploymentTask));
+
             _subscriptions.Add(_hubConnection.On<string>(AgentConstants.SignalRServerToAgentPingCommand, Ping));
             _subscriptions.Add(_hubConnection.On(AgentConstants.ServerShuttingDown, ShutDown));
             _subscriptions.Add(_hubConnection.On(AgentConstants.SignalRServerToAgentGetConfigCommand, SendConfig));
+
             _subscriptions.Add(_hubConnection.On<LogEventLevel>(AgentConstants.SignalRServerToAgentSetLogLevelCommand,
                 SetLogLevel));
         }
@@ -139,6 +140,7 @@ namespace Milou.Deployer.Web.Agent.Host.Services
             if (_agentConfiguration is null)
             {
                 _logger.Fatal("Agent configuration is missing");
+
                 return;
             }
 
@@ -152,6 +154,7 @@ namespace Milou.Deployer.Web.Agent.Host.Services
             {
                 _logger.Error("Could not find agent id, token length is {TokenLength}",
                     _agentConfiguration?.AccessToken.Length.ToString(CultureInfo.InvariantCulture) ?? "N/A");
+
                 return;
             }
 
@@ -192,8 +195,7 @@ namespace Milou.Deployer.Web.Agent.Host.Services
 
             var id = new DeploymentTargetId(deploymentTargetId);
 
-            using CancellationTokenSource cancellationTokenSource =
-                new(TimeSpan.FromMinutes(10));
+            using CancellationTokenSource cancellationTokenSource = new(TimeSpan.FromMinutes(10));
 
             using var source =
                 CancellationTokenSource.CreateLinkedTokenSource(_stoppingToken, cancellationTokenSource.Token);
@@ -205,20 +207,19 @@ namespace Milou.Deployer.Web.Agent.Host.Services
                 var exitCode =
                     await _deploymentPackageAgent.RunAsync(deploymentTaskId, id, cancellationTokenSource.Token);
 
-                deploymentTaskAgentResult =
-                    new DeploymentTaskAgentResult(deploymentTaskId, id, exitCode.IsSuccess);
+                deploymentTaskAgentResult = new DeploymentTaskAgentResult(deploymentTaskId, id, exitCode.IsSuccess);
             }
             catch (Exception ex) when (ex is OperationCanceledException or TaskCanceledException or TimeoutException)
             {
                 _logger.Error("Build agent {AgentId} timed out for deployment task {DeploymentTaskId}",
-                    _agentConfiguration.AgentId(), deploymentTaskId);
-                deploymentTaskAgentResult =
-                    new DeploymentTaskAgentResult(deploymentTaskId, id, false);
+                    _agentConfiguration.AgentId(),
+                    deploymentTaskId);
+
+                deploymentTaskAgentResult = new DeploymentTaskAgentResult(deploymentTaskId, id, false);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                deploymentTaskAgentResult =
-                    new DeploymentTaskAgentResult(deploymentTaskId, id, false);
+                deploymentTaskAgentResult = new DeploymentTaskAgentResult(deploymentTaskId, id, false);
             }
 
             await _mediator.Send(deploymentTaskAgentResult, _stoppingToken);
@@ -266,6 +267,7 @@ namespace Milou.Deployer.Web.Agent.Host.Services
         private Task SetLogLevel(LogEventLevel level)
         {
             _loggingLevelSwitch.MinimumLevel = level;
+
             return Task.CompletedTask;
         }
 

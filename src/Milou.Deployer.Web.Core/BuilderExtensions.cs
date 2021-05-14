@@ -12,8 +12,7 @@ namespace Milou.Deployer.Web.Core
 {
     public static class BuilderExtensions
     {
-        public static IServiceCollection RegisterAssemblyTypes<T>(
-            [NotNull] this IServiceCollection serviceCollection,
+        public static IServiceCollection RegisterAssemblyTypes<T>([NotNull] this IServiceCollection serviceCollection,
             [NotNull] IEnumerable<Assembly> assemblies,
             ServiceLifetime lifetime,
             IModule? module = null) where T : class
@@ -33,9 +32,8 @@ namespace Milou.Deployer.Web.Core
                 throw new InvalidEnumArgumentException(nameof(lifetime), (int)lifetime, typeof(ServiceLifetime));
             }
 
-            IEnumerable<Type> types = assemblies
-                .SelectMany(assembly => assembly.GetLoadableTypes())
-                .Where(type => type.IsPublicConcreteTypeImplementing<T>());
+            IEnumerable<Type> types = assemblies.SelectMany(assembly => assembly.GetLoadableTypes())
+                                                .Where(type => type.IsPublicConcreteTypeImplementing<T>());
 
             foreach (Type type in types)
             {
@@ -45,10 +43,11 @@ namespace Milou.Deployer.Web.Core
             return serviceCollection;
         }
 
-        public static IServiceCollection RegisterAssemblyTypesAsSingletons<T>(
-            this IServiceCollection serviceCollection,
+        public static IServiceCollection RegisterAssemblyTypesAsSingletons<T>(this IServiceCollection serviceCollection,
             IEnumerable<Assembly> assemblies,
-            IModule? module = null) where T : class =>
-            RegisterAssemblyTypes<T>(serviceCollection, assemblies, ServiceLifetime.Singleton, module);
+            IModule? module = null) where T : class => RegisterAssemblyTypes<T>(serviceCollection,
+            assemblies,
+            ServiceLifetime.Singleton,
+            module);
     }
 }

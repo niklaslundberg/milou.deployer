@@ -37,6 +37,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         async Task IAsyncLifetime.DisposeAsync() => await DisposeAsync();
 
+        public void Dispose()
+        {
+        }
+
         public async ValueTask DisposeAsync()
         {
             Output.WriteLine($"Disposing {nameof(TestBase<T>)}");
@@ -66,7 +70,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 try
                 {
-                   await lifeTime.DisposeAsync();
+                    await lifeTime.DisposeAsync();
                 }
                 catch (AggregateException ex) when (ex.InnerException is ObjectDisposedException)
                 {
@@ -76,16 +80,12 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (WebFixture is IAsyncDisposable asyncDisposable)
             {
-               await asyncDisposable.DisposeAsync();
+                await asyncDisposable.DisposeAsync();
             }
 
             CancellationTokenSource.SafeDispose();
 
             WebFixture = null!;
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

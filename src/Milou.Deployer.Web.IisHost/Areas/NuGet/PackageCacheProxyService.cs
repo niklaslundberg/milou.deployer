@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.Caching;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
-using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.Core.Settings;
@@ -24,9 +23,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
         private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
         private readonly IApplicationSettingsStore _applicationSettingsStore;
-        private readonly ILogger _logger;
-        private readonly IDistributedCache _distributedCache;
         private readonly CurrentCacheVersion _currentCacheVersion;
+        private readonly IDistributedCache _distributedCache;
+        private readonly ILogger _logger;
         private readonly IPackageService _packageService;
 
         public PackageCacheProxyService(IPackageService packageService,
@@ -42,14 +41,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             _currentCacheVersion = currentCacheVersion;
         }
 
-        public Task Handle(PackageUpdatedEvent notification, CancellationToken cancellationToken) =>
-            ClearCache(
-                notification.PackageVersion.Key,
-                notification.NugetConfig,
-                notification.NugetSource);
+        public Task Handle(PackageUpdatedEvent notification, CancellationToken cancellationToken) => ClearCache(
+            notification.PackageVersion.Key,
+            notification.NugetConfig,
+            notification.NugetSource);
 
-        public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
-            string packageId,
+        public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(string packageId,
             bool useCache = true,
             bool includePreReleased = false,
             string? nugetPackageSource = null,
@@ -62,39 +59,48 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (useCache)
             {
-                var packages = await _distributedCache.GetWithVersionAsync<PackageVersions>(cacheKey, _currentCacheVersion.CurrentVersion, _logger, cancellationToken);
-                _logger.Debug(
-                    "Returning packages from cache with key {Key} for package id {PackageId}",
+                var packages = await _distributedCache.GetWithVersionAsync<PackageVersions>(cacheKey,
+                    _currentCacheVersion.CurrentVersion,
+                    _logger,
+                    cancellationToken);
+
+                _logger.Debug("Returning packages from cache with key {Key} for package id {PackageId}",
                     cacheKey,
                     packageId);
 
                 if (packages?.Versions.Length > 0)
                 {
                     return packages.Versions
-                        .Select(version => new PackageVersion(packageId, SemanticVersion.Parse(version)))
-                        .ToImmutableArray();
+                                   .Select(version => new PackageVersion(packageId, SemanticVersion.Parse(version)))
+                                   .ToImmutableArray();
                 }
             }
 
-            var addedPackages = (await _packageService.GetPackageVersionsAsync(packageId, useCache,
-                includePreReleased, nugetPackageSource, nugetConfigFile, cancellationToken)).ToArray();
+            var addedPackages = (await _packageService.GetPackageVersionsAsync(packageId,
+                useCache,
+                includePreReleased,
+                nugetPackageSource,
+                nugetConfigFile,
+                cancellationToken)).ToArray();
 
             if (addedPackages.Length > 0)
             {
                 ApplicationSettings settings =
                     await _applicationSettingsStore.GetApplicationSettings(CancellationToken.None);
+
                 var cacheTime = settings.CacheTime;
 
-                string[] versions = addedPackages
-                    .Select(version => version.Version.ToNormalizedString())
-                    .ToArray();
+                string[] versions = addedPackages.Select(version => version.Version.ToNormalizedString()).ToArray();
 
                 var packageVersions = new PackageVersions {Versions = versions};
 
-                await _distributedCache.SetWithVersionAsync(cacheKey, packageVersions, _currentCacheVersion.CurrentVersion, logger: _logger, cancellationToken: cancellationToken);
+                await _distributedCache.SetWithVersionAsync(cacheKey,
+                    packageVersions,
+                    _currentCacheVersion.CurrentVersion,
+                    logger: _logger,
+                    cancellationToken: cancellationToken);
 
-                _logger.Debug(
-                    "Cached {Packages} packages with key {CacheKey} for {Duration} seconds",
+                _logger.Debug("Cached {Packages} packages with key {CacheKey} for {Duration} seconds",
                     addedPackages.Length,
                     cacheKey,
                     cacheTime.TotalSeconds.ToString("F0", CultureInfo.InvariantCulture));
@@ -136,13 +142,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             return cacheKey;
         }
 
-        private string NormalizeKey(string key) =>
-            key.Replace(":", "_", StringComparison.OrdinalIgnoreCase)
-                .Replace("/", string.Empty, StringComparison.OrdinalIgnoreCase)
-                .Replace(".", string.Empty, StringComparison.OrdinalIgnoreCase)
-                .Replace(
-                    Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture),
-                    "_",
-                    StringComparison.OrdinalIgnoreCase);
+        private string NormalizeKey(string key) => key.Replace(":", "_", StringComparison.OrdinalIgnoreCase)
+                                                      .Replace("/", string.Empty, StringComparison.OrdinalIgnoreCase)
+                                                      .Replace(".", string.Empty, StringComparison.OrdinalIgnoreCase)
+                                                      .Replace(Path.DirectorySeparatorChar.ToString(CultureInfo
+                                                              .InvariantCulture),
+                                                           "_",
+                                                           StringComparison.OrdinalIgnoreCase);
     }
 }

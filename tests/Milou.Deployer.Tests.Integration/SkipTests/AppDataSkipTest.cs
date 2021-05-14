@@ -21,8 +21,9 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
 
             var (source, deployTargetDirectory, temp) = TestDataHelper.CopyTestData(logger);
 
-            var result = await webDeployHelper.DeployContentToOneSiteAsync(
-                source, null, TimeSpan.MinValue,
+            var result = await webDeployHelper.DeployContentToOneSiteAsync(source,
+                null,
+                TimeSpan.MinValue,
                 appDataSkipDirectiveEnabled: true,
                 doNotDelete: false,
                 logAction: message => logger.Information("{Message}", message),
@@ -46,8 +47,8 @@ namespace Milou.Deployer.Tests.Integration.SkipTests
             Assert.Contains("UpdateMe.txt", result.UpdatedFiles.Select(f => new FileInfo(f).Name));
             Assert.Contains("DeleteMe.txt", result.DeletedFiles.Select(f => new FileInfo(f).Name));
 
-            var appDataFileContent = await
-                File.ReadAllTextAsync(Path.Combine(deployTargetDirectory.FullName, "App_Data", "Data.txt"));
+            string? appDataFileContent =
+                await File.ReadAllTextAsync(Path.Combine(deployTargetDirectory.FullName, "App_Data", "Data.txt"));
 
             Assert.Equal("Defined in target", appDataFileContent);
 

@@ -48,28 +48,28 @@ namespace Milou.Deployer.Core.Deployment
         public override bool Equals(object? obj) =>
             ReferenceEquals(this, obj) || (obj is PublishType other && Equals(other));
 
-        public static bool TryParseOrDefault(string? value, out PublishType? publishType)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                publishType = Default;
-                return false;
-            }
-
-            PublishType? found =
-                All.SingleOrDefault(a => a.Name.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
-
-            publishType = found ?? Default;
-
-            return found is {};
-        }
+        public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 
         public static bool operator ==(PublishType left, PublishType right) => Equals(left, right);
 
         public static bool operator !=(PublishType left, PublishType right) => !Equals(left, right);
 
-        public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
-
         public override string ToString() => Name;
+
+        public static bool TryParseOrDefault(string? value, out PublishType? publishType)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                publishType = Default;
+
+                return false;
+            }
+
+            var found = All.SingleOrDefault(a => a.Name.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            publishType = found ?? Default;
+
+            return found is { };
+        }
     }
 }

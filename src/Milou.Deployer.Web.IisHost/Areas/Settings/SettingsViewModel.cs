@@ -14,8 +14,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
 {
     public class SettingsViewModel : IQueryResult
     {
-        public SettingsViewModel(
-            string targetReadService,
+        public SettingsViewModel(string targetReadService,
             ImmutableArray<ControllerRouteInfo> routes,
             ConfigurationInfo configurationInfo,
             ImmutableArray<ServiceRegistrationInfo> serviceRegistrations,
@@ -30,11 +29,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             AspNetConfigurationValues = aspNetConfigurationValues.OrderBy(x => x.Key).ToImmutableArray();
             TargetReadService = targetReadService;
             ConfigurationInfo = configurationInfo;
-            RegistrationInstances = registrationInstances
-                .OrderBy(serviceInstance => serviceInstance.RegistrationType).ToImmutableArray();
-            ServiceRegistrations = serviceRegistrations.OrderBy(serviceRegistrationInfo =>
-                    serviceRegistrationInfo.ServiceDescriptorServiceType.FullName)
-                .ToImmutableArray();
+
+            RegistrationInstances = registrationInstances.OrderBy(serviceInstance => serviceInstance.RegistrationType)
+                                                         .ToImmutableArray();
+
+            ServiceRegistrations = serviceRegistrations.OrderBy(
+                                                            serviceRegistrationInfo =>
+                                                                serviceRegistrationInfo.ServiceDescriptorServiceType
+                                                                   .FullName)
+                                                       .ToImmutableArray();
+
             LogEventLevel = logEventLevel;
             ApplicationVersionInfo = applicationVersionInfo;
             ApplicationMetadata = applicationMetadata;
@@ -61,6 +65,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
         public ImmutableArray<(object, string)> ConfigurationValues { get; }
 
         public IKeyValueConfiguration ApplicationMetadata { get; }
+
         public ImmutableArray<DeploymentTargetWorker> DeploymentTargetWorkers { get; }
 
         public ApplicationSettings ApplicationSettings { get; }

@@ -20,6 +20,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks.Controllers
         public async Task<IActionResult> Hook()
         {
             string content;
+
             using (var streamReader = new StreamReader(Request.Body))
             {
                 content = await streamReader.ReadToEndAsync();

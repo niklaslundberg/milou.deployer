@@ -20,6 +20,52 @@ namespace Milou.Deployer.Tests.Integration
         {
         }
 
+        [ConditionalFactAttribute]
+        public async Task PublishFilesShouldSyncFiles()
+        {
+            var logger = Context.Logger;
+
+            var (source, deployTargetDirectory, temp) = TestDataHelper.CopyTestData(logger);
+
+            var ftpSettings = new FtpSettings(new FtpPath("/", FileSystemType.Directory),
+                publicRootPath: new FtpPath("/", FileSystemType.Directory),
+                isSecure: false);
+
+            FtpHandler handler = await FtpHandler.Create(new Uri("ftp://127.0.0.1:30021"),
+                ftpSettings,
+                new NetworkCredential("testuser", "testpw"),
+                logger);
+
+            var sourceDirectory = new DirectoryInfo(source);
+            var ruleConfiguration = new RuleConfiguration {AppOfflineEnabled = true};
+
+            using var initialCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(50));
+
+            DeploySummary initialSummary = await handler.PublishAsync(ruleConfiguration,
+                deployTargetDirectory,
+                initialCancellationTokenSource.Token);
+
+            logger.Information("Initial: {Initial}", initialSummary.ToDisplayValue());
+
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(50));
+
+            DeploySummary summary = await handler.PublishAsync(
+                ruleConfiguration,
+                sourceDirectory,
+                cancellationTokenSource.Token);
+
+            logger.Information("Result: {Result}", summary.ToDisplayValue());
+
+            var fileSystemItems = await handler.ListDirectoryAsync(FtpPath.Root, cancellationTokenSource.Token);
+
+            foreach (FtpPath fileSystemItem in fileSystemItems)
+            {
+                logger.Information("{Item}", fileSystemItem.Path);
+            }
+
+            temp.Dispose();
+        }
+
         protected override async IAsyncEnumerable<ContainerArgs> AddContainersAsync()
         {
             var passivePorts = new PortRange(21100, 21110);
@@ -36,60 +82,12 @@ namespace Milou.Deployer.Tests.Integration
             {
                 PortMapping.MapSinglePort(30020, 20),
                 PortMapping.MapSinglePort(30021, 21),
-                new PortMapping(passivePorts, passivePorts)
+                new(passivePorts, passivePorts)
             };
 
-            var ftp = new ContainerArgs(
-                "fauria/vsftpd",
-                "ftp",
-                ftpPorts,
-                ftpVariables
-            );
+            var ftp = new ContainerArgs("fauria/vsftpd", "ftp", ftpPorts, ftpVariables);
 
             yield return ftp;
-        }
-
-        [ConditionalFactAttribute]
-        public async Task PublishFilesShouldSyncFiles()
-        {
-            var logger = Context.Logger;
-
-            var (source, deployTargetDirectory, temp) = TestDataHelper.CopyTestData(logger);
-
-            var ftpSettings = new FtpSettings(
-                new FtpPath("/", FileSystemType.Directory),
-                publicRootPath: new FtpPath("/", FileSystemType.Directory),
-                isSecure: false);
-
-            FtpHandler handler = await FtpHandler.Create(new Uri("ftp://127.0.0.1:30021"),
-                ftpSettings, new NetworkCredential("testuser", "testpw"), logger);
-
-            var sourceDirectory = new DirectoryInfo(source);
-            var ruleConfiguration = new RuleConfiguration {AppOfflineEnabled = true};
-
-            using var initialCancellationTokenSource =
-                new CancellationTokenSource(TimeSpan.FromSeconds(50));
-            DeploySummary initialSummary = await handler.PublishAsync(ruleConfiguration,
-                deployTargetDirectory,
-                initialCancellationTokenSource.Token);
-            logger.Information("Initial: {Initial}", initialSummary.ToDisplayValue());
-
-            using var cancellationTokenSource =
-                new CancellationTokenSource(TimeSpan.FromSeconds(50));
-            DeploySummary summary = await handler.PublishAsync(ruleConfiguration,
-                sourceDirectory,
-                cancellationTokenSource.Token);
-
-            logger.Information("Result: {Result}", summary.ToDisplayValue());
-
-            var fileSystemItems = await handler.ListDirectoryAsync(FtpPath.Root, cancellationTokenSource.Token);
-
-            foreach (FtpPath fileSystemItem in fileSystemItems)
-            {
-                logger.Information("{Item}", fileSystemItem.Path);
-            }
-
-            temp.Dispose();
         }
     }
 }

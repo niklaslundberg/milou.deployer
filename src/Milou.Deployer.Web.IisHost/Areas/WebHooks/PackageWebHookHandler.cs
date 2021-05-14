@@ -7,7 +7,6 @@ using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Milou.Deployer.Web.Core.NuGet;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
@@ -21,8 +20,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
         private readonly ImmutableArray<IPackageWebHook> _packageWebHooks;
         private readonly TimeoutHelper _timeoutHelper;
 
-        public PackageWebHookHandler(
-            IEnumerable<IPackageWebHook> packageWebHooks,
+        public PackageWebHookHandler(IEnumerable<IPackageWebHook> packageWebHooks,
             ILogger logger,
             IMediator mediator,
             TimeoutHelper timeoutHelper)
@@ -33,14 +31,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _packageWebHooks = packageWebHooks.SafeToImmutableArray();
         }
 
-        public async Task<WebHookResult> HandleRequest(
-            HttpRequest request,
+        public async Task<WebHookResult> HandleRequest(HttpRequest request,
             string content,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(content))
             {
                 _logger.Debug("Cannot process empty web hook request body");
+
                 return new WebHookResult(false);
             }
 
@@ -58,8 +56,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
                 try
                 {
-                    PackageUpdatedEvent? webHook =
-                        await packageWebHook.TryGetWebHookNotification(request, content, cancellationToken);
+                    var webHook = await packageWebHook.TryGetWebHookNotification(request, content, cancellationToken);
 
                     if (webHook is null)
                     {
@@ -77,10 +74,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(
-                        ex,
+                    _logger.Error(ex,
                         "Could not get web hook notification from hook {Hook}",
                         packageWebHook.GetType().FullName);
+
                     throw;
                 }
                 finally

@@ -7,7 +7,8 @@ namespace Milou.Deployer.Web.Agent.Host
 {
     internal static class Program
     {
-        public static Task<int> Main(string[] args) =>
-            AppStarter<AgentStartup>.StartAsync(args, EnvironmentVariables.GetEnvironmentVariables().Variables);
+        public static Task<int> Main(string[] args) => AppStarter<AgentStartup>.StartAsync(
+            args,
+            EnvironmentVariables.GetEnvironmentVariables().Variables);
     }
 }

@@ -29,10 +29,11 @@ namespace Milou.Deployer.Web.Core.Logging
                 throw new ArgumentNullException(nameof(request));
             }
 
-            if (LogEventLevelParser.TryParse(request.ChangeLogLevel.NewLevel, out var newLevel) && TimeSpan.TryParse(request.ChangeLogLevel.TimeSpan, out var timeSpan))
+            if (LogEventLevelParser.TryParse(request.ChangeLogLevel.NewLevel, out var newLevel) &&
+                TimeSpan.TryParse(request.ChangeLogLevel.TimeSpan, out var timeSpan))
             {
                 _levelState.SetLevel(newLevel, timeSpan);
-               await _mediator.Publish(new LogLevelChanged(newLevel), cancellationToken);
+                await _mediator.Publish(new LogLevelChanged(newLevel), cancellationToken);
             }
             else
             {

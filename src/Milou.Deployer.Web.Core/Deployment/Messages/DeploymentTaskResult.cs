@@ -7,8 +7,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class DeploymentTaskResult
     {
-        public DeploymentTaskResult(
-            string deploymentTaskId,
+        public DeploymentTaskResult(string deploymentTaskId,
             DeploymentTargetId deploymentTargetId,
             ExitCode exitCode,
             DateTime startedAtUtc,

@@ -32,8 +32,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         {
             IKeyValueConfiguration configuration = new InMemoryKeyValueConfiguration(new NameValueCollection());
 
-            _startupTask = new DataSeedStartupTask(
-                ImmutableArray<IDataSeeder>.Empty,
+            _startupTask = new DataSeedStartupTask(ImmutableArray<IDataSeeder>.Empty,
                 configuration,
                 _logger,
                 new TimeoutHelper(),

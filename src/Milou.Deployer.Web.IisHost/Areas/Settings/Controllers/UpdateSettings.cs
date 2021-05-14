@@ -1,16 +1,18 @@
 ﻿using System;
 using MediatR;
-using Milou.Deployer.Web.IisHost.Areas.Agents;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 {
     public class UpdateSettings : IRequest<Unit>
     {
-        public UpdateSettings(TimeSpan? cacheTime, NexusUpdate? nexusConfig, AutoDeployUpdate? autoDeploy, DefaultNugetConfigUpdate? defaultNugetConfig)
+        public UpdateSettings(TimeSpan? cacheTime,
+            NexusUpdate? nexusConfig,
+            AutoDeployUpdate? autoDeploy,
+            DefaultNugetConfigUpdate? defaultNugetConfig)
         {
             CacheTime = cacheTime;
             NexusConfig = nexusConfig;
-            AutoDeploy = autoDeploy ?? new(false, false);
+            AutoDeploy = autoDeploy ?? new AutoDeployUpdate(false, false);
             DefaultNuGetConfig = defaultNugetConfig;
         }
 

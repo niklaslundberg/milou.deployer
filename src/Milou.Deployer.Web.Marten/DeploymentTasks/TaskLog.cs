@@ -1,6 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 
 namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {

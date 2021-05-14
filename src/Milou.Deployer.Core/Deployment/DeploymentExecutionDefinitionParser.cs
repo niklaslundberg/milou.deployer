@@ -17,16 +17,16 @@ namespace Milou.Deployer.Core.Deployment
             try
             {
                 var deploymentExecutionDefinitions = JsonConvert.DeserializeAnonymousType(
-                        data,
-                        new {definitions = Array.Empty<DeploymentExecutionDefinition>()})?.definitions
-                    .ToImmutableArray();
+                    data,
+                    new {definitions = Array.Empty<DeploymentExecutionDefinition>()})?.definitions.ToImmutableArray();
 
                 return deploymentExecutionDefinitions ?? ImmutableArray<DeploymentExecutionDefinition>.Empty;
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    $"Could not parse deployment execution definitions from data '{data}'", ex);
+                    $"Could not parse deployment execution definitions from data '{data}'",
+                    ex);
             }
         }
     }

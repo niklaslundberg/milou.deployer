@@ -6,7 +6,6 @@ using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using MediatR;
-using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using MimeKit;
@@ -23,8 +22,7 @@ namespace Milou.Deployer.Web.Core.Email
         private readonly IDeploymentTargetReadService _targetSource;
         private readonly TimeoutHelper _timeoutHelper;
 
-        public DeployFinishedEmailNotificationHandler(
-            [NotNull] ISmtpService smtpService,
+        public DeployFinishedEmailNotificationHandler([NotNull] ISmtpService smtpService,
             [NotNull] IDeploymentTargetReadService targetSource,
             [NotNull] ILogger logger,
             TimeoutHelper timeoutHelper,
@@ -35,15 +33,8 @@ namespace Milou.Deployer.Web.Core.Email
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _timeoutHelper = timeoutHelper;
 
-            _emailConfiguration = emailConfiguration ?? new EmailConfiguration(
-                null,
-                null,
-                -1,
-                false,
-                null,
-                null,
-                30,
-                false);
+            _emailConfiguration = emailConfiguration ??
+                                  new EmailConfiguration(null, null, -1, false, null, null, 30, false);
         }
 
         public async Task Handle(DeploymentMetadataLogged notification, CancellationToken cancellationToken)
@@ -51,6 +42,7 @@ namespace Milou.Deployer.Web.Core.Email
             if (!_emailConfiguration.IsValid)
             {
                 _logger.Warning("Email configuration is invalid {Configuration}", _emailConfiguration);
+
                 return;
             }
 
@@ -59,6 +51,7 @@ namespace Milou.Deployer.Web.Core.Email
                 _logger.Debug(
                     "Email is disabled, skipping sending deployment finished email for notification {Notification}",
                     notification);
+
                 return;
             }
 
@@ -66,9 +59,8 @@ namespace Milou.Deployer.Web.Core.Email
                 _timeoutHelper.CreateCancellationTokenSource(
                     TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds));
 
-            DeploymentTarget? target =
-                await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
-                    cancellationTokenSource.Token);
+            var target = await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
+                cancellationTokenSource.Token);
 
             if (target is null)
             {
@@ -98,8 +90,7 @@ namespace Milou.Deployer.Web.Core.Email
 
             mimeMessage.Body = new TextPart
             {
-                Text =
-                    $@"Deployment finished for {notification.DeploymentTask}
+                Text = $@"Deployment finished for {notification.DeploymentTask}
 {notification.Result.Metadata}"
             };
 

@@ -5,8 +5,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 {
     public class DeploymentTaskInfo
     {
-        public DeploymentTaskInfo(
-            string deploymentTaskId,
+        public DeploymentTaskInfo(string deploymentTaskId,
             string metadata,
             DateTime startedAtUtc,
             DateTime finishedAtUtc,
@@ -35,6 +34,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
         public DateTime FinishedAtUtc { get; }
 
         public int ExitCode { get; }
+
         public WorkTaskStatus Status { get; }
 
         public string PackageId { get; }

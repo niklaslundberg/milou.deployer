@@ -13,8 +13,7 @@ namespace Milou.Deployer.Web.Core.Deployment
     {
         BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; }
 
-        Task<DeploymentTaskResult> ExecuteDeploymentAsync(
-            [NotNull] DeploymentTask deploymentTask,
+        Task<DeploymentTaskResult> ExecuteDeploymentAsync([NotNull] DeploymentTask deploymentTask,
             ILogger logger,
             CancellationToken cancellationToken);
 

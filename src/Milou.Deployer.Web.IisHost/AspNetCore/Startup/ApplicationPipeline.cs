@@ -38,12 +38,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
             app.UseMiddleware<ConfigurationErrorMiddleware>();
 
-            app.UseEndpoints(
-                options =>
-                {
-                    options.MapControllers();
-                    options.UseSignalRHubs();
-                });
+            app.UseEndpoints(options =>
+            {
+                options.MapControllers();
+                options.UseSignalRHubs();
+            });
         }
     }
 }

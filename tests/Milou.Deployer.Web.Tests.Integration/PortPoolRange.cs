@@ -12,6 +12,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             _portCount = portCount;
             StartPort = port;
+
             if (portCount < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(portCount), "Port count must be a non-negative number");

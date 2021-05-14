@@ -23,8 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
 
-        public NuGetSeeder(
-            IMediator mediator,
+        public NuGetSeeder(IMediator mediator,
             IDeploymentTargetReadService deploymentTargetReadService,
             ILogger logger,
             IEnvironmentTypeService environmentTypeService)
@@ -64,14 +63,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
             string? typeId = default;
             string? environmentConfiguration = deploymentTarget.EnvironmentConfiguration;
 
-            if (string.IsNullOrWhiteSpace(deploymentTarget.EnvironmentTypeId)
-                && !string.IsNullOrWhiteSpace(environmentConfiguration))
+            if (string.IsNullOrWhiteSpace(deploymentTarget.EnvironmentTypeId) &&
+                !string.IsNullOrWhiteSpace(environmentConfiguration))
             {
                 string configuration = environmentConfiguration.Trim();
 
-                EnvironmentType? foundType = environmentTypes.SingleOrDefault(type =>
-                    type.Name.Trim().Equals(configuration,
-                        StringComparison.OrdinalIgnoreCase));
+                var foundType = environmentTypes.SingleOrDefault(type =>
+                    type.Name.Trim().Equals(configuration, StringComparison.OrdinalIgnoreCase));
 
                 if (foundType is { })
                 {
@@ -80,8 +78,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                 }
             }
 
-            var updateDeploymentTarget = new UpdateDeploymentTarget(
-                deploymentTarget.Id,
+            var updateDeploymentTarget = new UpdateDeploymentTarget(deploymentTarget.Id,
                 deploymentTarget.AllowExplicitExplicitPreRelease ?? false,
                 deploymentTarget.Url?.ToString(),
                 deploymentTarget.PackageId,

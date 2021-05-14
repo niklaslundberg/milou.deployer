@@ -10,7 +10,14 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
 
         public LogHttpClientFactory(IHttpClientFactory clientFactory) => _clientFactory = clientFactory;
 
-        public IHttpClient CreateClient(string deploymentTaskId, DeploymentTargetId deploymentTargetId, AgentId agentId, ILogger logger) =>
-            new CustomLogHttpClient(_clientFactory, deploymentTaskId, deploymentTargetId, agentId, logger);
+        public IHttpClient CreateClient(string deploymentTaskId,
+            DeploymentTargetId deploymentTargetId,
+            AgentId agentId,
+            ILogger logger) => new CustomLogHttpClient(
+            _clientFactory,
+            deploymentTaskId,
+            deploymentTargetId,
+            agentId,
+            logger);
     }
 }

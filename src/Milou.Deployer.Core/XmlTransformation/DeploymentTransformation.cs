@@ -4,7 +4,6 @@ using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.Web.XmlTransform;
 using Milou.Deployer.Core.Deployment;
-
 using Serilog;
 
 namespace Milou.Deployer.Core.XmlTransformation
@@ -62,8 +61,7 @@ namespace Milou.Deployer.Core.XmlTransformation
 
                         if (succeed)
                         {
-                            using var fsDestFileStream =
-                                new FileStream(tempFileName, FileMode.OpenOrCreate);
+                            using var fsDestFileStream = new FileStream(tempFileName, FileMode.OpenOrCreate);
 
                             x.Save(fsDestFileStream);
                         }
@@ -73,15 +71,14 @@ namespace Milou.Deployer.Core.XmlTransformation
 
                     if (tempFileInfo.Exists && tempFileInfo.Length > 0)
                     {
-                        logger.Information(
-                            "Successfully transformed web.config with transformation {Transformation}",
+                        logger.Information("Successfully transformed web.config with transformation {Transformation}",
                             deploymentExecutionDefinition.WebConfigTransformFile);
+
                         tempFileInfo.CopyTo(webConfig.FullName, true);
                     }
                     else
                     {
-                        logger.Warning(
-                            "Failed to transform web.config with transformation {Transformation}",
+                        logger.Warning("Failed to transform web.config with transformation {Transformation}",
                             deploymentExecutionDefinition.WebConfigTransformFile);
                     }
 
@@ -90,8 +87,10 @@ namespace Milou.Deployer.Core.XmlTransformation
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                logger.Error(ex, "Could not apply web.config transform with {Transform}",
+                logger.Error(ex,
+                    "Could not apply web.config transform with {Transform}",
                     deploymentExecutionDefinition.WebConfigTransformFile);
+
                 throw;
             }
         }

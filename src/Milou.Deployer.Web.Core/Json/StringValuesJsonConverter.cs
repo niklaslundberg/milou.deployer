@@ -31,8 +31,7 @@ namespace Milou.Deployer.Web.Core.Json
         /// <returns>
         ///     The object value.
         /// </returns>
-        public override object? ReadJson(
-            JsonReader reader,
+        public override object? ReadJson(JsonReader reader,
             Type objectType,
             object? existingValue,
             JsonSerializer serializer)

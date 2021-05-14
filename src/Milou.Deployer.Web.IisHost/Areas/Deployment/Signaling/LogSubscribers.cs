@@ -11,11 +11,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
     {
         public ConcurrentDictionary<DeploymentTargetId, HashSet<string>> TargetMapping { get; } = new();
 
-
         public ImmutableHashSet<string> TryGetTargetSubscribers([NotNull] DeploymentTargetId deploymentTargetId)
         {
-            bool tryGetTargetSubscribers =
-                TargetMapping.TryGetValue(deploymentTargetId, out var subscribers);
+            bool tryGetTargetSubscribers = TargetMapping.TryGetValue(deploymentTargetId, out var subscribers);
 
             if (!tryGetTargetSubscribers)
             {

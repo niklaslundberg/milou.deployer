@@ -13,15 +13,14 @@ namespace Milou.Deployer.Web.Agent.Host.Http
         public IServiceCollection Register(IServiceCollection builder)
         {
             builder.AddHttpClient();
-            builder.AddHttpClient<DeploymentTaskPackageService>()
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
-                .AddPolicyHandler(GetRetryPolicy());
+
+            builder.AddHttpClient<DeploymentTaskPackageService>().SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                   .AddPolicyHandler(GetRetryPolicy());
 
             static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
             {
-                return HttpPolicyExtensions
-                    .HandleTransientHttpError()
-                    .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+                return HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(6,
+                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
             }
 
             return builder;

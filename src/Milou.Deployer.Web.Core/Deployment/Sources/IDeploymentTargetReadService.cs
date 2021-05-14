@@ -7,13 +7,12 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
 {
     public interface IDeploymentTargetReadService : IDeploymentTargetService
     {
-        Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(CancellationToken cancellationToken = default);
-
         Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions? options = default,
             CancellationToken stoppingToken = default);
 
-        Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(
-            string organizationId,
+        Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(CancellationToken cancellationToken = default);
+
+        Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(string organizationId,
             CancellationToken cancellationToken = default);
     }
 }

@@ -8,7 +8,6 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Tests.Integration;
 using Milou.Deployer.Web.Agent;
-using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Commands;
 using Milou.Deployer.Web.IisHost.Areas.Agents;
 using Milou.Deployer.Web.IisHost.Areas.Security;
@@ -26,7 +25,9 @@ namespace Milou.Deployer.Web.Tests.Integration
             serviceCollection.AddSingleton<IDocumentStore, TestStore>();
 
             serviceCollection.RegisterHandler<CreateAgentHandler, CreateAgent, CreateAgentResult>();
-            serviceCollection.RegisterHandler<AgentConfigurationHelper, CreateAgentInstallConfiguration, AgentInstallConfiguration>();
+
+            serviceCollection
+               .RegisterHandler<AgentConfigurationHelper, CreateAgentInstallConfiguration, AgentInstallConfiguration>();
 
             serviceCollection.AddSingleton(new EnvironmentConfiguration {PublicHostname = "localhost"});
 
@@ -54,6 +55,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             string key = Convert.ToBase64String(keyBytes);
 
             var milouAuthenticationConfiguration = new MilouAuthenticationConfiguration(true, true, key);
+
             return milouAuthenticationConfiguration;
         }
     }

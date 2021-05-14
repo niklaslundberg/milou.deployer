@@ -21,9 +21,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Development
                 arg.Equals(ApplicationConstants.DevelopmentMode, StringComparison.OrdinalIgnoreCase));
 
             bool hasDevelopmentInEnvironmentVariables =
-                _environmentVariables.Variables.TryGetValue(
-                    ApplicationConstants.DevelopmentMode.TrimStart(trimChar: '-'),
-                    out var value) && bool.TryParse(value, out bool enabledInEnvironment) && enabledInEnvironment;
+                _environmentVariables.Variables.TryGetValue(ApplicationConstants.DevelopmentMode.TrimStart('-'),
+                    out var value) &&
+                bool.TryParse(value, out bool enabledInEnvironment) &&
+                enabledInEnvironment;
 
             if (hasDevelopmentInCommandLineArgs || hasDevelopmentInEnvironmentVariables)
             {

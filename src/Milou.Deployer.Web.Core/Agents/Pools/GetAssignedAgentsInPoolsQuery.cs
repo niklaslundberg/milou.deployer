@@ -2,6 +2,5 @@
 
 namespace Milou.Deployer.Web.Core.Agents.Pools
 {
-    public sealed record GetAssignedAgentsInPoolsQuery
-        : IQuery<AssignedAgentsInPoolsQueryResult>;
+    public sealed record GetAssignedAgentsInPoolsQuery : IQuery<AssignedAgentsInPoolsQueryResult>;
 }

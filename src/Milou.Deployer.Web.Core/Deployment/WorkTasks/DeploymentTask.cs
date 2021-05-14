@@ -11,8 +11,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 {
     public class DeploymentTask
     {
-        public DeploymentTask(
-            [NotNull] string packageVersion,
+        public DeploymentTask([NotNull] string packageVersion,
             DeploymentTargetId deploymentTargetId,
             Guid deploymentTaskId,
             string startedBy)
@@ -31,12 +30,12 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
             PackageId = packageId;
             DeploymentTargetId = deploymentTargetId;
             StartedBy = startedBy;
+
             DeploymentTaskId =
                 $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.InvariantCulture)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
 
-        public DeploymentTask(
-            [NotNull] PackageVersion packageVersion,
+        public DeploymentTask([NotNull] PackageVersion packageVersion,
             [NotNull] DeploymentTargetId deploymentTargetId,
             Guid deploymentTaskId,
             string? startedBy)
@@ -50,6 +49,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
             PackageId = packageVersion.PackageId;
             DeploymentTargetId = deploymentTargetId;
             StartedBy = startedBy;
+
             DeploymentTaskId =
                 $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.Ordinal)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }

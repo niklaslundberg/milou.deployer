@@ -29,12 +29,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
         {
             var deploymentTargets = await _readService.GetDeploymentTargetsAsync(stoppingToken: cancellationToken);
 
-            DeploymentTarget[] targetsMatchingPackage = deploymentTargets
-                .Where(
-                    target => target.PackageId.Equals(
-                        notification.PackageVersion.PackageId,
-                        StringComparison.OrdinalIgnoreCase))
-                .ToArray();
+            DeploymentTarget[] targetsMatchingPackage = deploymentTargets.Where(target =>
+                                                                              target.PackageId.Equals(
+                                                                                  notification.PackageVersion.PackageId,
+                                                                                  StringComparison.OrdinalIgnoreCase))
+                                                                         .ToArray();
 
             if (targetsMatchingPackage.Length == 0)
             {
@@ -43,9 +42,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             IClientProxy clientProxy = _targetHubContext.Clients.All;
 
-            await clientProxy.SendAsync(TargetHub.TargetsWithUpdates, notification.PackageVersion.PackageId,
+            await clientProxy.SendAsync(TargetHub.TargetsWithUpdates,
+                notification.PackageVersion.PackageId,
                 notification.PackageVersion.Version.ToNormalizedString(),
-                targetsMatchingPackage.Select(target => target.Id).ToArray(), cancellationToken);
+                targetsMatchingPackage.Select(target => target.Id).ToArray(),
+                cancellationToken);
         }
     }
 }

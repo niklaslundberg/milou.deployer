@@ -13,9 +13,7 @@ using Arbor.Primitives;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Agent;
-using Milou.Deployer.Web.Agent.Host;
 using Milou.Deployer.Web.Agent.Host.Configuration;
-using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Commands;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 
@@ -30,8 +28,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly TestConfiguration _testConfiguration;
         private CancellationTokenSource _agentCancellationTokenSource;
 
-        public AgentPreStartModule(IServiceProvider provider,
-            EnvironmentConfiguration environmentConfiguration)
+        public AgentPreStartModule(IServiceProvider provider, EnvironmentConfiguration environmentConfiguration)
         {
             if (environmentConfiguration.HttpEnabled)
             {
@@ -59,8 +56,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                 ["urn:arbor:app:web:logging:serilog:default:consoleEnabled"] = "true"
             };
 
-            var variables = new EnvironmentVariables(environmentVariables
-            );
+            var variables = new EnvironmentVariables(environmentVariables);
+
             var mediator = _provider.GetRequiredService<IMediator>();
             var createAgentResult = await mediator.Send(new CreateAgent(new AgentId("TestAgent")), cancellationToken);
 
@@ -75,19 +72,20 @@ namespace Milou.Deployer.Web.Tests.Integration
             static bool IsAgentAssembly(Assembly assembly)
             {
                 bool isAgentAssembly = assembly.FullName is { } fullName &&
-                                           (fullName.Contains("Arbor", StringComparison.Ordinal) ||
-                                           fullName.Contains("Web.Agent", StringComparison.Ordinal) ||
-                                            fullName.Contains("Web.Tests.Integration", StringComparison.Ordinal));
+                                       (fullName.Contains("Arbor", StringComparison.Ordinal) ||
+                                        fullName.Contains("Web.Agent", StringComparison.Ordinal) ||
+                                        fullName.Contains("Web.Tests.Integration", StringComparison.Ordinal));
+
                 return isAgentAssembly;
             }
 
-            var assemblies = ApplicationAssemblies.FilteredAssemblies()
-                .Where(IsAgentAssembly)
-                .ToArray();
+            var assemblies = ApplicationAssemblies.FilteredAssemblies().Where(IsAgentAssembly).ToArray();
 
-            var agentApp = await App<AgentStartup>.CreateAsync(_agentCancellationTokenSource, Array.Empty<string>(),
+            var agentApp = await App<AgentStartup>.CreateAsync(_agentCancellationTokenSource,
+                Array.Empty<string>(),
                 variables.Variables,
-                assemblies, instances);
+                assemblies,
+                instances);
 
             _holder.AddInstance(agentApp);
 

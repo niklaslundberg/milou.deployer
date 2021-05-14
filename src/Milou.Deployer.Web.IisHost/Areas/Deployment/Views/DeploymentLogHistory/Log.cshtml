@@ -3,15 +3,15 @@
 
 <div id="logElements"></div>
 @{
-    var url = Context.Request.GetEncodedUrl();
+    string? url = Context.Request.GetEncodedUrl();
 
-    _ = Uri.TryCreate(url, UriKind.Absolute, out var uri);
+    _ = Uri.TryCreate(url, UriKind.Absolute, out Uri? uri);
 
-    var builder = new UriBuilder(uri);
+    UriBuilder? builder = new(uri);
 
     builder.Path += ".json";
 
-    var fetchUrl = builder.Uri.PathAndQuery;
+    string? fetchUrl = builder.Uri.PathAndQuery;
 }
 
 @section scripts {

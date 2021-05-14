@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.App.Extensions.Logging;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.CommandLine;
 using Arbor.KVConfiguration.JsonConfiguration;
@@ -18,14 +19,13 @@ using Milou.Deployer.Core.Cli;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Configuration;
-
-using Milou.Deployer.Core.Logging;
 using Milou.Deployer.Ftp;
 using Milou.Deployer.IIS;
 using Milou.Deployer.Waws;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using LoggingConstants = Milou.Deployer.Core.Logging.LoggingConstants;
 
 namespace Milou.Deployer.DeployerApp
 {
@@ -42,44 +42,46 @@ namespace Milou.Deployer.DeployerApp
 
             var args = inputArgs.ToImmutableArray();
 
-            bool hasDefinedLogger = logger is {};
+            bool hasDefinedLogger = logger is { };
 
             string outputTemplate = GetOutputTemplate(args);
 
             var levelSwitch = new LoggingLevelSwitch();
 
-            logger ??= new LoggerConfiguration()
-                .WriteTo.Console(outputTemplate: outputTemplate, standardErrorFromLevel: LogEventLevel.Error)
-                .MinimumLevel.ControlledBy(levelSwitch)
-                .CreateLogger();
+            logger ??= new LoggerConfiguration().WriteTo
+                                                .Console(outputTemplate: outputTemplate,
+                                                     standardErrorFromLevel: LogEventLevel.Error).MinimumLevel
+                                                .ControlledBy(levelSwitch).CreateLogger();
 
             logger.Verbose("Using output template {Template}", outputTemplate);
 
             try
             {
-                string? machineSettings =
-                    GetMachineSettingsFile(new DirectoryInfo(Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "tools", "Milou.Deployer")));
+                string? machineSettings = GetMachineSettingsFile(new DirectoryInfo(
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                        "tools",
+                        "Milou.Deployer")));
 
                 AppSettingsBuilder appSettingsBuilder;
 
                 try
                 {
                     appSettingsBuilder = KeyValueConfigurationManager
-                        .Add(new ReflectionKeyValueConfiguration(typeof(AppBuilder).Assembly))
-                        .Add(new ReflectionKeyValueConfiguration(typeof(ConfigurationKeys).Assembly));
+                                        .Add(new ReflectionKeyValueConfiguration(typeof(AppBuilder).Assembly))
+                                        .Add(new ReflectionKeyValueConfiguration(typeof(ConfigurationKeys).Assembly));
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
                     logger.Error(ex, "Could note create settings");
+
                     throw;
                 }
 
                 if (!string.IsNullOrWhiteSpace(machineSettings))
                 {
                     logger.Debug("Using machine specific configuration file '{Settings}'", machineSettings);
-                    appSettingsBuilder =
-                        appSettingsBuilder.Add(new JsonKeyValueConfiguration(machineSettings, false));
+
+                    appSettingsBuilder = appSettingsBuilder.Add(new JsonKeyValueConfiguration(machineSettings, false));
                 }
 
                 string? configurationFile =
@@ -88,38 +90,35 @@ namespace Milou.Deployer.DeployerApp
                 if (!string.IsNullOrWhiteSpace(configurationFile) && File.Exists(configurationFile))
                 {
                     logger.Debug("Using configuration values from file '{ConfigurationFile}'", configurationFile);
+
                     appSettingsBuilder =
                         appSettingsBuilder.Add(new JsonKeyValueConfiguration(configurationFile, false));
                 }
 
-                var argsAsParameters = args
-                    .Where(arg => arg.StartsWith("-", StringComparison.OrdinalIgnoreCase))
-                    .Select(arg => arg.TrimStart('-'))
-                    .ToImmutableArray();
+                var argsAsParameters = args.Where(arg => arg.StartsWith("-", StringComparison.OrdinalIgnoreCase))
+                                           .Select(arg => arg.TrimStart('-')).ToImmutableArray();
 
                 MultiSourceKeyValueConfiguration configuration = appSettingsBuilder
-                    .Add(new EnvironmentVariableKeyValueConfigurationSource())
-                    .AddCommandLineArgsSettings(argsAsParameters)
-                    .Add(new UserJsonConfiguration())
-                    .Build();
+                                                                .Add(
+                                                                     new
+                                                                         EnvironmentVariableKeyValueConfigurationSource())
+                                                                .AddCommandLineArgsSettings(argsAsParameters)
+                                                                .Add(new UserJsonConfiguration()).Build();
 
                 logger.Debug("Using configuration: {Configuration}", configuration.SourceChain);
 
                 string logPath = configuration[ConsoleConfigurationKeys.LoggingFilePath];
 
-                string environmentLogLevel =
-                    configuration[ConfigurationKeys.LogLevelEnvironmentVariable];
+                string environmentLogLevel = configuration[ConfigurationKeys.LogLevelEnvironmentVariable];
 
                 string configurationLogLevel = configuration[ConfigurationKeys.LogLevel];
 
-                var logLevel =
-                    Arbor.App.Extensions.Logging.LogEventLevelExtensions.ParseOrDefault(
-                        environmentLogLevel.WithDefault(configurationLogLevel));
+                var logLevel = environmentLogLevel.WithDefault(configurationLogLevel).ParseOrDefault();
 
                 levelSwitch.MinimumLevel = logLevel;
 
-                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                    .WriteTo.Console(outputTemplate: outputTemplate);
+                LoggerConfiguration loggerConfiguration =
+                    new LoggerConfiguration().WriteTo.Console(outputTemplate: outputTemplate);
 
                 if (!string.IsNullOrWhiteSpace(logPath))
                 {
@@ -133,9 +132,7 @@ namespace Milou.Deployer.DeployerApp
                         disposable.Dispose();
                     }
 
-                    logger = loggerConfiguration
-                        .MinimumLevel.ControlledBy(levelSwitch)
-                        .CreateLogger();
+                    logger = loggerConfiguration.MinimumLevel.ControlledBy(levelSwitch).CreateLogger();
                 }
 
                 if (!string.IsNullOrWhiteSpace(machineSettings))
@@ -146,19 +143,12 @@ namespace Milou.Deployer.DeployerApp
                 string? nugetSource = args.GetArgumentValueOrDefault("nuget-source");
                 string? nugetConfig = args.GetArgumentValueOrDefault("nuget-config");
 
-                var webDeployConfig = new WebDeployConfig(new WebDeployRulesConfig(
-                    true,
-                    true,
-                    false,
-                    true,
-                    true));
+                var webDeployConfig = new WebDeployConfig(new WebDeployRulesConfig(true, true, false, true, true));
 
                 bool allowPreReleaseEnabled =
-                    configuration[ConfigurationKeys.AllowPreReleaseEnvironmentVariable]
-                        .ParseAsBooleanOrDefault()
-                    || (Debugger.IsAttached
-                        && configuration[ConfigurationKeys.ForceAllowPreRelease]
-                            .ParseAsBooleanOrDefault());
+                    configuration[ConfigurationKeys.AllowPreReleaseEnvironmentVariable].ParseAsBooleanOrDefault() ||
+                    (Debugger.IsAttached &&
+                     configuration[ConfigurationKeys.ForceAllowPreRelease].ParseAsBooleanOrDefault());
 
                 string? nuGetExePath = configuration[ConfigurationKeys.NuGetExePath];
 
@@ -174,14 +164,15 @@ namespace Milou.Deployer.DeployerApp
                         using (var httpClient = new HttpClient())
                         {
                             nuGetDownloadResult = await nuGetDownloadClient
-                                .DownloadNuGetAsync(NuGetDownloadSettings.Default, logger, httpClient, cts.Token)
-                                .ConfigureAwait(false);
+                                                       .DownloadNuGetAsync(NuGetDownloadSettings.Default,
+                                                            logger,
+                                                            httpClient,
+                                                            cts.Token).ConfigureAwait(false);
                         }
 
                         if (!nuGetDownloadResult.Succeeded)
                         {
-                            throw new InvalidOperationException(
-                                Resources.NuGetExeCouldNotBeDownloaded);
+                            throw new InvalidOperationException(Resources.NuGetExeCouldNotBeDownloaded);
                         }
 
                         nuGetExePath = nuGetDownloadResult.NuGetExePath;
@@ -197,19 +188,17 @@ namespace Milou.Deployer.DeployerApp
                     NuGetSource = nugetSource.WithDefault(configuration[ConfigurationKeys.NuGetSource]),
                     AllowPreReleaseEnabled = allowPreReleaseEnabled,
                     StopStartIisWebSiteEnabled = configuration[ConfigurationKeys.StopStartIisWebSiteEnabled]
-                        .ParseAsBooleanOrDefault(true)
+                       .ParseAsBooleanOrDefault(true)
                 };
 
-                var nuGetCliSettings = new NuGetCliSettings(
-                    deployerConfiguration.NuGetSource,
+                var nuGetCliSettings = new NuGetCliSettings(deployerConfiguration.NuGetSource,
                     nuGetExePath: deployerConfiguration.NuGetExePath,
                     nugetConfigFile: deployerConfiguration.NuGetConfig);
 
                 var nuGetPackageInstaller =
                     new NuGetPackageInstaller(logger: logger, nugetCliSettings: nuGetCliSettings);
 
-                var deploymentService = new DeploymentService(
-                    deployerConfiguration,
+                var deploymentService = new DeploymentService(deployerConfiguration,
                     logger,
                     configuration,
                     new WebDeployHelper(logger),
@@ -229,31 +218,15 @@ namespace Milou.Deployer.DeployerApp
                 }
 
                 var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
                 return new DeployerApp(logger, deploymentService, configuration, levelSwitch, cancellationTokenSource);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
                 logger.Fatal("Could not build application");
+
                 throw;
             }
-        }
-
-        private static string GetOutputTemplate(ImmutableArray<string> args)
-        {
-            if (args.Any(arg =>
-                arg.Equals(LoggingConstants.PlainOutputFormatEnabled, StringComparison.OrdinalIgnoreCase)))
-            {
-                string prefix = "";
-                if (args.Any(arg =>
-                    arg.Equals(LoggingConstants.LoggingCategoryFormatEnabled, StringComparison.OrdinalIgnoreCase)))
-                {
-                    prefix = "[{Level}] ";
-                }
-
-                return $"{prefix}{LoggingConstants.PlainFormat}";
-            }
-
-            return LoggingConstants.DefaultFormat;
         }
 
         private static string? GetMachineSettingsFile(DirectoryInfo? currentDirectory)
@@ -272,11 +245,11 @@ namespace Milou.Deployer.DeployerApp
 
             try
             {
-                FileInfo? file = currentDirectory.GetFiles($"{Environment.MachineName}.settings.json").SingleOrDefault();
+                var file = currentDirectory.GetFiles($"{Environment.MachineName}.settings.json").SingleOrDefault();
 
                 if (file is null)
                 {
-                    if (currentDirectory.Parent is {})
+                    if (currentDirectory.Parent is { })
                     {
                         return GetMachineSettingsFile(currentDirectory.Parent);
                     }
@@ -291,6 +264,25 @@ namespace Milou.Deployer.DeployerApp
                 // ignore
                 return null;
             }
+        }
+
+        private static string GetOutputTemplate(ImmutableArray<string> args)
+        {
+            if (args.Any(arg =>
+                arg.Equals(LoggingConstants.PlainOutputFormatEnabled, StringComparison.OrdinalIgnoreCase)))
+            {
+                string prefix = "";
+
+                if (args.Any(arg =>
+                    arg.Equals(LoggingConstants.LoggingCategoryFormatEnabled, StringComparison.OrdinalIgnoreCase)))
+                {
+                    prefix = "[{Level}] ";
+                }
+
+                return $"{prefix}{LoggingConstants.PlainFormat}";
+            }
+
+            return LoggingConstants.DefaultFormat;
         }
     }
 }

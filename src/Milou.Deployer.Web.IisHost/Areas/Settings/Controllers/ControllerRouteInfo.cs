@@ -9,6 +9,7 @@
         }
 
         public RouteInfo Route { get; }
+
         public string ControllerType { get; }
     }
 }

@@ -13,9 +13,7 @@ namespace Milou.Deployer.Web.Core.Extensions
 
             return "failed";
         }
-        public static string ToStatusColor(this WorkTaskStatus value)
-        {
-            return value.Status.ToLowerInvariant();
-        }
+
+        public static string ToStatusColor(this WorkTaskStatus value) => value.Status.ToLowerInvariant();
     }
 }

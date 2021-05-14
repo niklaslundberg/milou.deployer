@@ -3,7 +3,6 @@ using Arbor.App.Extensions.ExtensionMethods;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;
-using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Events;
 using Milou.Deployer.Web.IisHost.Controllers;
 using Serilog;
@@ -27,6 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             if (events?.Events is null)
             {
                 ModelState.AddModelError("Events", "Events is null");
+
                 return BadRequest(ModelState);
             }
 
@@ -35,10 +35,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             if (serilogSinkEvents.IsDefaultOrEmpty)
             {
                 ModelState.AddModelError("Events", "Events is are empty");
+
                 return BadRequest(ModelState);
             }
 
-            _logger.Verbose("Received {Count} log events for deployment task id {DeploymentTaskId}, {DeploymentTargetId}", serilogSinkEvents.Length, deploymentTaskId, deploymentTargetId);
+            _logger.Verbose(
+                "Received {Count} log events for deployment task id {DeploymentTaskId}, {DeploymentTargetId}",
+                serilogSinkEvents.Length,
+                deploymentTaskId,
+                deploymentTargetId);
 
             foreach (SerilogSinkEvent serilogSinkEvent in serilogSinkEvents)
             {
@@ -49,12 +54,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                     {
                         _logger.Verbose(
                             "Sending agent notification for deployment task id {DeploymentTaskId} and deployment target id {DeploymentTargetId}",
-                            deploymentTaskId, deploymentTargetId);
+                            deploymentTaskId,
+                            deploymentTargetId);
                     }
 
                     string message = serilogSinkEvent.RenderedMessage.Replace("\\\"", "");
 
-                    await mediator.Publish(new DeploymentTaskLogged(deploymentTaskId, deploymentTargetId, message, serilogSinkEvent.Level));
+                    await mediator.Publish(new DeploymentTaskLogged(deploymentTaskId,
+                        deploymentTargetId,
+                        message,
+                        serilogSinkEvent.Level));
                 }
             }
 

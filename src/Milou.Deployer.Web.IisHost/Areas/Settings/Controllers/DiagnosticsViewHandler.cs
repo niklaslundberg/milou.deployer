@@ -20,7 +20,6 @@ using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -36,11 +35,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         private readonly IConfiguration _aspNetConfiguration;
         private readonly MultiSourceKeyValueConfiguration _configuration;
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
+        private readonly CurrentCacheVersion _currentCacheVersion;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly IDistributedCache _distributedCache;
-        private readonly CurrentCacheVersion _currentCacheVersion;
 
-        [NotNull] private readonly EnvironmentConfiguration _environmentConfiguration;
+        [NotNull]
+        private readonly EnvironmentConfiguration _environmentConfiguration;
 
         private readonly ILogger _logger;
 
@@ -51,8 +51,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         private readonly IApplicationSettingsStore _settingsStore;
 
-        public DiagnosticsViewHandler(
-            [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
+        public DiagnosticsViewHandler([NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] MultiSourceKeyValueConfiguration configuration,
             [NotNull] IConfiguration aspNetConfiguration,
             [NotNull] LoggingLevelSwitch loggingLevelSwitch,
@@ -63,10 +62,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             ILogger logger,
             IApplicationSettingsStore settingsStore,
             IApplicationAssemblyResolver applicationAssemblyResolver,
-            IDistributedCache distributedCache, CurrentCacheVersion currentCacheVersion)
+            IDistributedCache distributedCache,
+            CurrentCacheVersion currentCacheVersion)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
+
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
             _aspNetConfiguration = aspNetConfiguration ?? throw new ArgumentNullException(nameof(aspNetConfiguration));
@@ -84,26 +85,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         public async Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)
         {
-            var routesWithController =
-                RouteList.GetRoutesWithController(_applicationAssemblyResolver.GetAssemblies());
+            var routesWithController = RouteList.GetRoutesWithController(_applicationAssemblyResolver.GetAssemblies());
 
             var configurationValues = new ConfigurationInfo(_configuration.SourceChain,
-                _configuration.AllKeys
-                    .OrderBy(key => key)
-                    .Select(key =>
-                        new ConfigurationKeyInfo(key,
-                            _configuration[key].MakeAnonymous(key,
-                                ArborStringExtensions.DefaultAnonymousKeyWords.ToArray()),
-                            _configuration.ConfiguratorFor(key)?.GetType().Name))
-                    .ToImmutableArray());
+                _configuration.AllKeys.OrderBy(key => key).Select(key => new ConfigurationKeyInfo(key,
+                    _configuration[key].MakeAnonymous(key, ArborStringExtensions.DefaultAnonymousKeyWords.ToArray()),
+                    _configuration.ConfiguratorFor(key)?.GetType().Name)).ToImmutableArray());
 
-            IEnumerable<KeyValuePair<string, string>> aspNetConfigurationValues = _aspNetConfiguration
-                .AsEnumerable()
-                .Where(pair => !string.IsNullOrWhiteSpace(pair.Value))
-                .Select(pair =>
+            IEnumerable<KeyValuePair<string, string>> aspNetConfigurationValues = _aspNetConfiguration.AsEnumerable()
+               .Where(pair => !string.IsNullOrWhiteSpace(pair.Value)).Select(pair =>
                     new KeyValuePair<string, string>(pair.Key,
-                        pair.Value.MakeAnonymous(pair.Key,
-                            ArborStringExtensions.DefaultAnonymousKeyWords.ToArray())));
+                        pair.Value.MakeAnonymous(pair.Key, ArborStringExtensions.DefaultAnonymousKeyWords.ToArray())));
 
             var applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
@@ -126,8 +118,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 {
                     try
                     {
-                        return new ServiceInstance(
-                            registrationType,
+                        return new ServiceInstance(registrationType,
                             serviceRegistrationInfo.Factory(_serviceProvider),
                             serviceRegistrationInfo.Module);
                     }
@@ -143,7 +134,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 }
 
                 if (serviceRegistrationInfo.ServiceDescriptorImplementationType.Namespace?.StartsWith(
-                    "Microsoft.AspNetCore.Mvc.ViewFeatures.RazorComponents") == true)
+                        "Microsoft.AspNetCore.Mvc.ViewFeatures.RazorComponents") ==
+                    true)
                 {
                     return new ServiceInstance(registrationType, "Razor", serviceRegistrationInfo.Module);
                 }
@@ -152,7 +144,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 {
                     object instance =
                         _serviceProvider.GetRequiredService(serviceRegistrationInfo
-                            .ServiceDescriptorImplementationType);
+                           .ServiceDescriptorImplementationType);
 
                     return new ServiceInstance(registrationType, instance, serviceRegistrationInfo.Module);
                 }
@@ -165,37 +157,41 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     _logger.Error(ex,
                         "Could not get instance form registration type {Type}",
                         serviceRegistrationInfo.ServiceDescriptorImplementationType.FullName);
+
                     return default;
                 }
             }
 
             ImmutableArray<DeploymentTargetWorker> deploymentTargetWorkers = _configurationInstanceHolder
-                .GetInstances<DeploymentTargetWorker>().Values
-                .Where(item => item is { })
-                .SafeToImmutableArray()!;
+                                                                            .GetInstances<DeploymentTargetWorker>()
+                                                                            .Values.Where(item => item is { })
+                                                                            .SafeToImmutableArray()!;
 
             ApplicationSettings applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
 
             const string cacheKey = nameof(serviceDiagnosticsRegistrations);
-            var cached = await _distributedCache.GetWithVersionAsync<List<ServiceInstance>>(cacheKey, _currentCacheVersion.CurrentVersion, cancellationToken: cancellationToken);
+
+            var cached = await _distributedCache.GetWithVersionAsync<List<ServiceInstance>>(cacheKey,
+                _currentCacheVersion.CurrentVersion,
+                cancellationToken: cancellationToken);
+
             List<ServiceInstance>? registrationInstances;
 
             if (cached is null)
             {
-                registrationInstances = serviceDiagnosticsRegistrations
-                    .Select(GetInstance)
-                    .NotNull()
-                    .ToList();
+                registrationInstances = serviceDiagnosticsRegistrations.Select(GetInstance).NotNull().ToList();
 
-                await _distributedCache.SetWithVersionAsync(cacheKey, registrationInstances, _currentCacheVersion.CurrentVersion, cancellationToken: cancellationToken);
+                await _distributedCache.SetWithVersionAsync(cacheKey,
+                    registrationInstances,
+                    _currentCacheVersion.CurrentVersion,
+                    cancellationToken: cancellationToken);
             }
             else
             {
                 registrationInstances = cached;
             }
 
-            var settingsViewModel = new SettingsViewModel(
-                _deploymentTargetReadService.GetType().Name,
+            var settingsViewModel = new SettingsViewModel(_deploymentTargetReadService.GetType().Name,
                 routesWithController,
                 configurationValues,
                 serviceDiagnosticsRegistrations,

@@ -11,6 +11,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         public ContainerArgs ContainerArgs { get; }
+
         public PortPoolRental HttpPort { get; }
     }
 }

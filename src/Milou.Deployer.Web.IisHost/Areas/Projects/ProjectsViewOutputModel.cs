@@ -6,8 +6,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
 {
     public class ProjectsViewOutputModel
     {
-        public ProjectsViewOutputModel(
-            ImmutableArray<ProjectInfo> organizations,
+        public ProjectsViewOutputModel(ImmutableArray<ProjectInfo> organizations,
             CreateProjectResult? createProjectResult,
             string organizationId)
         {

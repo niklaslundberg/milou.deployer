@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.ExtensionMethods;
@@ -22,16 +20,22 @@ namespace Milou.Deployer.Web.Tests.Integration
     [UsedImplicitly]
     public class TestDataSeeder : IPreStartModule
     {
-        private readonly IMediator _mediator;
         private readonly EnvironmentVariables _environmentVariables;
         private readonly IKeyValueConfiguration _keyValueConfiguration;
+        private readonly IMediator _mediator;
 
-        public TestDataSeeder(IMediator mediator, EnvironmentVariables environmentVariables, IKeyValueConfiguration keyValueConfiguration)
+        public TestDataSeeder(IMediator mediator,
+            EnvironmentVariables environmentVariables,
+            IKeyValueConfiguration keyValueConfiguration)
         {
             _mediator = mediator;
             _environmentVariables = environmentVariables;
             _keyValueConfiguration = keyValueConfiguration;
         }
+
+        public int Order => 100;
+
+        public Task RunAsync(CancellationToken cancellationToken) => SeedAsync(cancellationToken);
 
         public async Task SeedAsync(CancellationToken cancellationToken)
         {
@@ -40,8 +44,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 return;
             }
 
-            var testTarget = new DeploymentTarget(
-                new DeploymentTargetId("TestTarget"),
+            var testTarget = new DeploymentTarget(new DeploymentTargetId("TestTarget"),
                 "Test target",
                 "MilouDeployerWebTest",
                 allowExplicitPreRelease: false,
@@ -56,8 +59,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             string nugetConfigFile = _keyValueConfiguration[DeployerAppConstants.NugetConfigFile];
 
-            var updateDeploymentTarget = new UpdateDeploymentTarget(
-                testTarget.Id,
+            var updateDeploymentTarget = new UpdateDeploymentTarget(testTarget.Id,
                 testTarget.AllowPreRelease,
                 testTarget.Url?.ToString(),
                 testTarget.PackageId,
@@ -71,9 +73,5 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             await _mediator.Send(enableTarget, cancellationToken);
         }
-
-        public int Order => 100;
-
-        public Task RunAsync(CancellationToken cancellationToken) => SeedAsync(cancellationToken);
     }
 }

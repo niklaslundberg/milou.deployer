@@ -13,15 +13,14 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
 
         public string Name { get; set; }
 
-        public static EnvironmentTypeData MapToData(EnvironmentType environmentType) =>
-            new()
-            {
-                Id = environmentType.Id.Trim(),
-                PreReleaseBehavior = environmentType.PreReleaseBehavior.Name.Trim(),
-                Name = environmentType.Name
-            };
+        public static EnvironmentType MapFromData(EnvironmentTypeData data) =>
+            new(data.Id, data.Name, Core.Deployment.PreReleaseBehavior.Parse(data.PreReleaseBehavior));
 
-        public static EnvironmentType MapFromData(EnvironmentTypeData data) => new(data.Id, data.Name,
-            Core.Deployment.PreReleaseBehavior.Parse(data.PreReleaseBehavior));
+        public static EnvironmentTypeData MapToData(EnvironmentType environmentType) => new()
+        {
+            Id = environmentType.Id.Trim(),
+            PreReleaseBehavior = environmentType.PreReleaseBehavior.Name.Trim(),
+            Name = environmentType.Name
+        };
     }
 }

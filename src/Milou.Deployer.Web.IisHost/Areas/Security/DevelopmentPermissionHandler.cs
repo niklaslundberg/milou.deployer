@@ -32,10 +32,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             {
                 _logger.Warning("Development mode is enabled: request has [{Count}] pending requirements",
                     pendingRequirements.Count);
+
                 foreach (IAuthorizationRequirement requirement in pendingRequirements)
                 {
                     _logger.Warning("Development mode is enabled: fulfilling authorization requirement {Requirement}",
                         requirement.GetType().FullName);
+
                     context.Succeed(requirement);
                 }
             }

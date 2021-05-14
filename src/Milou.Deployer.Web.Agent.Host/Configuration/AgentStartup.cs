@@ -8,13 +8,13 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
     public sealed class AgentStartup
     {
         [PublicAPI]
-        public void ConfigureServices(IServiceCollection services)
+        public void Configure(IApplicationBuilder app)
         {
             // convention method
         }
 
         [PublicAPI]
-        public void Configure(IApplicationBuilder app)
+        public void ConfigureServices(IServiceCollection services)
         {
             // convention method
         }

@@ -22,8 +22,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
 
         [Route(ProjectConstants.ProjectsBaseRoute, Name = ProjectConstants.ProjectsBaseRouteName)]
         [HttpGet]
-        public async Task<IActionResult> Index(
-            [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
+        public async Task<IActionResult> Index([FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromRoute] string organizationId)
         {
             var projects = await deploymentTargetReadService.GetProjectsAsync(organizationId);
@@ -35,10 +34,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        [Route(ProjectConstants.CreateProjectPostRoute,
-            Name = ProjectConstants.CreateProjectPostRouteName)]
-        public async Task<ActionResult<CreateProjectResult>> Post(
-            [FromBody] CreateProject createProject,
+        [Route(ProjectConstants.CreateProjectPostRoute, Name = ProjectConstants.CreateProjectPostRouteName)]
+        public async Task<ActionResult<CreateProjectResult>> Post([FromBody] CreateProject createProject,
             [FromQuery] bool redirect = true)
         {
             CreateProjectResult createProjectResult = await _mediator.Send(createProject);

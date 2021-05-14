@@ -9,9 +9,11 @@ namespace Milou.Deployer.DeployerApp
         public static async Task<int> RunAsync(string[] args)
         {
             int exitCode;
+
             try
             {
                 using DeployerApp deployerApp = await AppBuilder.BuildAppAsync(args).ConfigureAwait(false);
+
                 try
                 {
                     exitCode = await deployerApp.ExecuteAsync(args).ConfigureAwait(false);

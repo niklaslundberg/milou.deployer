@@ -9,7 +9,6 @@ namespace Milou.Deployer.Web.Tests.Integration
     public class TestModule : IModule
     {
         public IServiceCollection Register(IServiceCollection builder) =>
-            builder
-                .AddSingleton(new TimeoutConfiguration {CancellationEnabled = false});
+            builder.AddSingleton(new TimeoutConfiguration {CancellationEnabled = false});
     }
 }

@@ -17,8 +17,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
         private readonly ILogger _logger;
         private readonly RequestDelegate _next;
 
-        public RedirectMiddleware(
-            EnvironmentConfiguration environmentConfiguration,
+        public RedirectMiddleware(EnvironmentConfiguration environmentConfiguration,
             ILogger logger,
             RequestDelegate next)
         {
@@ -36,6 +35,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
             catch (HttpRequestException ex)
             {
                 _logger.Error(ex, "Could not make external request");
+
                 throw;
             }
             catch (Exception ex)
@@ -45,13 +45,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
                 {
                     await context.SignOutAsync();
                     context.Response.Redirect("/");
+
                     return;
                 }
 
                 throw;
             }
 
-            if (context.Response.StatusCode == 302 && context.Response.Headers.TryGetValue(LocationHeader, out var values))
+            if (context.Response.StatusCode == 302 &&
+                context.Response.Headers.TryGetValue(LocationHeader, out var values))
             {
                 if (values.Count == 1 && values[0].StartsWith("/"))
                 {

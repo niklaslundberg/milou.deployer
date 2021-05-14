@@ -17,6 +17,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents.Pools
         public const string AssignAgentToPoolRoute = "~/agent-pools/assignment";
         public const string AssignAgentToPoolRouteName = nameof(AssignAgentToPoolRoute);
 
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        [Route(AssignAgentToPoolRoute, Name = AssignAgentToPoolRouteName)]
+        public async Task<IActionResult> Assign([FromBody] AssignAgentToPool assignAgentToPool,
+            [FromServices] IMediator mediator) => this.ToActionResult(await mediator.Send(assignAgentToPool),
+            AgentsController.AgentsRouteName);
+
+        [HttpGet]
+        [Route(CreateAgentPoolRoute, Name = CreateAgentPoolRouteName)]
+        public IActionResult Create() => View();
+
         [HttpGet]
         [Route(AgentPoolsRoute, Name = AgentPoolsRouteName)]
         public async Task<IActionResult> Index([FromServices] IMediator mediator)
@@ -29,21 +40,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents.Pools
         [ValidateAntiForgeryToken]
         [HttpPost]
         [Route(AgentPoolsRoute, Name = AgentPoolsRouteName)]
-        public async Task<IActionResult> Index(
-            [FromBody] CreateAgentPool createAgentPool,
-            [FromServices] IMediator mediator) =>
-            this.ToActionResult(await mediator.Send(createAgentPool), AgentPoolsRouteName);
-
-        [HttpGet]
-        [Route(CreateAgentPoolRoute, Name = CreateAgentPoolRouteName)]
-        public IActionResult Create() => View();
-
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        [Route(AssignAgentToPoolRoute, Name = AssignAgentToPoolRouteName)]
-        public async Task<IActionResult> Assign(
-            [FromBody] AssignAgentToPool assignAgentToPool,
-            [FromServices] IMediator mediator) =>
-            this.ToActionResult(await mediator.Send(assignAgentToPool), AgentsController.AgentsRouteName);
+        public async Task<IActionResult> Index([FromBody] CreateAgentPool createAgentPool,
+            [FromServices] IMediator mediator) => this.ToActionResult(
+            await mediator.Send(createAgentPool),
+            AgentPoolsRouteName);
     }
 }

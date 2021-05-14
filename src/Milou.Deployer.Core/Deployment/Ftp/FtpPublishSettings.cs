@@ -32,12 +32,11 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             using var fileStream = new FileStream(publishSettingsFile, FileMode.Open);
             var document = XDocument.Load(fileStream);
 
-            IEnumerable<XElement> descendantNodes =
-                document.Element("publishData"!)?
-                    .Descendants("publishProfile") ??
-                throw new InvalidOperationException("Missing publishData and publishProfiles");
+            IEnumerable<XElement> descendantNodes = document.Element("publishData"!)?.Descendants("publishProfile") ??
+                                                    throw new InvalidOperationException(
+                                                        "Missing publishData and publishProfiles");
 
-            XElement? ftpElement = descendantNodes.SingleOrDefault(element =>
+            var ftpElement = descendantNodes.SingleOrDefault(element =>
             {
                 string? ftpAttribute = element.Attribute(XName.Get(PublishMethodAttribute))?.Value;
 

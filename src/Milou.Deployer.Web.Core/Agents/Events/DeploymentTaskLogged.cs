@@ -6,7 +6,9 @@ namespace Milou.Deployer.Web.Core.Agents.Events
 {
     public class DeploymentTaskLogged : IEvent
     {
-        public DeploymentTaskLogged(string deploymentTaskId, DeploymentTargetId deploymentTargetId, string message,
+        public DeploymentTaskLogged(string deploymentTaskId,
+            DeploymentTargetId deploymentTargetId,
+            string message,
             LogEventLevel logEventLevel)
         {
             DeploymentTaskId = deploymentTaskId;

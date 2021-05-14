@@ -20,15 +20,9 @@ namespace Milou.Deployer.Web.Core.Email
 
         public SmtpService(EmailConfiguration emailConfiguration, [NotNull] ILogger logger)
         {
-            _emailConfiguration = emailConfiguration ?? new EmailConfiguration(
-                null,
-                null,
-                -1,
-                false,
-                null,
-                null,
-                30,
-                false);
+            _emailConfiguration = emailConfiguration ??
+                                  new EmailConfiguration(null, null, -1, false, null, null, 30, false);
+
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -37,12 +31,14 @@ namespace Milou.Deployer.Web.Core.Email
             if (!_emailConfiguration.IsValid)
             {
                 _logger.Warning("Email configuration is invalid {Configuration}", _emailConfiguration);
+
                 return;
             }
 
             if (!_emailConfiguration.EmailEnabled)
             {
                 _logger.Warning("Email configuration is disabled {Configuration}", _emailConfiguration);
+
                 return;
             }
 
@@ -70,8 +66,8 @@ namespace Milou.Deployer.Web.Core.Email
 
             client.AuthenticationMechanisms.Remove("XOAUTH2");
 
-            if (!string.IsNullOrWhiteSpace(_emailConfiguration.Username)
-                && !string.IsNullOrWhiteSpace(_emailConfiguration.Password))
+            if (!string.IsNullOrWhiteSpace(_emailConfiguration.Username) &&
+                !string.IsNullOrWhiteSpace(_emailConfiguration.Password))
             {
                 await client.AuthenticateAsync(_emailConfiguration.Username,
                     _emailConfiguration.Password,

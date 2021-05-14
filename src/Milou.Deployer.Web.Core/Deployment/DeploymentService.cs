@@ -43,8 +43,8 @@ namespace Milou.Deployer.Web.Core.Deployment
     public sealed class DeploymentService : IDeploymentService, IDisposable
     {
         private readonly IAgentService _agentService;
-        private readonly IKeyValueConfiguration _configuration;
         private readonly IApplicationSettingsStore _applicationSettingsStore;
+        private readonly IKeyValueConfiguration _configuration;
         private readonly ICredentialReadService _credentialReadService;
 
         private readonly ICustomClock _customClock;
@@ -57,12 +57,11 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         private readonly IDeploymentTargetService _targetSource;
         private DeploymentTask? _current;
-        private DeploymentTaskTempData? _tempData;
-        private bool _isDisposing;
         private bool _isDisposed;
+        private bool _isDisposing;
+        private DeploymentTaskTempData? _tempData;
 
-        public DeploymentService(
-            [NotNull] ILogger logger,
+        public DeploymentService([NotNull] ILogger logger,
             [NotNull] IDeploymentTargetService targetSource,
             [NotNull] IMediator mediator,
             [NotNull] ICustomClock customClock,
@@ -93,7 +92,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } = new();
 
-        public void Log(string message, LogEventLevel level = LogEventLevel.Information) => _tempData?.TempLogger.Write(level, "{Message}", message);
+        public void Log(string message, LogEventLevel level = LogEventLevel.Information) =>
+            _tempData?.TempLogger.Write(level, "{Message}", message);
 
         public void TaskDone(string deploymentTaskId)
         {
@@ -109,14 +109,6 @@ namespace Milou.Deployer.Web.Core.Deployment
                 _logger.Warning(
                     "Cannot set task to done. There is no current task in service with deployment task id {DeploymentTaskId}",
                     deploymentTaskId);
-            }
-        }
-
-        private void CheckDisposed()
-        {
-            if (_isDisposed || _isDisposing)
-            {
-                throw new ObjectDisposedException(ToString());
             }
         }
 
@@ -137,8 +129,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
         }
 
-        public async Task<DeploymentTaskResult> ExecuteDeploymentAsync(
-            DeploymentTask deploymentTask,
+        public async Task<DeploymentTaskResult> ExecuteDeploymentAsync(DeploymentTask deploymentTask,
             ILogger logger,
             CancellationToken cancellationToken)
         {
@@ -162,9 +153,11 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             try
             {
-                deploymentTarget = await _targetSource.GetDeploymentTargetAsync(deploymentTask.DeploymentTargetId,
-                    cancellationToken) ?? throw new InvalidOperationException(
-                    $"Could not get deployment target from id {deploymentTask.DeploymentTargetId}");
+                deploymentTarget =
+                    await _targetSource.GetDeploymentTargetAsync(deploymentTask.DeploymentTargetId,
+                        cancellationToken) ??
+                    throw new InvalidOperationException(
+                        $"Could not get deployment target from id {deploymentTask.DeploymentTargetId}");
 
                 VerifyPreReleaseAllowed(deploymentTask.SemanticVersion,
                     deploymentTarget,
@@ -174,22 +167,26 @@ namespace Milou.Deployer.Web.Core.Deployment
                 VerifyAllowedPackageIsAllowed(deploymentTarget, deploymentTask.PackageId, logger);
 
                 ExitCode deployExitCode;
+
                 try
                 {
-                    _tempData = await PrepareDeploymentAsync(deploymentTask,
-                        logger,
-                        cancellationToken);
+                    _tempData = await PrepareDeploymentAsync(deploymentTask, logger, cancellationToken);
 
                     var agent = await _agentService.GetAgentForDeploymentTask(deploymentTask, cancellationToken);
 
                     _tempData.TempLogger.Debug("Using deployment agent {Agent}", agent.ToString());
 
                     deployExitCode = await agent.RunAsync(deploymentTask.DeploymentTaskId,
-                        deploymentTask.DeploymentTargetId, cancellationToken);
+                        deploymentTask.DeploymentTargetId,
+                        cancellationToken);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    _logger.Error(ex, "Could not get deploy agent for deployment task id {DeploymentTaskId}, deployment target id {DeploymentTargetId}", deploymentTask.DeploymentTaskId, deploymentTask.DeploymentTargetId);
+                    _logger.Error(ex,
+                        "Could not get deploy agent for deployment task id {DeploymentTaskId}, deployment target id {DeploymentTargetId}",
+                        deploymentTask.DeploymentTaskId,
+                        deploymentTask.DeploymentTargetId);
+
                     deployExitCode = ExitCode.Failure;
                     deploymentTask.Status = WorkTaskStatus.Failed;
                 }
@@ -199,7 +196,8 @@ namespace Milou.Deployer.Web.Core.Deployment
                     _tempData?.TempLogger.Debug("Waiting for task to complete");
 
                     while (!(deploymentTask.Status == WorkTaskStatus.Done ||
-                             deploymentTask.Status == WorkTaskStatus.Failed) && (!_isDisposed || _isDisposing))
+                             deploymentTask.Status == WorkTaskStatus.Failed) &&
+                           (!_isDisposed || _isDisposing))
                     {
                         await _statusChangedEvent.WaitAsync(cancellationToken);
                     }
@@ -222,9 +220,9 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
 
-                await _mediator.Publish(
-                    new DeploymentFinished(deploymentTask,
-                        _tempData?.LogBuilder.ToArray() ?? Array.Empty<LogItem>(), finishedAtUtc),
+                await _mediator.Publish(new DeploymentFinished(deploymentTask,
+                        _tempData?.LogBuilder.ToArray() ?? Array.Empty<LogItem>(),
+                        finishedAtUtc),
                     cancellationToken);
 
                 stopwatch.Stop();
@@ -272,6 +270,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             _isDisposing = true;
             _current = null!;
             MessageQueue.Dispose();
+
             foreach (var pair in TempFiles)
             {
                 ClearTemporaryDirectoriesAndFiles(pair.Value, ImmutableArray<DirectoryInfo>.Empty);
@@ -287,8 +286,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             _isDisposed = true;
         }
 
-        public async Task<ExitCode> CreateDeploymentPackageAsync(
-            [NotNull] DeploymentTask deploymentTask,
+        public async Task<ExitCode> CreateDeploymentPackageAsync([NotNull] DeploymentTask deploymentTask,
             ILogger jobLogger,
             [NotNull] LoggingLevelSwitch loggingLevelSwitch,
             CancellationToken cancellationToken = default)
@@ -307,24 +305,31 @@ namespace Milou.Deployer.Web.Core.Deployment
             TempDirectories.TryAdd(deploymentTask.DeploymentTaskId, new List<DirectoryInfo>());
             string jobId = $"MDep_{Guid.NewGuid()}";
 
-            jobLogger.Information("Starting job {JobId} for deployment task id {DeploymentTaskId}, deployment target id {DeploymentTargetId}", jobId, deploymentTask.DeploymentTaskId, deploymentTask.DeploymentTargetId);
+            jobLogger.Information(
+                "Starting job {JobId} for deployment task id {DeploymentTaskId}, deployment target id {DeploymentTargetId}",
+                jobId,
+                deploymentTask.DeploymentTaskId,
+                deploymentTask.DeploymentTargetId);
 
             DeploymentTarget? deploymentTarget;
 
             try
             {
-                deploymentTarget =
-                    await GetDeploymentTarget(deploymentTask.DeploymentTargetId, cancellationToken);
+                deploymentTarget = await GetDeploymentTarget(deploymentTask.DeploymentTargetId, cancellationToken);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                jobLogger.Error(ex, "Could not get deployment target with id {Id} when creating deployment package", deploymentTask.DeploymentTargetId);
+                jobLogger.Error(ex,
+                    "Could not get deployment target with id {Id} when creating deployment package",
+                    deploymentTask.DeploymentTargetId);
+
                 return ExitCode.Failure;
             }
 
             if (deploymentTarget is null || deploymentTarget == DeploymentTarget.None)
             {
                 jobLogger.Error("Could not get deployment target with id {Id}", deploymentTask.DeploymentTargetId);
+
                 return ExitCode.Failure;
             }
 
@@ -352,8 +357,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             ImmutableDictionary<string, string[]> parameterDictionary;
 
-            if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
-                && !Path.IsPathRooted(deploymentTargetParametersFile))
+            if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile) &&
+                !Path.IsPathRooted(deploymentTargetParametersFile))
             {
                 jobLogger.Error(
                     "The deployment target {DeploymentTarget} parameter file '{DeploymentTargetParametersFile}' is not a rooted path",
@@ -363,14 +368,16 @@ namespace Milou.Deployer.Web.Core.Deployment
                 return ExitCode.Failure;
             }
 
-            if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
-                && File.Exists(deploymentTargetParametersFile))
+            if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile) &&
+                File.Exists(deploymentTargetParametersFile))
             {
                 string parametersJson =
                     await File.ReadAllTextAsync(deploymentTargetParametersFile, Encoding.UTF8, cancellationToken);
 
                 parameterDictionary = JsonConvert
-                    .DeserializeObject<Dictionary<string, string[]>>(parametersJson)?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
+                                     .DeserializeObject<Dictionary<string, string[]>>(parametersJson)
+                                    ?.ToImmutableDictionary() ??
+                                      ImmutableDictionary<string, string[]>.Empty;
 
                 jobLogger.Information("Using WebDeploy parameters from file {DeploymentTargetParametersFile}",
                     deploymentTargetParametersFile);
@@ -419,7 +426,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 if (ArborStringExtensions.AllHaveValue(username, password, publishUrl, msdeploySite))
                 {
-                    TempFile tempPublishFile = await CreateTempPublishFile(deploymentTarget,
+                    TempFile tempPublishFile = await CreateTempPublishFile(
+                        deploymentTarget,
                         username,
                         password,
                         publishUrl!);
@@ -459,23 +467,25 @@ namespace Milou.Deployer.Web.Core.Deployment
                         publishType = deploymentTarget.PublishType.Name,
                         ftpPath = deploymentTarget.FtpPath?.Path,
                         packageListPrefixEnabled = deploymentTarget.PackageListPrefixEnabled,
-                        packageListPrefix =
-                            deploymentTarget.PackageListPrefixEnabled == true
-                                ? deploymentTarget.PackageListPrefix
-                                : ""
+                        packageListPrefix = deploymentTarget.PackageListPrefixEnabled == true
+                            ? deploymentTarget.PackageListPrefix
+                            : ""
                     }
                 }
             };
 
             if (publishSettingsFile?.Exists ?? false)
             {
-                publishSettingsXml = await
-                    File.ReadAllTextAsync(publishSettingsFile!.FullName, Encoding.UTF8, cancellationToken);
+                publishSettingsXml =
+                    await File.ReadAllTextAsync(publishSettingsFile!.FullName, Encoding.UTF8, cancellationToken);
             }
 
             if (string.IsNullOrWhiteSpace(targetDirectoryPath) && string.IsNullOrWhiteSpace(publishSettingsXml))
             {
-                _logger.Error("Both target directory path and publish settings XML are empty for deployment target id {DeploymentTargetId}", deploymentTarget.Id);
+                _logger.Error(
+                    "Both target directory path and publish settings XML are empty for deployment target id {DeploymentTargetId}",
+                    deploymentTarget.Id);
+
                 return ExitCode.Failure;
             }
 
@@ -483,8 +493,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 string? xml = null;
 
-                if (!string.IsNullOrWhiteSpace(configFile)
-                    && File.Exists(configFile))
+                if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
                 {
                     xml = await File.ReadAllTextAsync(configFile, Encoding.UTF8, cancellationToken);
                 }
@@ -494,8 +503,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             var settings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
 
-            string? nugetXml = await ReadNuGetConfig(deploymentTarget.NuGet.NuGetConfigFile)
-                               ?? await ReadNuGetConfig(settings.DefaultNuGetConfig.NuGetConfig);
+            string? nugetXml = await ReadNuGetConfig(deploymentTarget.NuGet.NuGetConfigFile) ??
+                               await ReadNuGetConfig(settings.DefaultNuGetConfig.NuGetConfig);
 
             string? nugetSource = deploymentTarget.NuGet.NuGetPackageSource ?? settings.DefaultNuGetConfig.NuGetSource;
 
@@ -520,34 +529,40 @@ namespace Milou.Deployer.Web.Core.Deployment
                 arguments.Add($"-deployer-exe={exePath}");
             }
 
-            jobLogger.Verbose("Running Milou Deployer bootstrapper for deployment task id {DeploymentTaskId}", deploymentTask.DeploymentTaskId);
+            jobLogger.Verbose("Running Milou Deployer bootstrapper for deployment task id {DeploymentTaskId}",
+                deploymentTask.DeploymentTaskId);
 
-            var deploymentTaskPackage = new DeploymentTaskPackage(
-                deploymentTask.DeploymentTaskId,
-                deploymentTask.DeploymentTargetId,
-                "")
-            {
-                DeployerProcessArgs = arguments.ToImmutableArray(),
-                NuGetConfigXml = nugetXml,
-                NuGetSource = nugetSource,
-                ManifestJson = manifestJson,
-                PublishSettingsXml = publishSettingsXml
-            };
+            var deploymentTaskPackage =
+                new DeploymentTaskPackage(deploymentTask.DeploymentTaskId, deploymentTask.DeploymentTargetId, "")
+                {
+                    DeployerProcessArgs = arguments.ToImmutableArray(),
+                    NuGetConfigXml = nugetXml,
+                    NuGetSource = nugetSource,
+                    ManifestJson = manifestJson,
+                    PublishSettingsXml = publishSettingsXml
+                };
 
-            _logger.Debug("Created deployment task package for deployment task id {DeploymentTaskId}", deploymentTask.DeploymentTaskId);
+            _logger.Debug("Created deployment task package for deployment task id {DeploymentTaskId}",
+                deploymentTask.DeploymentTaskId);
 
             await _mediator.Send(new CreateDeploymentTaskPackage(deploymentTaskPackage), cancellationToken);
 
             return ExitCode.Success;
         }
 
+        private void CheckDisposed()
+        {
+            if (_isDisposed || _isDisposing)
+            {
+                throw new ObjectDisposedException(ToString());
+            }
+        }
+
         private static void CheckPackageMatchingTarget(DeploymentTarget deploymentTarget, string packageId)
         {
-            if (
-                !string.IsNullOrWhiteSpace(deploymentTarget.PackageId)
-                && !deploymentTarget.PackageId.Equals(packageId,
-                    StringComparison.OrdinalIgnoreCase)
-                && !deploymentTarget.PackageId.Equals(Arbor.App.Extensions.Constants.NotAvailable,
+            if (!string.IsNullOrWhiteSpace(deploymentTarget.PackageId) &&
+                !deploymentTarget.PackageId.Equals(packageId, StringComparison.OrdinalIgnoreCase) &&
+                !deploymentTarget.PackageId.Equals(Arbor.App.Extensions.Constants.NotAvailable,
                     StringComparison.OrdinalIgnoreCase))
             {
                 throw new DeployerAppException(
@@ -574,8 +589,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
         }
 
-        private static async Task<TempFile> CreateTempPublishFile(
-            DeploymentTarget deploymentTarget,
+        private static async Task<TempFile> CreateTempPublishFile(DeploymentTarget deploymentTarget,
             string? username,
             string? password,
             string publishUrl)
@@ -590,8 +604,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             var webSystemAttribute = new XAttribute("webSystem"!, "WebSites");
             var msdeploySiteAttribute = new XAttribute("msdeploySite"!, "WebSites");
 
-            var publishProfile = new XElement(
-                "publishProfile"!,
+            var publishProfile = new XElement("publishProfile"!,
                 profileNameAttribute,
                 publishMethodAttribute,
                 publishUrlAttribute,
@@ -614,13 +627,11 @@ namespace Milou.Deployer.Web.Core.Deployment
             return tempFile;
         }
 
-        private Task<DeploymentTarget?> GetDeploymentTarget(
-            DeploymentTargetId deploymentTargetId,
+        private Task<DeploymentTarget?> GetDeploymentTarget(DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default) =>
             _deploymentTargetService.GetDeploymentTargetAsync(deploymentTargetId, cancellationToken);
 
-        private static string LogJobMetadata(
-            DeploymentTask deploymentTask,
+        private static string LogJobMetadata(DeploymentTask deploymentTask,
             DateTime start,
             DateTime end,
             Stopwatch stopwatch,
@@ -629,35 +640,24 @@ namespace Milou.Deployer.Web.Core.Deployment
         {
             var metadata = new StringBuilder();
 
-            metadata
-                .Append("Started job ")
-                .Append(deploymentTask.DeploymentTaskId)
-                .Append(" at ")
-                .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", start)
-                .Append(" and finished at ")
-                .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", end).AppendLine();
+            metadata.Append("Started job ").Append(deploymentTask.DeploymentTaskId).Append(" at ")
+                    .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", start).Append(" and finished at ")
+                    .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", end).AppendLine();
 
-            metadata
-                .Append("Total time ")
-                .AppendFormat(CultureInfo.InvariantCulture, "{0:f}", stopwatch.Elapsed.TotalSeconds)
-                .AppendLine(" seconds");
+            metadata.Append("Total time ")
+                    .AppendFormat(CultureInfo.InvariantCulture, "{0:f}", stopwatch.Elapsed.TotalSeconds)
+                    .AppendLine(" seconds");
 
-            metadata
-                .Append("Package version: ")
-                .Append(deploymentTask.SemanticVersion)
-                .AppendLine();
+            metadata.Append("Package version: ").Append(deploymentTask.SemanticVersion).AppendLine();
 
-            metadata
-                .Append("Package id: ")
-                .AppendLine(deploymentTask.PackageId);
+            metadata.Append("Package id: ").AppendLine(deploymentTask.PackageId);
 
-            metadata
-                .Append("Target id: ")
-                .AppendLine(deploymentTask.DeploymentTargetId.TargetId);
+            metadata.Append("Target id: ").AppendLine(deploymentTask.DeploymentTargetId.TargetId);
 
             if (deploymentTarget is null)
             {
-                metadata.AppendLine($"Deployment target not found for deployment target id {deploymentTask.DeploymentTargetId}");
+                metadata.AppendLine(
+                    $"Deployment target not found for deployment target id {deploymentTask.DeploymentTargetId}");
             }
             else
             {
@@ -698,8 +698,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
         }
 
-        private async Task<DeploymentTaskTempData> PrepareDeploymentAsync(
-            DeploymentTask deploymentTask,
+        private async Task<DeploymentTaskTempData> PrepareDeploymentAsync(DeploymentTask deploymentTask,
             ILogger logger,
             CancellationToken cancellationToken = default)
         {
@@ -707,25 +706,24 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             var logBuilder = new List<LogItem>();
 
-            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                .WriteTo.DelegateSink((message, _) => LogToQueue(message), _loggingLevelSwitch.MinimumLevel)
-                .WriteTo.DelegateSink((message, level) =>
-                        logBuilder.Add(new LogItem
-                        {
-                            Message = message, Level = (int)level, TimeStamp = _customClock.UtcNow()
-                        }),
-                    _loggingLevelSwitch.MinimumLevel)
-                .WriteTo.Logger(logger);
+            LoggerConfiguration loggerConfiguration = new LoggerConfiguration().WriteTo
+               .DelegateSink((message, _) => LogToQueue(message), _loggingLevelSwitch.MinimumLevel).WriteTo
+               .DelegateSink((message, level) => logBuilder.Add(new LogItem
+                    {
+                        Message = message, Level = (int)level, TimeStamp = _customClock.UtcNow()
+                    }),
+                    _loggingLevelSwitch.MinimumLevel).WriteTo.Logger(logger);
 
             if (Debugger.IsAttached)
             {
                 loggerConfiguration = loggerConfiguration.WriteTo.Debug();
             }
 
-            loggerConfiguration = loggerConfiguration
-                .Enrich.WithProperty("DeploymentTaskId", deploymentTask.DeploymentTaskId)
-                .Enrich.WithProperty("DeploymentTargetId", deploymentTask.DeploymentTargetId)
-                .MinimumLevel.ControlledBy(_loggingLevelSwitch);
+            loggerConfiguration = loggerConfiguration.Enrich
+                                                     .WithProperty("DeploymentTaskId", deploymentTask.DeploymentTaskId)
+                                                     .Enrich.WithProperty("DeploymentTargetId",
+                                                          deploymentTask.DeploymentTargetId).MinimumLevel
+                                                     .ControlledBy(_loggingLevelSwitch);
 
             Logger log = loggerConfiguration.CreateLogger();
 
@@ -741,8 +739,9 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             try
             {
-                exitCode = await CreateDeploymentPackageAsync(
-                    deploymentTask, log, _loggingLevelSwitch,
+                exitCode = await CreateDeploymentPackageAsync(deploymentTask,
+                    log,
+                    _loggingLevelSwitch,
                     cancellationToken);
             }
             catch (Exception ex) when (!ex.IsFatal())
@@ -753,17 +752,18 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             if (!exitCode.IsSuccess)
             {
-                throw new InvalidOperationException($"Create deployment package failed for deployment task id {deploymentTask.DeploymentTaskId}, deployment target id {deploymentTask.DeploymentTargetId}");
+                throw new InvalidOperationException(
+                    $"Create deployment package failed for deployment task id {deploymentTask.DeploymentTaskId}, deployment target id {deploymentTask.DeploymentTargetId}");
             }
 
             return new DeploymentTaskTempData(log, deploymentTask.DeploymentTaskId, logBuilder);
         }
 
-        private static void SetLogging(LoggingLevelSwitch loggingLevelSwitch) =>
-            Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
+        private static void SetLogging(LoggingLevelSwitch loggingLevelSwitch) => Environment.SetEnvironmentVariable(
+            "loglevel",
+            loggingLevelSwitch.MinimumLevel.ToString());
 
-        private static void VerifyAllowedPackageIsAllowed(
-            DeploymentTarget deploymentTarget,
+        private static void VerifyAllowedPackageIsAllowed(DeploymentTarget deploymentTarget,
             string packageId,
             ILogger logger)
         {
@@ -786,8 +786,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
         }
 
-        private static void VerifyPreReleaseAllowed(
-            SemanticVersion version,
+        private static void VerifyPreReleaseAllowed(SemanticVersion version,
             DeploymentTarget deploymentTarget,
             string packageId,
             ILogger logger)

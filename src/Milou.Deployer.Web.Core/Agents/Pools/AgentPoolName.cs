@@ -21,16 +21,17 @@ namespace Milou.Deployer.Web.Core.Agents.Pools
 
         public override string ToString() => Value;
 
-        public static bool TryParse(string? value
-            , [NotNullWhen(true)] out AgentPoolName? agentPoolName)
+        public static bool TryParse(string? value, [NotNullWhen(true)] out AgentPoolName? agentPoolName)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 agentPoolName = default;
+
                 return false;
             }
 
             agentPoolName = new AgentPoolName(value);
+
             return true;
         }
     }

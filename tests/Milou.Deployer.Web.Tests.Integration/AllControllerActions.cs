@@ -27,7 +27,9 @@ namespace Milou.Deployer.Web.Tests.Integration
             Assert.NotNull(type);
 
             MethodInfo[] actionMethod = type!.GetMethods()
-                .Where(method => method.Name.Equals(action, StringComparison.OrdinalIgnoreCase)).ToArray();
+                                             .Where(method =>
+                                                  method.Name.Equals(action, StringComparison.OrdinalIgnoreCase))
+                                             .ToArray();
 
             Type[] httpMethodAttributes =
             {
@@ -36,10 +38,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             foreach (MethodInfo methodInfo in actionMethod)
             {
-                Attribute[] attributes = methodInfo.GetCustomAttributes()
-                    .Where(attribute =>
-                        httpMethodAttributes.Any(httpMethodAttribute => httpMethodAttribute == attribute.GetType()))
-                    .ToArray();
+                Attribute[] attributes = methodInfo.GetCustomAttributes().Where(attribute =>
+                                                        httpMethodAttributes.Any(httpMethodAttribute =>
+                                                            httpMethodAttribute == attribute.GetType()))
+                                                   .ToArray();
 
                 _testOutputHelper.WriteLine(
                     $"Controller '{controller}' with action '{action}' has http method attribute: {attributes.Length == 1}");
@@ -51,20 +53,19 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         [PublicAPI]
         public static IEnumerable<object?[]> Data =>
-            ApplicationAssemblies.FilteredAssemblies(useCache: false)
-                .Concat(new[] {typeof(DeployController).Assembly})
-                .Distinct()
-                .SelectMany(assembly => assembly.GetLoadableTypes())
-                .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
-                .Select(controllerType => (Controller: controllerType,
-                    Actions: controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance |
-                                                       BindingFlags.DeclaredOnly)))
-                .SelectMany(item => item.Actions.Select(action => (item.Controller, Action: action)))
-                .Select(item => new object?[]
-                {
-                    item.Controller.FullName, item.Controller.Assembly.GetName().Name, item.Action.Name
-                })
-                .ToArray();
+            ApplicationAssemblies.FilteredAssemblies(useCache: false).Concat(new[] {typeof(DeployController).Assembly})
+                                 .Distinct().SelectMany(assembly => assembly.GetLoadableTypes())
+                                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
+                                 .Select(controllerType => (Controller: controllerType,
+                                      Actions: controllerType.GetMethods(BindingFlags.Public |
+                                                                         BindingFlags.Instance |
+                                                                         BindingFlags.DeclaredOnly)))
+                                 .SelectMany(item => item.Actions.Select(action => (item.Controller, Action: action)))
+                                 .Select(item => new object?[]
+                                  {
+                                      item.Controller.FullName, item.Controller.Assembly.GetName().Name,
+                                      item.Action.Name
+                                  }).ToArray();
 
         [Fact]
         public void ShouldFindControllers() => Assert.NotEmpty(Data);

@@ -21,11 +21,12 @@ namespace Milou.Deployer.Web.Tests.Integration
             get
             {
                 string[] assemblyNameStartsWith = {"Milou"};
+
                 var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false,
                     assemblyNameStartsWith: assemblyNameStartsWith);
+
                 return RouteList.GetConstantRoutes(filteredAssemblies)
-                    .Select(item => new object[] {item.Name, item.Value})
-                    .ToArray();
+                                .Select(item => new object[] {item.Name, item.Value}).ToArray();
             }
         }
 
@@ -35,8 +36,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             _testOutputHelper.WriteLine($"Asserting route {name} with value '{value}'");
 
-            bool slashOrTildeSlash = value.StartsWith("~/", StringComparison.OrdinalIgnoreCase)
-                                     || value.StartsWith("/", StringComparison.OrdinalIgnoreCase);
+            bool slashOrTildeSlash = value.StartsWith("~/", StringComparison.OrdinalIgnoreCase) ||
+                                     value.StartsWith("/", StringComparison.OrdinalIgnoreCase);
 
             Assert.True(slashOrTildeSlash);
         }

@@ -12,8 +12,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         [PublicAPI]
         public const string UrnKey = "urn:milou:deployer:web:open-id-connect";
 
-        public CustomOpenIdConnectConfiguration(
-            string clientId,
+        public CustomOpenIdConnectConfiguration(string clientId,
             string clientSecret,
             string authority,
             string metadataAddress,
@@ -26,10 +25,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             MetadataAddress = metadataAddress;
             Issuer = issuer;
             Enabled = enabled;
-            IsValid = !enabled || (!string.IsNullOrWhiteSpace(clientId)
-                                   && !string.IsNullOrWhiteSpace(clientSecret)
-                                   && (!string.IsNullOrWhiteSpace(authority) ||
-                                       !string.IsNullOrWhiteSpace(metadataAddress)));
+
+            IsValid = !enabled ||
+                      (!string.IsNullOrWhiteSpace(clientId) &&
+                       !string.IsNullOrWhiteSpace(clientSecret) &&
+                       (!string.IsNullOrWhiteSpace(authority) || !string.IsNullOrWhiteSpace(metadataAddress)));
         }
 
         public string ClientId { get; }

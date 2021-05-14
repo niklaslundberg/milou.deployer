@@ -4,7 +4,7 @@
 
 <p>
     <form method="post" action="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">
-        
+
         @Html.AntiForgeryToken()
 
         <input type="text" name="prefix"/>

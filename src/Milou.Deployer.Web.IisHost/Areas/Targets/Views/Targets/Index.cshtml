@@ -1,5 +1,6 @@
 ﻿@using Arbor.App.Extensions
 @using Arbor.App.Extensions.ExtensionMethods
+@using Arbor.KVConfiguration.Core
 @model Milou.Deployer.Web.IisHost.Areas.Targets.OrganizationsViewModel
 
 <h1>Targets</h1>
@@ -71,7 +72,7 @@
                             </p>
 
                             <ul>
-                                @foreach (var configPair in item.ConfigurationPairs)
+                                @foreach (StringPair configPair in item.ConfigurationPairs)
                                 {
                                     <li>@configPair.Key.Wrap("\""): <strong>@configPair.Value.Wrap("\"")</strong></li>
                                 }

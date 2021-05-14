@@ -40,11 +40,12 @@ namespace Milou.Deployer.Waws
     </publishProfile>
              */
 
-            XDocument document =
-                await XDocument.LoadAsync(File.OpenRead(publishSettingsFile), LoadOptions.None, cancellationToken);
+            XDocument document = await XDocument.LoadAsync(File.OpenRead(publishSettingsFile),
+                LoadOptions.None,
+                cancellationToken);
 
-            XElement[] profiles = document.Element(PublishData!)
-                ?.Descendants(PublishProfile).ToArray() ?? Array.Empty<XElement>();
+            XElement[] profiles = document.Element(PublishData!)?.Descendants(PublishProfile).ToArray() ??
+                                  Array.Empty<XElement>();
 
             if (profiles.Length == 0)
             {
@@ -56,8 +57,11 @@ namespace Milou.Deployer.Waws
 
             if (profiles.Length > 1)
             {
-                profile =
-                    Array.Find(profiles, current => current.Attribute(PublishMethod!)?.Value.Equals(MsDeploy, StringComparison.Ordinal) ?? false) ?? profiles[0];
+                profile = Array.Find(profiles,
+                              current => current.Attribute(PublishMethod!)?.Value
+                                                .Equals(MsDeploy, StringComparison.Ordinal) ??
+                                         false) ??
+                          profiles[0];
             }
             else
             {

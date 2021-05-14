@@ -302,10 +302,10 @@ fieldset {
     background-color: #1e90ff;
     border: 1px solid #1e90ff;
     color: white;
+    cursor: pointer;
     display: inline-block;
     margin: 0;
     padding: 5px;
-    cursor: pointer;
 }
 
 .tab a:link, .tab a:visited, .tab a:active, .tab a:hover {

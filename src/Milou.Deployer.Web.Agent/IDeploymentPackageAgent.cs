@@ -11,8 +11,7 @@ namespace Milou.Deployer.Web.Agent
     {
         AgentId AgentId { get; }
 
-        Task<ExitCode> RunAsync(
-            string deploymentTaskId,
+        Task<ExitCode> RunAsync(string deploymentTaskId,
             DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default);
     }

@@ -9,7 +9,9 @@ using Milou.Deployer.Web.Marten.Agents;
 namespace Milou.Deployer.Web.Marten
 {
     [UsedImplicitly]
-    public class GetAgentConfigurationQueryHandler : IRequestHandler<GetAgentConfigurationQuery, GetAgentConfigurationQueryResult>
+    public class
+        GetAgentConfigurationQueryHandler : IRequestHandler<GetAgentConfigurationQuery,
+            GetAgentConfigurationQueryResult>
     {
         private readonly IDocumentStore _documentStore;
 

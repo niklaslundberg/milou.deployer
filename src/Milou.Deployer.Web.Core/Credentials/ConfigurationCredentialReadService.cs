@@ -16,8 +16,7 @@ namespace Milou.Deployer.Web.Core.Credentials
 
         private readonly ILogger _logger;
 
-        public ConfigurationCredentialReadService(
-            [NotNull] IKeyValueConfiguration keyValueConfiguration,
+        public ConfigurationCredentialReadService([NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ILogger logger)
         {
             _keyValueConfiguration =
@@ -26,8 +25,7 @@ namespace Milou.Deployer.Web.Core.Credentials
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public string GetSecret(
-            [NotNull] string id,
+        public string GetSecret([NotNull] string id,
             [NotNull] string secretKey,
             CancellationToken cancellationToken = default)
         {

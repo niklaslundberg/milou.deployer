@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.Caching;
 using Arbor.App.Extensions.ExtensionMethods;
 using Marten;
-using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Environments;
 using Serilog;
@@ -20,8 +19,7 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
 
         public static async Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(this IDocumentStore documentStore,
             ICustomMemoryCache memoryCache,
-            CancellationToken cancellationToken =
-                default)
+            CancellationToken cancellationToken = default)
         {
             if (memoryCache.TryGetValue(CacheKey, out EnvironmentType[]? environmentTypes))
             {
@@ -31,11 +29,9 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
             using IQuerySession querySession = documentStore.QuerySession();
 
             IReadOnlyList<EnvironmentTypeData> environmentTypeData = await querySession.Query<EnvironmentTypeData>()
-                .ToListAsync<EnvironmentTypeData>(cancellationToken);
+               .ToListAsync<EnvironmentTypeData>(cancellationToken);
 
-            EnvironmentType[] enumerable = environmentTypeData
-                .Select(EnvironmentTypeData.MapFromData)
-                .ToArray();
+            EnvironmentType[] enumerable = environmentTypeData.Select(EnvironmentTypeData.MapFromData).ToArray();
 
             if (enumerable.Length > 0)
             {
@@ -57,7 +53,8 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
             {
                 var environmentTypeData = EnvironmentTypeData.MapToData(new EnvironmentType(
                     request.EnvironmentTypeId.Trim(),
-                    request.EnvironmentTypeName.Trim(), PreReleaseBehavior.Parse(request.PreReleaseBehavior)));
+                    request.EnvironmentTypeName.Trim(),
+                    PreReleaseBehavior.Parse(request.PreReleaseBehavior)));
 
                 session.Store(environmentTypeData);
 
@@ -68,6 +65,7 @@ namespace Milou.Deployer.Web.Marten.EnvironmentTypes
             catch (Exception ex) when (!ex.IsFatal())
             {
                 logger.Error(ex, "Could not save environment type {@Request}", request);
+
                 return EnvironmentTypeData.Empty;
             }
         }

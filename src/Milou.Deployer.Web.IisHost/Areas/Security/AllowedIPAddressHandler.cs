@@ -10,12 +10,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
     public sealed class AllowedIpAddressHandler
     {
-        private static readonly ConcurrentTwoWaySingleValueMap<string, IPAddress> IpAddressMap =
-            new();
+        private static readonly ConcurrentTwoWaySingleValueMap<string, IPAddress> IpAddressMap = new();
 
-        public AllowedIpAddressHandler(
-            [NotNull] IEnumerable<AllowedHostName> hostNames,
-            [NotNull] ILogger logger)
+        public AllowedIpAddressHandler([NotNull] IEnumerable<AllowedHostName> hostNames, [NotNull] ILogger logger)
         {
             if (hostNames is null)
             {

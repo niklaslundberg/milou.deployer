@@ -23,14 +23,12 @@ namespace Milou.Deployer.Web.Tests.Integration
             get
             {
                 string[] assemblyNameStartsWith = {"Milou"};
-                var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith: assemblyNameStartsWith,
-useCache: false);
 
-                return filteredAssemblies
-                    .SelectMany(assembly => assembly.GetLoadableTypes())
-                    .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
-                    .Select(type => new object[] {type.AssemblyQualifiedName!})
-                    .ToArray();
+                var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(assemblyNameStartsWith, false);
+
+                return filteredAssemblies.SelectMany(assembly => assembly.GetLoadableTypes())
+                                         .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
+                                         .Select(type => new object[] {type.AssemblyQualifiedName!}).ToArray();
             }
         }
 
@@ -45,8 +43,9 @@ useCache: false);
             Type[] httpMethodAttributes = {typeof(AuthorizeAttribute), typeof(AllowAnonymousAttribute)};
 
             object[] attributes = controllerType!.GetCustomAttributes(true).Where(attribute =>
-                    httpMethodAttributes.Any(authenticationAttribute => authenticationAttribute == attribute.GetType()))
-                .ToArray();
+                                                      httpMethodAttributes.Any(authenticationAttribute =>
+                                                          authenticationAttribute == attribute.GetType()))
+                                                 .ToArray();
 
             _testOutputHelper.WriteLine(
                 $"Controller '{controllerType.Name}' anonymous or authorization attributes: {attributes.Length}, expected is 1");

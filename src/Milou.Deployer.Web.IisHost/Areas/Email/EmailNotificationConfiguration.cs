@@ -22,10 +22,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
         [Metadata]
         public const string EmailNotificationConfigurationKey = "urn:milou:deployer:web:email:notifications";
 
-        public EmailNotificationConfiguration(
-            bool enabled,
-            IEnumerable<EmailAddress> to,
-            EmailAddress from)
+        public EmailNotificationConfiguration(bool enabled, IEnumerable<EmailAddress> to, EmailAddress from)
         {
             Enabled = enabled;
             To = to.SafeToImmutableArray();
@@ -38,10 +35,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
 
         public EmailAddress From { get; }
 
-        public bool IsValid => !Enabled
-                               || (!To.IsDefaultOrEmpty
-                                   && To.All(s => s.IsValid)
-                                   && From?.IsValid == true);
+        public bool IsValid => !Enabled || (!To.IsDefaultOrEmpty && To.All(s => s.IsValid) && From?.IsValid == true);
 
         public override string ToString() =>
             $"{nameof(Enabled)}: {Enabled}, {nameof(To)}: {string.Join("; ", To.Select(email => email.Address))}, {nameof(From)}: {From}, {nameof(IsValid)}: {IsValid}";

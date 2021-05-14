@@ -20,6 +20,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 FileProvider = new PhysicalFileProvider(testConfiguration.SiteAppRoot.FullName),
                 RequestPath = new PathString("")
             };
+
             app.UseStaticFiles(staticFileOptions);
         }
     }

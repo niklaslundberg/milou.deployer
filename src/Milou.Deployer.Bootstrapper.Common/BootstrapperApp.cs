@@ -50,8 +50,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             }
         }
 
-        public static Task<BootstrapperApp> CreateAsync(
-            string[] args,
+        public static Task<BootstrapperApp> CreateAsync(string[] args,
             ILogger? logger = default,
             HttpClient? httpClient = default,
             bool disposeNested = true)
@@ -85,6 +84,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             var nuGetDownloadClient = new NuGetDownloadClient();
             var nuGetCliSettings = new NuGetCliSettings(nugetSource, nugetConfig, nugetExePath);
             var nuGetDownloadSettings = new NuGetDownloadSettings();
+
             var nuGetPackageInstaller = new NuGetPackageInstaller(
                 nuGetDownloadClient,
                 nuGetCliSettings,
@@ -94,84 +94,22 @@ namespace Milou.Deployer.Bootstrapper.Common
             return Task.FromResult(new BootstrapperApp(nuGetPackageInstaller, logger, httpClient, disposeNested));
         }
 
-        private async Task<(NuGetPackageInstallResult, FileInfo?)> GetDeployerExePathAsync(
-            ImmutableArray<string> appArgs,
-            NuGetPackageId nuGetPackageId,
-            CancellationToken cancellationToken)
+        public Task<NuGetPackageInstallResult> ExecuteAsync(ImmutableArray<string> appArgs,
+            CancellationToken cancellationToken = default)
         {
-            NuGetPackageInstallResult nuGetPackageInstallResult;
-
-            var deployerToolFile = GetDeployerExeFromArgs(appArgs);
-
-            if (deployerToolFile is { })
+            if (appArgs.IsDefault)
             {
-                nuGetPackageInstallResult = new NuGetPackageInstallResult(
-                    nuGetPackageId,
-                    new SemanticVersion(1, 0, 0),
-                    deployerToolFile.Directory!);
-            }
-            else
-            {
-                string? nugetSource = GetNuGetSource(appArgs);
-                string? nugetConfig = GetNuGetConfig(appArgs);
-
-                try
-                {
-                    bool allowPreRelease = appArgs.Any(
-                        arg => arg.Equals(Constants.AllowPreRelease, StringComparison.OrdinalIgnoreCase));
-
-                    _logger.Debug("Pre-release flag set to {Flag}", allowPreRelease);
-
-                    var nuGetPackage = new NuGetPackage(nuGetPackageId, NuGetPackageVersion.LatestAvailable);
-
-                    _logger.Debug("Downloading package {Package}", nuGetPackage);
-
-                    nuGetPackageInstallResult = await _packageInstaller.InstallPackageAsync(
-                        nuGetPackage,
-                        new NugetPackageSettings(allowPreRelease, nugetSource, nugetConfig),
-                        cancellationToken: cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex) when (!ex.IsFatal())
-                {
-                    _logger.Error(ex, "Could not download NuGet packages");
-                    throw new InvalidOperationException(NuGetPackageInstallResult.Failed(nuGetPackageId).ToString());
-                }
-
-                if (nuGetPackageInstallResult.PackageDirectory is null
-                    || nuGetPackageInstallResult.SemanticVersion is null)
-                {
-                    _logger.Error("Could not download NuGet package {PackageId}", nuGetPackageId);
-                    return (NuGetPackageInstallResult.Failed(nuGetPackageId), (FileInfo?)null);
-                }
-
-                if (IsDownloadOnly(appArgs))
-                {
-                    return (nuGetPackageInstallResult, (FileInfo?)null);
-                }
-
-                string deployerToolFilePath = Path.Combine(
-                    nuGetPackageInstallResult.PackageDirectory.FullName,
-                    "tools",
-                    "net5.0",
-                    "Milou.Deployer.ConsoleClient.exe");
-
-                deployerToolFile = new FileInfo(deployerToolFilePath);
+                throw new ArgumentException("Arguments cannot be default", nameof(appArgs));
             }
 
-            if (!deployerToolFile.Exists)
-            {
-                string[] existingFiles =
-                    nuGetPackageInstallResult.PackageDirectory!.GetFiles("", SearchOption.AllDirectories)
-                        .Select(file => file.FullName).ToArray();
+            return InternalExecuteAsync(appArgs, cancellationToken);
+        }
 
-                _logger.Error("The extracted file '{File}' does not exist, existing files {ExistingFiles}",
-                    deployerToolFile,
-                    existingFiles);
+        private static string? GetCorrelationId(ImmutableArray<string> appArgs)
+        {
+            string? correlationId = appArgs.GetArgumentValueOrDefault("correlation-id");
 
-                return (NuGetPackageInstallResult.Failed(nuGetPackageId), (FileInfo?)null);
-            }
-
-            return (nuGetPackageInstallResult, deployerToolFile);
+            return correlationId;
         }
 
         private static FileInfo? GetDeployerExeFromArgs(ImmutableArray<string> appArgs)
@@ -186,28 +124,122 @@ namespace Milou.Deployer.Bootstrapper.Common
             return new FileInfo(exePath);
         }
 
-        private static bool IsDownloadOnly(ImmutableArray<string> appArgs) => appArgs.Any(arg =>
-            arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase));
-
-        public Task<NuGetPackageInstallResult> ExecuteAsync(
+        private async Task<(NuGetPackageInstallResult, FileInfo?)> GetDeployerExePathAsync(
             ImmutableArray<string> appArgs,
-            CancellationToken cancellationToken = default)
+            NuGetPackageId nuGetPackageId,
+            CancellationToken cancellationToken)
         {
-            if (appArgs.IsDefault)
+            NuGetPackageInstallResult nuGetPackageInstallResult;
+
+            var deployerToolFile = GetDeployerExeFromArgs(appArgs);
+
+            if (deployerToolFile is { })
             {
-                throw new ArgumentException("Arguments cannot be default", nameof(appArgs));
+                nuGetPackageInstallResult = new NuGetPackageInstallResult(nuGetPackageId,
+                    new SemanticVersion(1, 0, 0),
+                    deployerToolFile.Directory!);
+            }
+            else
+            {
+                string? nugetSource = GetNuGetSource(appArgs);
+                string? nugetConfig = GetNuGetConfig(appArgs);
+
+                try
+                {
+                    bool allowPreRelease = appArgs.Any(arg =>
+                        arg.Equals(Constants.AllowPreRelease, StringComparison.OrdinalIgnoreCase));
+
+                    _logger.Debug("Pre-release flag set to {Flag}", allowPreRelease);
+
+                    var nuGetPackage = new NuGetPackage(nuGetPackageId, NuGetPackageVersion.LatestAvailable);
+
+                    _logger.Debug("Downloading package {Package}", nuGetPackage);
+
+                    nuGetPackageInstallResult = await _packageInstaller.InstallPackageAsync(nuGetPackage,
+                        new NugetPackageSettings(allowPreRelease, nugetSource, nugetConfig),
+                        cancellationToken: cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    _logger.Error(ex, "Could not download NuGet packages");
+
+                    throw new InvalidOperationException(NuGetPackageInstallResult.Failed(nuGetPackageId).ToString());
+                }
+
+                if (nuGetPackageInstallResult.PackageDirectory is null ||
+                    nuGetPackageInstallResult.SemanticVersion is null)
+                {
+                    _logger.Error("Could not download NuGet package {PackageId}", nuGetPackageId);
+
+                    return (NuGetPackageInstallResult.Failed(nuGetPackageId), null);
+                }
+
+                if (IsDownloadOnly(appArgs))
+                {
+                    return (nuGetPackageInstallResult, null);
+                }
+
+                string deployerToolFilePath = Path.Combine(nuGetPackageInstallResult.PackageDirectory.FullName,
+                    "tools",
+                    "net5.0",
+                    "Milou.Deployer.ConsoleClient.exe");
+
+                deployerToolFile = new FileInfo(deployerToolFilePath);
             }
 
-            return InternalExecuteAsync(appArgs, cancellationToken);
+            if (!deployerToolFile.Exists)
+            {
+                string[] existingFiles = nuGetPackageInstallResult.PackageDirectory!
+                                                                  .GetFiles("", SearchOption.AllDirectories)
+                                                                  .Select(file => file.FullName).ToArray();
+
+                _logger.Error("The extracted file '{File}' does not exist, existing files {ExistingFiles}",
+                    deployerToolFile,
+                    existingFiles);
+
+                return (NuGetPackageInstallResult.Failed(nuGetPackageId), null);
+            }
+
+            return (nuGetPackageInstallResult, deployerToolFile);
         }
 
-        private async Task<NuGetPackageInstallResult> InternalExecuteAsync(
-            ImmutableArray<string> appArgs,
+        private static string? GetNuGetConfig(ImmutableArray<string> appArgs)
+        {
+            string? nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
+
+            if (string.IsNullOrWhiteSpace(nugetConfig) || !File.Exists(nugetConfig))
+            {
+                nugetConfig = null;
+            }
+
+            return nugetConfig;
+        }
+
+        private static string? GetNuGetExePath(ImmutableArray<string> appArgs)
+        {
+            string? exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
+
+            if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
+            {
+                exePath = null;
+            }
+
+            return exePath;
+        }
+
+        private static string? GetNuGetSource(ImmutableArray<string> appArgs)
+        {
+            string? nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
+
+            return nugetSource;
+        }
+
+        private async Task<NuGetPackageInstallResult> InternalExecuteAsync(ImmutableArray<string> appArgs,
             CancellationToken cancellationToken = default)
         {
             var nuGetPackageId = new NuGetPackageId(Constants.PackageId);
 
-            (NuGetPackageInstallResult nugetInstallResult, FileInfo? deployerExeFileInfo) =
+            (NuGetPackageInstallResult nugetInstallResult, var deployerExeFileInfo) =
                 await GetDeployerExePathAsync(appArgs, nuGetPackageId, cancellationToken);
 
             if (IsDownloadOnly(appArgs))
@@ -223,12 +255,10 @@ namespace Milou.Deployer.Bootstrapper.Common
             string deployerExePath = deployerExeFileInfo.FullName;
 
             var exitCode = await ProcessRunner.ExecuteProcessAsync(deployerExePath,
-                    appArgs,
-                    (message, category) => _logger.ParseAndLog(message, category),
-                    (message, category) =>
-                        _logger.Error("{Category} {Message}", category, message),
-                    cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+                appArgs,
+                (message, category) => _logger.ParseAndLog(message, category),
+                (message, category) => _logger.Error("{Category} {Message}", category, message),
+                cancellationToken: cancellationToken).ConfigureAwait(false);
 
             if (!exitCode.IsSuccess)
             {
@@ -243,41 +273,7 @@ namespace Milou.Deployer.Bootstrapper.Common
             return nugetInstallResult;
         }
 
-        private static string? GetNuGetSource(ImmutableArray<string> appArgs)
-        {
-            string? nugetSource = appArgs.GetArgumentValueOrDefault("nuget-source");
-            return nugetSource;
-        }
-
-        private static string? GetCorrelationId(ImmutableArray<string> appArgs)
-        {
-            string? correlationId = appArgs.GetArgumentValueOrDefault("correlation-id");
-
-            return correlationId;
-        }
-
-        private static string? GetNuGetExePath(ImmutableArray<string> appArgs)
-        {
-            string? exePath = appArgs.GetArgumentValueOrDefault("nuget-exe");
-
-            if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
-            {
-                exePath = null;
-            }
-
-            return exePath;
-        }
-
-        private static string? GetNuGetConfig(ImmutableArray<string> appArgs)
-        {
-            string? nugetConfig = appArgs.GetArgumentValueOrDefault("nuget-config");
-
-            if (string.IsNullOrWhiteSpace(nugetConfig) || !File.Exists(nugetConfig))
-            {
-                nugetConfig = null;
-            }
-
-            return nugetConfig;
-        }
+        private static bool IsDownloadOnly(ImmutableArray<string> appArgs) => appArgs.Any(arg =>
+            arg.Equals(Constants.DownloadOnly, StringComparison.OrdinalIgnoreCase));
     }
 }

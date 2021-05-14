@@ -10,8 +10,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class UpdateDeploymentTarget : ICommand<UpdateDeploymentTargetResult>, IValidatableObject
     {
-        public UpdateDeploymentTarget(
-            DeploymentTargetId id,
+        public UpdateDeploymentTarget(DeploymentTargetId id,
             bool allowExplicitPreRelease,
             string? url,
             string packageId,

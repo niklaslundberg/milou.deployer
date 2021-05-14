@@ -53,6 +53,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
             if (!_developerConfiguration.DockerEnabled)
             {
                 _logger.Debug("Developer Docker is disabled");
+
                 return;
             }
 
@@ -80,44 +81,37 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
                 string.Join(", ", _dockerContext.Containers.Select(container => container.Name)));
         }
 
-        private ContainerArgs CreatePgAdmin() =>
-            new("dpage/pgadmin4",
-                "pgadmin", new[] {PortMapping.MapSinglePort(4000, 80)},
-                new Dictionary<string, string>
-                {
-                    ["PGADMIN_DEFAULT_EMAIL"] = "info@dev.local", ["PGADMIN_DEFAULT_PASSWORD"] = "dev",
-                });
-
         public int Order { get; } = 0;
 
         private static ContainerArgs CreateFtp()
         {
-            var passivePorts = new PortRange(start: 23100, end: 23100);
+            var passivePorts = new PortRange(23100, 23100);
 
             var ftpVariables = new Dictionary<string, string>
             {
                 ["FTP_USER"] = "testuser",
                 ["FTP_PASS"] = "testpw",
                 ["PASV_MIN_PORT"] = passivePorts.Start.ToString(),
-                ["PASV_MAX_PORT"] = passivePorts.End.ToString(),
+                ["PASV_MAX_PORT"] = passivePorts.End.ToString()
             };
 
             var ftpPorts = new List<PortMapping>
             {
-                PortMapping.MapSinglePort(hostPort: 20, containerPort: 20),
-                PortMapping.MapSinglePort(hostPort: 21, containerPort: 21),
+                PortMapping.MapSinglePort(20, 20),
+                PortMapping.MapSinglePort(21, 21),
                 new(passivePorts, passivePorts)
             };
 
-            var ftp = new ContainerArgs(
-                "fauria/vsftpd",
-                "ftp",
-                ftpPorts,
-                ftpVariables
-            );
+            var ftp = new ContainerArgs("fauria/vsftpd", "ftp", ftpPorts, ftpVariables);
 
             return ftp;
         }
+
+        private ContainerArgs CreatePgAdmin() =>
+            new("dpage/pgadmin4", "pgadmin", new[] {PortMapping.MapSinglePort(4000, 80)}, new Dictionary<string, string>
+            {
+                ["PGADMIN_DEFAULT_EMAIL"] = "info@dev.local", ["PGADMIN_DEFAULT_PASSWORD"] = "dev"
+            });
 
         private static ContainerArgs CreatePostgres()
         {
@@ -125,44 +119,34 @@ namespace Milou.Deployer.Web.IisHost.Areas.Docker
 
             string[] postgresArgs = {"-v", "deploydata:/var/lib/postgresql/data"};
 
-            var postgres = new ContainerArgs(
-                "postgres",
+            var postgres = new ContainerArgs("postgres",
                 "postgres-deploy",
-                new List<PortMapping> {PortMapping.MapSinglePort(hostPort: 5433, containerPort: 5432)},
+                new List<PortMapping> {PortMapping.MapSinglePort(5433, 5432)},
                 postgresVariables,
-                postgresArgs
-            );
+                postgresArgs);
 
             return postgres;
         }
 
         private ContainerArgs CreateRedis()
         {
-            var portMappings = new[] {PortMapping.MapSinglePort(hostPort: 26379, containerPort: 6379)};
+            var portMappings = new[] {PortMapping.MapSinglePort(26379, 6379)};
 
-            var redis = new ContainerArgs(
-                "redis",
+            var redis = new ContainerArgs("redis",
                 "redistest",
                 portMappings,
                 args: new[] {"-v", "cachedata:/data"},
-                entryPoint: new[] {"redis-server", "--appendonly yes"}
-            );
+                entryPoint: new[] {"redis-server", "--appendonly yes"});
 
             return redis;
         }
 
         private static ContainerArgs CreateSmtp4Dev()
         {
-            var smtp4Dev = new ContainerArgs(
-                "rnwood/smtp4dev:linux-amd64-v3",
+            var smtp4Dev = new ContainerArgs("rnwood/smtp4dev:linux-amd64-v3",
                 "smtp4devtest",
-                new List<PortMapping>
-                {
-                    PortMapping.MapSinglePort(hostPort: 3125, containerPort: 80),
-                    PortMapping.MapSinglePort(hostPort: 2526, containerPort: 25)
-                },
-                new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"}
-            );
+                new List<PortMapping> {PortMapping.MapSinglePort(3125, 80), PortMapping.MapSinglePort(2526, 25)},
+                new Dictionary<string, string> {["ServerOptions:TlsMode"] = "None"});
 
             return smtp4Dev;
         }

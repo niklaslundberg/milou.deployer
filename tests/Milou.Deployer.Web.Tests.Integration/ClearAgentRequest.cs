@@ -21,7 +21,8 @@ namespace Milou.Deployer.Web.Tests.Integration
             new(HttpMethod.Post, "http://localhost" + AgentsController.ClearAgentWorkTasksRoute.TrimStart('~'))
             {
                 Content = new StringContent(
-                    JsonConvert.SerializeObject(new ClearAgentWorkTasks(new AgentId("Agent1"))), Encoding.UTF8,
+                    JsonConvert.SerializeObject(new ClearAgentWorkTasks(new AgentId("Agent1"))),
+                    Encoding.UTF8,
                     "application/json")
             };
     }

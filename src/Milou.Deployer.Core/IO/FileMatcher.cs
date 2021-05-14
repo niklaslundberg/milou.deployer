@@ -5,7 +5,6 @@ using System.Linq;
 using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.IO;
 using JetBrains.Annotations;
-
 using Milou.Deployer.Core.XmlTransformation;
 using Serilog;
 
@@ -37,53 +36,44 @@ namespace Milou.Deployer.Core.IO
                 rootDirectory.FullName,
                 filePattern);
 
-            var matchingFiles =
-                rootDirectory.GetFiles(filePattern, SearchOption.AllDirectories)
-                    .Tap(
-                        file =>
-                            _logger.Debug("Found file '{FullName}' when trying to find matches for '{TargetName}'",
-                                file.FullName,
-                                fileMatch.TargetName))
-                    .Where(
-                        file =>
-                        {
-                            bool isMatch = file.Name.Equals(
-                                fileMatch.TargetName,
-                                StringComparison.OrdinalIgnoreCase);
+            var matchingFiles = rootDirectory.GetFiles(filePattern, SearchOption.AllDirectories).Tap(file =>
+                _logger.Debug("Found file '{FullName}' when trying to find matches for '{TargetName}'",
+                    file.FullName,
+                    fileMatch.TargetName)).Where(file =>
+            {
+                bool isMatch = file.Name.Equals(fileMatch.TargetName, StringComparison.OrdinalIgnoreCase);
 
-                            _logger.Debug(
-                                "Found file '{FullName}' matches: {IsMatch}, when trying to find matches for '{TargetName}'",
-                                file.FullName,
-                                isMatch,
-                                fileMatch.TargetName);
+                _logger.Debug(
+                    "Found file '{FullName}' matches: {IsMatch}, when trying to find matches for '{TargetName}'",
+                    file.FullName,
+                    isMatch,
+                    fileMatch.TargetName);
 
-                            return isMatch;
-                        })
-                    .Where(
-                        file =>
-                        {
-                            if (file.Directory is null || fileMatch.ActionFile.Directory is null)
-                            {
-                                return false;
-                            }
+                return isMatch;
+            }).Where(file =>
+            {
+                if (file.Directory is null || fileMatch.ActionFile.Directory is null)
+                {
+                    return false;
+                }
 
-                            string sourceRelativePath =
-                                fileMatch.ActionFile.Directory.GetRelativePath(
-                                    fileMatch.ActionFileRootDirectory);
-                            string targetFileRelativePath = file.Directory.GetRelativePath(rootDirectory);
+                string sourceRelativePath =
+                    fileMatch.ActionFile.Directory.GetRelativePath(fileMatch.ActionFileRootDirectory);
 
-                            bool hasSameRelativePath = targetFileRelativePath.Equals(
-                                sourceRelativePath,
-                                StringComparison.OrdinalIgnoreCase);
+                string targetFileRelativePath = file.Directory.GetRelativePath(rootDirectory);
 
-                            _logger.Debug(
-                                "Matching path between '{SourceRelativePath}' and '{TargetFileRelativePath}': {HasSameRelativePath}",
-                                sourceRelativePath,
-                                targetFileRelativePath,
-                                hasSameRelativePath);
+                bool hasSameRelativePath = targetFileRelativePath.Equals(
+                    sourceRelativePath,
+                    StringComparison.OrdinalIgnoreCase);
 
-                            return hasSameRelativePath;
-                        }).ToList();
+                _logger.Debug(
+                    "Matching path between '{SourceRelativePath}' and '{TargetFileRelativePath}': {HasSameRelativePath}",
+                    sourceRelativePath,
+                    targetFileRelativePath,
+                    hasSameRelativePath);
+
+                return hasSameRelativePath;
+            }).ToList();
 
             return matchingFiles.ToImmutableArray();
         }

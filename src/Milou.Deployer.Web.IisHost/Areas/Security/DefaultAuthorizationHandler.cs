@@ -28,8 +28,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         private readonly ImmutableHashSet<IPNetwork> _allowedNetworks;
         private readonly ILogger _logger;
 
-        public DefaultAuthorizationHandler(
-            IKeyValueConfiguration keyValueConfiguration,
+        public DefaultAuthorizationHandler(IKeyValueConfiguration keyValueConfiguration,
             ILogger logger,
             IEnumerable<AllowedEmail> allowedEmails,
             IEnumerable<AllowedEmailDomain> allowedEmailDomains)
@@ -39,16 +38,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             _allowedEmails = allowedEmails.SafeToImmutableArray();
 
             IPAddress[] ipAddressesFromConfig = keyValueConfiguration[DeployerAppConstants.AllowedIPs]
-                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(IPAddress.Parse)
-                .ToArray();
+                                               .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                               .Select(IPAddress.Parse).ToArray();
 
             IPNetwork[] ipNetworksFromConfig = keyValueConfiguration[DeployerAppConstants.AllowedIpNetworks]
-                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(network => (HasValue: IpNetworkParser.TryParse(network, out var ipNetwork), ipNetwork))
-                .Where(network => network.HasValue)
-                .Select(network => network.ipNetwork!)
-                .ToArray();
+                                              .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                              .Select(network => (
+                                                   HasValue: IpNetworkParser.TryParse(network, out var ipNetwork),
+                                                   ipNetwork)).Where(network => network.HasValue)
+                                              .Select(network => network.ipNetwork!).ToArray();
 
             _allowedNetworks = ipNetworksFromConfig.ToImmutableHashSet();
 
@@ -60,8 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             }
         }
 
-        protected override Task HandleRequirementAsync(
-            AuthorizationHandlerContext context,
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
             DefaultAuthorizationRequirement requirement)
         {
             if (!context.User.Claims.Any())
@@ -69,29 +66,27 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 return Task.CompletedTask;
             }
 
-            Claim[] emailClaims =
-                context.User.Claims.Where(claim => claim.Type.Equals(ClaimTypes.Email, StringComparison.Ordinal))
-                    .ToArray();
+            Claim[] emailClaims = context.User.Claims
+                                         .Where(claim => claim.Type.Equals(ClaimTypes.Email, StringComparison.Ordinal))
+                                         .ToArray();
 
             if (emailClaims.Length > 0)
             {
                 if (_allowedEmailDomains.Length > 0)
                 {
                     EmailAddress?[] matches = emailClaims.Select(claim =>
+                    {
+                        bool parsed = EmailAddress.TryParse(claim.Value, out var parsedAddress);
+
+                        if (!parsed)
                         {
-                            bool parsed = EmailAddress.TryParse(claim.Value, out var parsedAddress);
+                            return null;
+                        }
 
-                            if (!parsed)
-                            {
-                                return null;
-                            }
-
-                            return parsedAddress;
-                        })
-                        .Where(emailAddress => emailAddress is {})
-                        .Where(emailAddress => _allowedEmailDomains.Any(domain =>
-                            domain.Domain.Equals(emailAddress!.Domain, StringComparison.OrdinalIgnoreCase)))
-                        .ToArray();
+                        return parsedAddress;
+                    }).Where(emailAddress => emailAddress is { }).Where(emailAddress =>
+                        _allowedEmailDomains.Any(domain =>
+                            domain.Domain.Equals(emailAddress!.Domain, StringComparison.OrdinalIgnoreCase))).ToArray();
 
                     if (matches.Length > 0)
                     {
@@ -101,13 +96,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                         }
 
                         context.Succeed(requirement);
+
                         return Task.CompletedTask;
                     }
                 }
 
                 Claim[] allowedEmails = emailClaims.Where(emailClaim =>
-                        _allowedEmails.Any(allowed => emailClaim.Value.Equals(allowed.Email, StringComparison.Ordinal)))
-                    .ToArray();
+                                                        _allowedEmails.Any(allowed =>
+                                                            emailClaim.Value.Equals(allowed.Email,
+                                                                StringComparison.Ordinal)))
+                                                   .ToArray();
 
                 if (allowedEmails.Length > 0)
                 {
@@ -117,12 +115,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                     }
 
                     context.Succeed(requirement);
+
                     return Task.CompletedTask;
                 }
             }
 
-            string? ipClaimValue = context.User.Claims.SingleOrDefault(claim =>
-                claim.Type.Equals(CustomClaimTypes.IpAddress, StringComparison.Ordinal))?.Value;
+            string? ipClaimValue = context.User.Claims.SingleOrDefault(
+                claim => claim.Type.Equals(CustomClaimTypes.IpAddress, StringComparison.Ordinal))?.Value;
 
             if (string.IsNullOrWhiteSpace(ipClaimValue))
             {
@@ -134,7 +133,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 return Task.CompletedTask;
             }
 
-            if (!IPAddress.TryParse(ipClaimValue, out IPAddress? address))
+            if (!IPAddress.TryParse(ipClaimValue, out var address))
             {
                 if (_logger.IsEnabled(LogEventLevel.Verbose))
                 {
@@ -155,21 +154,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 {
                     string networks = string.Join(", ",
                         ipNetworks.Select(network => $"{network.Prefix}/{network.PrefixLength}"));
+
                     _logger.Verbose("User claim ip address {Address} is in allowed networks {Networks}",
                         address,
                         networks);
                 }
 
                 context.Succeed(requirement);
+
                 return Task.CompletedTask;
             }
 
             var dynamicIpAddresses = AllowedIpAddressHandler.IpAddresses;
 
-            var allAddresses = _allowed
-                .Concat(dynamicIpAddresses)
-                .Where(ip => !Equals(ip, IPAddress.None))
-                .ToImmutableHashSet();
+            var allAddresses = _allowed.Concat(dynamicIpAddresses).Where(ip => !Equals(ip, IPAddress.None))
+                                       .ToImmutableHashSet();
 
             if (allAddresses.Any(current => current.EqualsAddress(address)))
             {

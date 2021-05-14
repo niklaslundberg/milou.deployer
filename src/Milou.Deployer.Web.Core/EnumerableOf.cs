@@ -7,14 +7,15 @@ namespace Milou.Deployer.Web.Core
 {
     public static class EnumerableOf<T> where T : class
     {
-        private static readonly Lazy<ImmutableArray<T>> LazyValues = new Lazy<ImmutableArray<T>>(GetAll);
+        private static readonly Lazy<ImmutableArray<T>> LazyValues = new(GetAll);
 
         public static ImmutableArray<T> All => LazyValues.Value;
 
-        private static ImmutableArray<T> GetAll() =>
-            typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField)
-                .Where(field => field.FieldType == typeof(T) && field.IsInitOnly)
-                .Select(field => (T)field.GetValue(null)!)
-                .ToImmutableArray();
+        private static ImmutableArray<T> GetAll() => typeof(T)
+                                                    .GetFields(BindingFlags.Public |
+                                                               BindingFlags.Static |
+                                                               BindingFlags.GetField)
+                                                    .Where(field => field.FieldType == typeof(T) && field.IsInitOnly)
+                                                    .Select(field => (T)field.GetValue(null)!).ToImmutableArray();
     }
 }

@@ -12,7 +12,6 @@ using Arbor.AspNetCore.Host.Startup;
 using Arbor.Primitives;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Core.Configuration;
-using Milou.Deployer.Web.Agent.Host;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 
 namespace Milou.Deployer.Development
@@ -22,7 +21,8 @@ namespace Milou.Deployer.Development
         private readonly DevConfiguration? _devConfiguration;
         private readonly StartupTaskContext? _startupTaskContext;
 
-        public AgentManagerService(StartupTaskContext? startupTaskContext = null, DevConfiguration? devConfiguration = null)
+        public AgentManagerService(StartupTaskContext? startupTaskContext = null,
+            DevConfiguration? devConfiguration = null)
         {
             _startupTaskContext = startupTaskContext;
             _devConfiguration = devConfiguration;
@@ -65,7 +65,6 @@ namespace Milou.Deployer.Development
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-
             }
         }
 
@@ -73,11 +72,13 @@ namespace Milou.Deployer.Development
             CancellationTokenSource cancellationTokenSource)
         {
             object[] instances = {agentConfiguration, agentConfiguration.AgentId()};
-            var assemblies
-                = ApplicationAssemblies.FilteredAssemblies().Where(assembly => !assembly.GetName().Name!.Contains("IisHost")).ToArray();
+
+            var assemblies = ApplicationAssemblies.FilteredAssemblies()
+                                                  .Where(assembly => !assembly.GetName().Name!.Contains("IisHost"))
+                                                  .ToArray();
 
             var variables = EnvironmentVariables.GetEnvironmentVariables().Variables
-                .ToDictionary(s => s.Key, s => s.Value);
+                                                .ToDictionary(s => s.Key, s => s.Value);
 
             variables.Add(LoggingConstants.SerilogSeqEnabledDefault, "true");
             variables.Add("urn:arbor:app:web:logging:serilog:default:seqUrl", "http://localhost:5341");
@@ -85,8 +86,10 @@ namespace Milou.Deployer.Development
             variables.Add(ConfigurationKeys.AllowPreReleaseEnvironmentVariable, "true");
 
             var appTask = AppStarter<AgentStartup>.StartAsync(Array.Empty<string>(),
-                variables, instances: instances, assemblies: assemblies
-);
+                variables,
+                instances: instances,
+                assemblies: assemblies);
+
             var agentRunner = new AgentRunner(cancellationTokenSource, appTask);
 
             await Task.Delay(TimeSpan.FromSeconds(10));

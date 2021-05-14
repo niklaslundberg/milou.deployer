@@ -10,6 +10,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         [Required]
         public string Id { get; }
 
-        public bool IsValid => Id is {};
+        public bool IsValid => Id is { };
     }
 }

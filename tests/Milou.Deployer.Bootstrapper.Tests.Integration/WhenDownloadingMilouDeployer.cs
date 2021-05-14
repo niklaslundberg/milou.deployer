@@ -16,11 +16,10 @@ namespace Milou.Deployer.Bootstrapper.Tests.Integration
         {
             string[] args = {Constants.AllowPreRelease, Constants.DownloadOnly};
 
-            using Logger logger = new LoggerConfiguration()
-                .WriteTo.Debug()
-                .MinimumLevel.Verbose()
-                .CreateLogger();
+            using Logger logger = new LoggerConfiguration().WriteTo.Debug().MinimumLevel.Verbose().CreateLogger();
+
             using BootstrapperApp bootstrapperApp = await BootstrapperApp.CreateAsync(args, logger);
+
             NuGetPackageInstallResult nuGetPackageInstallResult =
                 await bootstrapperApp.ExecuteAsync(args.ToImmutableArray());
 

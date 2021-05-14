@@ -4,6 +4,7 @@ namespace Milou.Deployer.Tools.Configurator
 {
     public class ConfigurationModel
     {
-        [Required] public string MartenConnectionString { get; set; }
+        [Required]
+        public string MartenConnectionString { get; set; }
     }
 }

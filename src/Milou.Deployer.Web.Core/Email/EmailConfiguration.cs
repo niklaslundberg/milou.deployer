@@ -9,8 +9,7 @@ namespace Milou.Deployer.Web.Core.Email
     [UsedImplicitly]
     public class EmailConfiguration
     {
-        public EmailConfiguration(
-            string? defaultFromEmailAddress,
+        public EmailConfiguration(string? defaultFromEmailAddress,
             string? smtpHost,
             int port,
             bool useSsl,

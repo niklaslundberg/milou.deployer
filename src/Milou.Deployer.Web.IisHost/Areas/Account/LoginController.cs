@@ -10,9 +10,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Account
     {
         [HttpGet]
         [Route("/account/login")]
-        public IActionResult Index([FromQuery] Uri? returnUrl = null)
-        {
-            return View();
-        }
+        public IActionResult Index([FromQuery] Uri? returnUrl = null) => View();
     }
 }
