@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
             }
         }
 
-        public static void Put<T>([NotNull] this ITempDataDictionary tempData, T value) where T : class
+        public static void Put<T>([NotNull] this ITempDataDictionary tempData, T? value) where T : class
         {
             if (tempData is null)
             {

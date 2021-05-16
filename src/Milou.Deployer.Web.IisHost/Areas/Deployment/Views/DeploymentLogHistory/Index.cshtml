@@ -1,9 +1,8 @@
 ﻿@using Arbor.App.Extensions.Time
-@using Microsoft.AspNetCore.Http.Extensions
 @using Milou.Deployer.Web.Core.Extensions
 @using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentHistoryViewOutputModel
-@inject ICustomClock Time;
+@inject ICustomClock _time;
 
 <table>
     <thead>
@@ -25,7 +24,7 @@
             <tr>
                 <td style="white-space: nowrap">
                     <a href="@Url.RouteUrl(DeploymentConstants.HistoryLogRouteName, new {deploymentTaskId = item.DeploymentTaskId})">
-                        <span class="text-nowrap">@item.FinishedAtUtc.ToLocalTimeFormatted(Time)</span>
+                        <span class="text-nowrap">@item.FinishedAtUtc.ToLocalTimeFormatted(_time)</span>
                     </a>
                 </td>
                 <td>
