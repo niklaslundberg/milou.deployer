@@ -142,7 +142,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         continue;
                     }
 
-                    var result = await _mediator.Send(new DeploymentHistoryRequest(deploymentTarget.Id.TargetId),
+                    var result = await _mediator.Send(new DeploymentHistoryRequest(deploymentTarget.Id.TargetId, 1, 2),
                         stoppingToken);
 
                     var latestDeploy = result.DeploymentTasks.OrderByDescending(task => task.FinishedAtUtc)

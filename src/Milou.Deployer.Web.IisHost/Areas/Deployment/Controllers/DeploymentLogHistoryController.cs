@@ -16,11 +16,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
     {
         [Route(DeploymentConstants.HistoryRoute, Name = DeploymentConstants.HistoryRouteName)]
         [HttpGet]
-        public async Task<IActionResult> Index([FromServices] IMediator mediator, [FromRoute] string deploymentTargetId)
+        public async Task<IActionResult> Index([FromServices] IMediator mediator,
+            [FromRoute] string deploymentTargetId,
+            int page = 1,
+            int pageSize = 10)
         {
-            DeploymentHistoryResponse response = await mediator.Send(new DeploymentHistoryRequest(deploymentTargetId));
+            DeploymentHistoryResponse response =
+                await mediator.Send(new DeploymentHistoryRequest(deploymentTargetId, page, pageSize));
 
-            return View(new DeploymentHistoryViewOutputModel(response.DeploymentTasks));
+            return View(new DeploymentHistoryViewOutputModel(response.DeploymentTasks,
+                response.TotalCount,
+                response.Pages, page, pageSize));
         }
 
         [Route(DeploymentConstants.HistoryLogRoute, Name = DeploymentConstants.HistoryLogRouteName)]

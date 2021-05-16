@@ -6,9 +6,19 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class DeploymentHistoryResponse : IQueryResult
     {
-        public DeploymentHistoryResponse(IReadOnlyCollection<DeploymentTaskInfo> deploymentTasks) =>
+        public DeploymentHistoryResponse(IReadOnlyCollection<DeploymentTaskInfo> deploymentTasks,
+            int totalCount,
+            int pages)
+        {
             DeploymentTasks = deploymentTasks;
+            TotalCount = totalCount;
+            Pages = pages;
+        }
 
         public IReadOnlyCollection<DeploymentTaskInfo> DeploymentTasks { get; }
+
+        public int TotalCount { get; }
+
+        public int Pages { get; }
     }
 }

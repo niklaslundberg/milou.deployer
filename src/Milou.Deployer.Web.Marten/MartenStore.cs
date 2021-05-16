@@ -325,14 +325,26 @@ namespace Milou.Deployer.Web.Marten
         {
             IReadOnlyList<TaskMetadata> taskMetadata;
 
+            int totalCount;
+            int page = request.Page <= 0 ? 1 : request.Page;
+            int pageSize = request.PageSize <= 0 ? 1 : request.PageSize;
+
             using (IDocumentSession session = _documentStore.LightweightSession())
             {
-                taskMetadata = await session.Query<TaskMetadata>()
-                                            .Where(item => item.DeploymentTargetId.Equals(request.DeploymentTargetId,
-                                                 StringComparison.OrdinalIgnoreCase))
-                                            .OrderByDescending(item => item.FinishedAtUtc)
-                                            .ToListAsync(cancellationToken);
+                var filtered = session.Query<TaskMetadata>()
+                                               .Where(item => item.DeploymentTargetId.Equals(request.DeploymentTargetId,
+                                                    StringComparison.OrdinalIgnoreCase))
+                                               .OrderByDescending(item => item.FinishedAtUtc);
+
+                totalCount = await filtered.CountAsync(cancellationToken);
+
+                taskMetadata = await filtered
+                                    .Skip((page -1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToListAsync(cancellationToken);
             }
+
+            int pages = (int)Math.Ceiling((double)totalCount / pageSize);
 
             return new DeploymentHistoryResponse(taskMetadata.Select(item =>
                 new DeploymentTaskInfo(item.DeploymentTaskId,
@@ -342,7 +354,7 @@ namespace Milou.Deployer.Web.Marten
                     item.ExitCode,
                     WorkTaskStatus.ParseOrDefault(item.Status),
                     item.PackageId,
-                    item.Version)).ToImmutableArray());
+                    item.Version)).ToImmutableArray(), totalCount, pages);
         }
 
         public async Task<DeploymentLogResponse> Handle(DeploymentLogRequest request,
