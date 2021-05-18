@@ -15,7 +15,7 @@ namespace Milou.Deployer.Tools.Configurator
 
             builder.Services.AddHttpClient();
 
-            builder.Services.AddTransient(sp =>
+            builder.Services.AddTransient(_ =>
                 new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
 
             await builder.Build().RunAsync();

@@ -13,7 +13,7 @@ namespace Milou.Deployer.IIS
     public sealed class IisManager : IIisManager
     {
         private readonly DeployerConfiguration _configuration;
-        private readonly DeploymentExecutionDefinition _deploymentExecutionDefinition;
+        private readonly DeploymentExecutionDefinitionV1 _deploymentExecutionDefinitionV1;
         private readonly ILogger _logger;
         private ObjectState _previousSiteState;
         private ServerManager _serverManager;
@@ -22,12 +22,12 @@ namespace Milou.Deployer.IIS
         private IisManager(ServerManager serverManager,
             DeployerConfiguration configuration,
             ILogger logger,
-            DeploymentExecutionDefinition deploymentExecutionDefinition)
+            DeploymentExecutionDefinitionV1 deploymentExecutionDefinition)
         {
             _serverManager = serverManager;
             _configuration = configuration;
             _logger = logger;
-            _deploymentExecutionDefinition = deploymentExecutionDefinition;
+            _deploymentExecutionDefinitionV1 = deploymentExecutionDefinition;
         }
 
         public void Dispose()
@@ -44,15 +44,15 @@ namespace Milou.Deployer.IIS
                 _logger.Debug(
                     "Restored iis site state to {State} for site {SiteName} defined in deployment execution definition {DeploymentExecutionDefinition}",
                     _site.State,
-                    _deploymentExecutionDefinition.IisSiteName,
-                    _deploymentExecutionDefinition);
+                    _deploymentExecutionDefinitionV1.IisSiteName,
+                    _deploymentExecutionDefinitionV1);
             }
             else
             {
                 _logger.Debug(
                     "Failed to restore iis site state for site {SiteName} defined in deployment execution definition {DeploymentExecutionDefinition}",
-                    _deploymentExecutionDefinition.IisSiteName,
-                    _deploymentExecutionDefinition);
+                    _deploymentExecutionDefinitionV1.IisSiteName,
+                    _deploymentExecutionDefinitionV1);
             }
         }
 
@@ -72,20 +72,20 @@ namespace Milou.Deployer.IIS
             {
                 _logger.Error(
                     "There is no ServerManager instance when trying to stop IIS site defined in {DeploymentExecutionDefinition}",
-                    _deploymentExecutionDefinition);
+                    _deploymentExecutionDefinitionV1);
 
                 return false;
             }
 
             try
             {
-                if (string.IsNullOrWhiteSpace(_deploymentExecutionDefinition.IisSiteName))
+                if (string.IsNullOrWhiteSpace(_deploymentExecutionDefinitionV1.IisSiteName))
                 {
                     if (_logger.IsEnabled(LogEventLevel.Debug))
                     {
                         _logger.Debug(
                             "The deployment execution definition {DeploymentExecutionDefinition} has no site named defined",
-                            _deploymentExecutionDefinition);
+                            _deploymentExecutionDefinitionV1);
                     }
 
                     return false;
@@ -99,14 +99,14 @@ namespace Milou.Deployer.IIS
                     return false;
                 }
 
-                _site = _serverManager.Sites[_deploymentExecutionDefinition.IisSiteName];
+                _site = _serverManager.Sites[_deploymentExecutionDefinitionV1.IisSiteName];
 
                 if (_site is null)
                 {
                     _logger.Error(
                         "Could not find IIS site {SiteName} defined in deployment execution definition {DeploymentExecutionDefinition}",
-                        _deploymentExecutionDefinition.IisSiteName,
-                        _deploymentExecutionDefinition);
+                        _deploymentExecutionDefinitionV1.IisSiteName,
+                        _deploymentExecutionDefinitionV1);
 
                     return false;
                 }
@@ -145,7 +145,7 @@ namespace Milou.Deployer.IIS
 
         public static IisManager Create([NotNull] DeployerConfiguration configuration,
             [NotNull] ILogger logger,
-            [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition)
+            [NotNull] DeploymentExecutionDefinitionV1 deploymentExecutionDefinition)
         {
             if (configuration is null)
             {

@@ -117,7 +117,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     continue;
                 }
 
-                AppVersion[] appVersions = await GetAppVersions(stoppingToken, targetsWithUrl);
+                AppVersion[] appVersions = await GetAppVersions(targetsWithUrl, stoppingToken);
 
                 foreach (DeploymentTarget deploymentTarget in targetsWithUrl)
                 {
@@ -159,7 +159,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     }
 
                     ImmutableHashSet<PackageVersion> packageVersions =
-                        await GetPackageVersions(stoppingToken, deploymentTarget);
+                        await GetPackageVersions(deploymentTarget, stoppingToken);
 
                     if (packageVersions.IsEmpty)
                     {
@@ -215,8 +215,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             }
         }
 
-        private async Task<AppVersion[]> GetAppVersions(CancellationToken stoppingToken,
-            ImmutableArray<DeploymentTarget> targetsWithUrl)
+        private async Task<AppVersion[]> GetAppVersions(ImmutableArray<DeploymentTarget> targetsWithUrl,
+            CancellationToken stoppingToken)
         {
             try
             {
@@ -273,8 +273,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             }
         }
 
-        private async Task<ImmutableHashSet<PackageVersion>> GetPackageVersions(CancellationToken stoppingToken,
-            DeploymentTarget deploymentTarget)
+        private async Task<ImmutableHashSet<PackageVersion>> GetPackageVersions(DeploymentTarget deploymentTarget,
+            CancellationToken stoppingToken)
         {
             try
             {

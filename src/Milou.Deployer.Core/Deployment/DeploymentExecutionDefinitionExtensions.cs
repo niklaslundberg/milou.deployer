@@ -7,7 +7,7 @@ namespace Milou.Deployer.Core.Deployment
     public static class DeploymentExecutionDefinitionExtensions
     {
         public static bool AppDataSkipDirectiveEnabled(
-            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            [NotNull] this DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             bool defaultValue = false)
         {
             if (deploymentExecutionDefinition is null)
@@ -21,7 +21,7 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         public static bool ApplicationInsightsProfiler2SkipDirectiveEnabled(
-            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            [NotNull] this DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             bool defaultValue = true)
         {
             if (deploymentExecutionDefinition is null)
@@ -34,7 +34,7 @@ namespace Milou.Deployer.Core.Deployment
                 WebDeployRules.ApplicationInsightsProfiler2SkipDirectiveEnabled);
         }
 
-        public static bool AppOfflineEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+        public static bool AppOfflineEnabled([NotNull] this DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             bool defaultValue = true)
         {
             if (deploymentExecutionDefinition is null)
@@ -46,7 +46,7 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         public static bool DoNotDeleteEnabled(
-            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            [NotNull] this DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             bool defaultValue = true)
         {
             if (deploymentExecutionDefinition is null)
@@ -58,7 +58,7 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         public static bool UseChecksumEnabled(
-            [NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+            [NotNull] this DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             bool defaultValue = false)
         {
             if (deploymentExecutionDefinition is null)
@@ -69,7 +69,7 @@ namespace Milou.Deployer.Core.Deployment
             return GetBoolValue(deploymentExecutionDefinition, defaultValue, WebDeployRules.UseChecksumEnabled);
         }
 
-        public static bool WhatIfEnabled([NotNull] this DeploymentExecutionDefinition deploymentExecutionDefinition,
+        public static bool WhatIfEnabled([NotNull] this DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             bool defaultValue = false)
         {
             if (deploymentExecutionDefinition is null)
@@ -80,7 +80,7 @@ namespace Milou.Deployer.Core.Deployment
             return GetBoolValue(deploymentExecutionDefinition, defaultValue, WebDeployRules.WhatIfEnabled);
         }
 
-        private static bool GetBoolValue(DeploymentExecutionDefinition deploymentExecutionDefinition,
+        private static bool GetBoolValue(DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             bool defaultValue,
             string configurationKey)
         {

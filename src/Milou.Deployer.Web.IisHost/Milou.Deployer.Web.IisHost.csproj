@@ -20,6 +20,7 @@
     <PackageReference Include="Arbor.App.Extensions" Version="*-*" />
     <PackageReference Include="Arbor.AspNetCore.Host" Version="*-*" />
     <PackageReference Include="Arbor.Docker" Version="0.6.0" Condition="'$(Configuration)' == 'Debug'" />
+    <PackageReference Include="Flurl" Version="3.0.2" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Arbor.Processing" Version="0.6.0" />
     <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="*" />

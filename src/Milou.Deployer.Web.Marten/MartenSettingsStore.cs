@@ -36,9 +36,7 @@ namespace Milou.Deployer.Web.Marten
             var applicationSettingsData =
                 await querySession.LoadAsync<ApplicationSettingsData>(AppSettings, cancellationToken);
 
-            applicationSettings = Map(applicationSettingsData ?? new ApplicationSettingsData());
-
-            return applicationSettings;
+            return Map(applicationSettingsData ?? new ApplicationSettingsData());
         }
 
         public async Task Save(ApplicationSettings applicationSettings)

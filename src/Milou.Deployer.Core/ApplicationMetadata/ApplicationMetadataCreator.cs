@@ -19,7 +19,7 @@ namespace Milou.Deployer.Core.ApplicationMetadata
     {
         public static string SetVersionFile([NotNull] InstalledPackage installedPackage,
             [NotNull] DirectoryInfo targetDirectoryInfo,
-            [NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition,
+            [NotNull] DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             [NotNull] IEnumerable<string> xmlTransformedFiles,
             [NotNull] IEnumerable<string> replacedFiles,
             [NotNull] EnvironmentPackageResult environmentPackageResult,

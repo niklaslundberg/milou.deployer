@@ -21,53 +21,53 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public void BulkInsert<T>(IReadOnlyCollection<T> documents,
             BulkInsertMode mode = BulkInsertMode.InsertsOnly,
-            int batchSize = 1000) => throw new NotImplementedException();
+            int batchSize = 1000) => throw new NotSupportedException();
 
         public void BulkInsert<T>(string tenantId,
             IReadOnlyCollection<T> documents,
             BulkInsertMode mode = BulkInsertMode.InsertsOnly,
-            int batchSize = 1000) => throw new NotImplementedException();
+            int batchSize = 1000) => throw new NotSupportedException();
 
         public IDocumentSession OpenSession(DocumentTracking tracking = DocumentTracking.IdentityOnly,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) => new TestDocumentSession();
 
         public IDocumentSession OpenSession(string tenantId,
             DocumentTracking tracking = DocumentTracking.IdentityOnly,
-            IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) => throw new NotImplementedException();
+            IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) => throw new NotSupportedException();
 
         public IDocumentSession OpenSession(SessionOptions options) => new TestDocumentSession();
 
         public IDocumentSession LightweightSession(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) =>
-            throw new NotImplementedException();
+            throw new NotSupportedException();
 
         public IDocumentSession LightweightSession(string tenantId,
-            IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) => throw new NotImplementedException();
+            IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) => throw new NotSupportedException();
 
         public IDocumentSession DirtyTrackedSession(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) =>
-            throw new NotImplementedException();
+            throw new NotSupportedException();
 
         public IDocumentSession DirtyTrackedSession(string tenantId,
-            IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) => throw new NotImplementedException();
+            IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) => throw new NotSupportedException();
 
-        public IQuerySession QuerySession() => throw new NotImplementedException();
+        public IQuerySession QuerySession() => throw new NotSupportedException();
 
-        public IQuerySession QuerySession(string tenantId) => throw new NotImplementedException();
+        public IQuerySession QuerySession(string tenantId) => throw new NotSupportedException();
 
-        public IQuerySession QuerySession(SessionOptions options) => throw new NotImplementedException();
+        public IQuerySession QuerySession(SessionOptions options) => throw new NotSupportedException();
 
         public void BulkInsertDocuments(IEnumerable<object> documents,
             BulkInsertMode mode = BulkInsertMode.InsertsOnly,
-            int batchSize = 1000) => throw new NotImplementedException();
+            int batchSize = 1000) => throw new NotSupportedException();
 
         public void BulkInsertDocuments(string tenantId,
             IEnumerable<object> documents,
             BulkInsertMode mode = BulkInsertMode.InsertsOnly,
-            int batchSize = 1000) => throw new NotImplementedException();
+            int batchSize = 1000) => throw new NotSupportedException();
 
         public IDaemon BuildProjectionDaemon(Type[]? viewTypes = null,
             IDaemonLogger? logger = null,
             DaemonSettings? settings = null,
-            IProjection[]? projections = null) => throw new NotImplementedException();
+            IProjection[]? projections = null) => throw new NotSupportedException();
 
         public IDocumentSchema Schema { get; } = default!;
 

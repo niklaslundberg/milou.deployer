@@ -49,7 +49,7 @@ namespace Milou.Deployer.Tests.Integration
 }}
 ";
 
-            File.WriteAllText(tempFile.File.FullName, json, Encoding.UTF8);
+            File.WriteAllText(tempFile.File!.FullName, json, Encoding.UTF8);
 
             _output.WriteLine(json);
 
@@ -86,14 +86,14 @@ namespace Milou.Deployer.Tests.Integration
                     using var testTargetDirectory = TempDirectory.CreateTempDirectory();
                     using TempFile tempFile = CreateTestManifestFile(testTargetDirectory.Directory, nugetConfig);
 
-                    string json = await File.ReadAllTextAsync(tempFile.File.FullName,
+                    string json = await File.ReadAllTextAsync(tempFile.File!.FullName,
                         Encoding.UTF8,
                         cancellationTokenSource.Token);
 
                     _output.WriteLine(json);
 
                     var deploymentExecutionDefinition = JsonConvert.DeserializeAnonymousType(json,
-                        new {definitions = Array.Empty<DeploymentExecutionDefinition>()});
+                        new {definitions = Array.Empty<DeploymentExecutionDefinitionV1>()});
 
                     Assert.NotNull(deploymentExecutionDefinition);
                     Assert.NotNull(deploymentExecutionDefinition!.definitions);

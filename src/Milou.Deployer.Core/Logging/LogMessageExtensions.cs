@@ -69,7 +69,7 @@ namespace Milou.Deployer.Core.Logging
             }
         }
 
-        internal static (string?, LogEventLevel) Parse(string? message)
+        internal static (string?, LogEventLevel) Parse(this string? message)
         {
             if (string.IsNullOrWhiteSpace(message))
             {

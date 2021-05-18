@@ -1,25 +1,13 @@
-﻿@using Microsoft.AspNetCore.Http.Extensions
-@model Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentLogViewOutputModel
+﻿@model Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentLogViewOutputModel
 
 <div id="logElements"></div>
-@{
-    string? url = Context.Request.GetEncodedUrl();
-
-    _ = Uri.TryCreate(url, UriKind.Absolute, out Uri? uri);
-
-    UriBuilder? builder = new(uri);
-
-    builder.Path += ".json";
-
-    string? fetchUrl = builder.Uri.PathAndQuery;
-}
 
 @section scripts {
 
     <script type="text/javascript">
 
         function getLogLines() {
-            return fetch('@(fetchUrl)')
+            return fetch('@(Model.JsonUrl)')
                 .then(function(response) {
                     return response.json();
                 })

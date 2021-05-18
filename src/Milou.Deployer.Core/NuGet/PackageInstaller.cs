@@ -36,7 +36,7 @@ namespace Milou.Deployer.Core.NuGet
 
         [ItemCanBeNull]
         public async Task<InstalledPackage?> InstallPackageAsync(
-            DeploymentExecutionDefinition deploymentExecutionDefinition,
+            DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             DirectoryInfo tempDirectory,
             bool includeVersion = true,
             SemanticVersion? explicitVersion = null,

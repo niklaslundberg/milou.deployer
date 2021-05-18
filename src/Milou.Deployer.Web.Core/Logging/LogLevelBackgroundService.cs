@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.Core.Logging
             {
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
 
-                var defaultLevel = LogEventLevel.Information;
+                const LogEventLevel defaultLevel = LogEventLevel.Information;
 
                 if (_logLevelState.ValidToUtc is null)
                 {

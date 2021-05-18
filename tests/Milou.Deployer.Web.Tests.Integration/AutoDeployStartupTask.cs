@@ -128,10 +128,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 _webHost = WebHost.CreateDefaultBuilder()
                                   .ConfigureServices(services => services.AddSingleton(_testConfiguration)).UseKestrel(
-                                       options =>
-                                       {
-                                           options.Listen(IPAddress.Loopback, testSitePort);
-                                       }).UseContentRoot(_testConfiguration.SiteAppRoot.FullName)
+                                       options => options.Listen(IPAddress.Loopback, testSitePort)).UseContentRoot(_testConfiguration.SiteAppRoot.FullName)
                                   .UseStartup<TestStartup>().Build();
 
                 await _webHost.StartAsync(startupCancellationToken);

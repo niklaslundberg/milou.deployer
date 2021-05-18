@@ -28,25 +28,20 @@ namespace Milou.Deployer.Waws
             bool appOfflineEnabled = false,
             bool appDataSkipDirectiveEnabled = false,
             bool applicationInsightsProfiler2SkipDirectiveEnabled = true,
-            Action<string>? logAction = null)
-        {
-            DeploySummary deploymentChangeSummary = await DeployContentToOneSiteAsync2(sourcePath,
-                publishSettingsFile,
-                appOfflineDelay,
-                password,
-                allowUntrusted,
-                doNotDelete,
-                traceLevel,
-                whatIf,
-                targetPath,
-                useChecksum,
-                appOfflineEnabled,
-                appDataSkipDirectiveEnabled,
-                applicationInsightsProfiler2SkipDirectiveEnabled,
-                logAction).ConfigureAwait(false);
-
-            return deploymentChangeSummary;
-        }
+            Action<string>? logAction = null) => await DeploySite(sourcePath,
+            publishSettingsFile,
+            appOfflineDelay,
+            password,
+            allowUntrusted,
+            doNotDelete,
+            traceLevel,
+            whatIf,
+            targetPath,
+            useChecksum,
+            appOfflineEnabled,
+            appDataSkipDirectiveEnabled,
+            applicationInsightsProfiler2SkipDirectiveEnabled,
+            logAction).ConfigureAwait(false);
 
         public event EventHandler<CustomEventArgs>? DeploymentTraceEventHandler;
 
@@ -63,7 +58,7 @@ namespace Milou.Deployer.Waws
             return added;
         }
 
-        private async Task<DeploySummary> DeployContentToOneSiteAsync2(string sourcePath,
+        private async Task<DeploySummary> DeploySite(string sourcePath,
             string? publishSettingsFile,
             TimeSpan appOfflineDelay,
             string? password = null,

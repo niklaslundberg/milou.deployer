@@ -76,21 +76,25 @@ namespace Milou.Deployer.Web.Marten
 
             try
             {
-                IReadOnlyList<DeploymentTargetData> targets = await session.Query<DeploymentTargetData>()
-                                                                           .Where(target => target.Enabled)
-                                                                           .ToListAsync(cancellationToken);
+                var batchedQuery = session.CreateBatchQuery();
 
-                IReadOnlyList<ProjectData> projects =
-                    await session.Query<ProjectData>().ToListAsync<ProjectData>(cancellationToken);
+                var targetsTask = batchedQuery.Query<DeploymentTargetData>().Where(target => target.Enabled).ToList();
 
-                IReadOnlyList<OrganizationData> organizations =
-                    await session.Query<OrganizationData>().ToListAsync<OrganizationData>(cancellationToken);
+                var projectsTask = batchedQuery.Query<ProjectData>();
+
+                var organizationTask = batchedQuery.Query<OrganizationData>();
+
+                await batchedQuery.Execute(cancellationToken);
+
+                IReadOnlyList<OrganizationData> organizationsTask = await organizationTask.ToList();
+
+                IReadOnlyList<ProjectData> projects = await projectsTask.ToList();
+
+                IReadOnlyList<DeploymentTargetData> targets = await targetsTask;
 
                 var environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken);
 
-                var organizationsInfo = MapDataToOrganizations(organizations, projects, targets, environmentTypes);
-
-                return organizationsInfo;
+                return MapDataToOrganizations(organizationsTask, projects, targets, environmentTypes);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {

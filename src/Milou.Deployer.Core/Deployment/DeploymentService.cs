@@ -35,7 +35,7 @@ namespace Milou.Deployer.Core.Deployment
 
         private readonly FileMatcher _fileMatcher;
         private readonly IFtpHandlerFactory _ftpHandlerFactory;
-        private readonly Func<DeploymentExecutionDefinition, IIisManager> _iisManager;
+        private readonly Func<DeploymentExecutionDefinitionV1, IIisManager> _iisManager;
 
         private readonly ILogger _logger;
         private readonly NuGetPackageInstaller _nugetPackageInstaller;
@@ -49,7 +49,7 @@ namespace Milou.Deployer.Core.Deployment
             ILogger logger,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             IWebDeployHelper webDeployHelper,
-            Func<DeploymentExecutionDefinition, IIisManager> iisManager,
+            Func<DeploymentExecutionDefinitionV1, IIisManager> iisManager,
             NuGetPackageInstaller nugetPackageInstaller,
             IFtpHandlerFactory ftpHandlerFactor)
         {
@@ -83,7 +83,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public DeployerConfiguration DeployerConfiguration { get; }
 
-        public Task<ExitCode> DeployAsync(ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
+        public Task<ExitCode> DeployAsync(ImmutableArray<DeploymentExecutionDefinitionV1> deploymentExecutionDefinitions,
             SemanticVersion? explicitVersion,
             CancellationToken cancellationToken = default)
         {
@@ -110,7 +110,7 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         private async Task<EnvironmentPackageResult> AddEnvironmentPackageAsync(
-            DeploymentExecutionDefinition deploymentExecutionDefinition,
+            DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             DirectoryInfo tempDirectoryInfo,
             List<FileMatch> possibleXmlTransformations,
             List<FileMatch> replaceFiles,
@@ -157,7 +157,7 @@ namespace Milou.Deployer.Core.Deployment
 
                 var tempInstallDirectory = new DirectoryInfo(Path.Combine(tempDirectoryInfo.FullName, "t" + tempName));
 
-                var deploymentDefinition = new DeploymentExecutionDefinition(expectedPackageId,
+                var deploymentDefinition = new DeploymentExecutionDefinitionV1(expectedPackageId,
                     tempInstallDirectory.FullName,
                     expectedVersion,
                     nugetExePath: deploymentExecutionDefinition.NuGetExePath,
@@ -267,7 +267,7 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         private static ImmutableArray<EnvironmentFile> GetEnvironmentFiles(DirectoryInfo configContentDirectory,
-            DeploymentExecutionDefinition deploymentExecutionDefinition)
+            DeploymentExecutionDefinitionV1 deploymentExecutionDefinition)
         {
             int patternLength = DeploymentConstants.EnvironmentPackagePattern.Split('.').Length;
 
@@ -285,7 +285,7 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         private static SemanticVersion GetSemanticVersionFromDefinition(
-            DeploymentExecutionDefinition deploymentExecutionDefinition,
+            DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             DirectoryInfo packageDirectory,
             SemanticVersion fallback)
         {
@@ -302,7 +302,7 @@ namespace Milou.Deployer.Core.Deployment
         }
 
         private async Task<ExitCode> InternalDeployAsync(
-            ImmutableArray<DeploymentExecutionDefinition> deploymentExecutionDefinitions,
+            ImmutableArray<DeploymentExecutionDefinitionV1> deploymentExecutionDefinitions,
             SemanticVersion? explicitVersion,
             CancellationToken cancellationToken = default)
         {
@@ -315,7 +315,7 @@ namespace Milou.Deployer.Core.Deployment
                     deploymentExecutionDefinitions.Length,
                     string.Join($"{Environment.NewLine}\t", deploymentExecutionDefinitions.Select(_ => $"'{_}'")));
 
-                foreach (DeploymentExecutionDefinition deploymentExecutionDefinition in deploymentExecutionDefinitions)
+                foreach (DeploymentExecutionDefinitionV1 deploymentExecutionDefinition in deploymentExecutionDefinitions)
                 {
                     if (string.IsNullOrWhiteSpace(deploymentExecutionDefinition.TargetDirectoryPath) &&
                         string.IsNullOrWhiteSpace(deploymentExecutionDefinition.PublishSettingsFile))

@@ -10,12 +10,14 @@ using NuGet.Versioning;
 
 namespace Milou.Deployer.Core.Deployment
 {
-    public record DeploymentExecutionDefinition
+    public record DeploymentExecutionDefinitionV1
     {
         [JsonConstructor]
         [UsedImplicitly]
         [PublicAPI]
-        private DeploymentExecutionDefinition(string packageId,
+#pragma warning disable IDE0051 // Remove unused private members
+        private DeploymentExecutionDefinitionV1(string packageId,
+#pragma warning restore IDE0051 // Remove unused private members
             string semanticVersion,
             string targetDirectoryPath,
             string? nuGetConfigFile = null,
@@ -91,7 +93,7 @@ namespace Milou.Deployer.Core.Deployment
                 : PublishType.Default;
         }
 
-        public DeploymentExecutionDefinition(string packageId,
+        public DeploymentExecutionDefinitionV1(string packageId,
             string targetDirectoryPath,
             [CanBeNull] SemanticVersion semanticVersion,
             string? nuGetConfigFile = null,

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Immutable;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using NuGet.Versioning;
 
 namespace Milou.Deployer.Core.Deployment
 {
     public static class DeploymentExecutionDefinitionParser
     {
-        public static ImmutableArray<DeploymentExecutionDefinition> Deserialize([NotNull] string data)
+        public static ImmutableArray<DeploymentExecutionDefinitionV1> Deserialize([NotNull] string data)
         {
             if (string.IsNullOrWhiteSpace(data))
             {
@@ -16,11 +18,22 @@ namespace Milou.Deployer.Core.Deployment
 
             try
             {
-                var deploymentExecutionDefinitions = JsonConvert.DeserializeAnonymousType(
-                    data,
-                    new {definitions = Array.Empty<DeploymentExecutionDefinition>()})?.definitions.ToImmutableArray();
+                var deploymentExecutionDefinitions =
+                    JsonConvert.DeserializeObject<DeploymentExecutionDefinitions>(data);
 
-                return deploymentExecutionDefinitions ?? ImmutableArray<DeploymentExecutionDefinition>.Empty;
+                if (!string.IsNullOrWhiteSpace(deploymentExecutionDefinitions?.Version) && (!SemanticVersion.TryParse(deploymentExecutionDefinitions?.Version, out var semanticVersion) ||
+                    semanticVersion.Major != 1))
+                {
+                    throw new InvalidOperationException(
+                        "Only version 1 of deployment execution definitions are supported");
+                }
+
+                if (deploymentExecutionDefinitions?.Definitions is null)
+                {
+                    return ImmutableArray<DeploymentExecutionDefinitionV1>.Empty;
+                }
+
+                return deploymentExecutionDefinitions.Definitions.SafeToImmutableArray();
             }
             catch (Exception ex)
             {
@@ -29,5 +42,12 @@ namespace Milou.Deployer.Core.Deployment
                     ex);
             }
         }
+    }
+
+    internal class DeploymentExecutionDefinitions
+    {
+        public DeploymentExecutionDefinitionV1[] Definitions { get; set; }
+
+        public string? Version { get; set; }
     }
 }

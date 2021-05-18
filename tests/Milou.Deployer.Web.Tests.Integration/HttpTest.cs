@@ -27,10 +27,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 services.AddRouting();
                 services.AddControllers();
 
-                services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = "Basic";
-                });
+                services.AddAuthentication(options => options.DefaultAuthenticateScheme = "Basic");
 
                 services.AddAuthentication(BasicDefaults.AuthenticationScheme)
                         .AddBasic<TestBasicUserValidationService>(options => options.Realm = "Test");

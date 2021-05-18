@@ -30,11 +30,11 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
             }
 
             var definitions = JsonConvert.DeserializeAnonymousType(deploymentTaskPackage.ManifestJson,
-                new {definitions = Array.Empty<DeploymentExecutionDefinition>()});
+                new {definitions = Array.Empty<DeploymentExecutionDefinitionV1>()});
 
             if (definitions?.definitions.Length != 1)
             {
-                throw new InvalidOperationException($"Expected exactly 1 {nameof(DeploymentExecutionDefinition)}");
+                throw new InvalidOperationException($"Expected exactly 1 {nameof(DeploymentExecutionDefinitionV1)}");
             }
 
             var deploymentExecutionDefinition = definitions.definitions[0];

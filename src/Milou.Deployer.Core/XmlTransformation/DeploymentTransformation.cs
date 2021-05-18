@@ -10,7 +10,7 @@ namespace Milou.Deployer.Core.XmlTransformation
 {
     public static class DeploymentTransformation
     {
-        public static void Transform([NotNull] DeploymentExecutionDefinition deploymentExecutionDefinition,
+        public static void Transform([NotNull] DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             [NotNull] DirectoryInfo contentDirectory,
             [NotNull] ILogger logger)
         {

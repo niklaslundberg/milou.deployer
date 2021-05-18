@@ -2,7 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Logging;
+using Flurl;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -26,12 +29,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             return View(new DeploymentHistoryViewOutputModel(response.DeploymentTasks,
                 response.TotalCount,
-                response.Pages, page, pageSize));
+                response.Pages,
+                page,
+                pageSize));
         }
 
         [Route(DeploymentConstants.HistoryLogRoute, Name = DeploymentConstants.HistoryLogRouteName)]
         [HttpGet]
-        public IActionResult Log() => View(new DeploymentLogViewOutputModel(ImmutableArray<LogItem>.Empty));
+        public IActionResult Log() =>
+            View(new DeploymentLogViewOutputModel(ImmutableArray<LogItem>.Empty, GetJsonUrl(Request)));
 
         [Route(DeploymentConstants.HistoryLogRoute + ".json", Name = DeploymentConstants.HistoryLogRouteName + "Json")]
         [HttpGet]
@@ -44,6 +50,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             DeploymentLogResponse response = await mediator.Send(new DeploymentLogRequest(deploymentTaskId, usedLevel));
 
             return response.LogItems.OrderBy(line => line.TimeStamp).Select(line => line.Message).ToArray();
+        }
+
+        private static string GetJsonUrl(HttpRequest request)
+        {
+            var url = new Url(request.GetEncodedUrl());
+            url.Path += ".json";
+            return url;
         }
     }
 }

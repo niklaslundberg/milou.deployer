@@ -5,8 +5,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 {
     public class DeploymentLogViewOutputModel
     {
-        public DeploymentLogViewOutputModel(IReadOnlyCollection<LogItem> logItems) => LogItems = logItems;
+        public DeploymentLogViewOutputModel(IReadOnlyCollection<LogItem> logItems, string jsonUrl)
+        {
+            LogItems = logItems;
+            JsonUrl = jsonUrl;
+        }
 
         public IReadOnlyCollection<LogItem> LogItems { get; }
+
+        public string JsonUrl { get; }
     }
 }
