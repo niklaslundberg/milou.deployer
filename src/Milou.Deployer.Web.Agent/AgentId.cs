@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Arbor.Hypermedia;
 using Arbor.ModelBinding.Primitives;
 
 namespace Milou.Deployer.Web.Agent
 {
     [StringValueType(StringComparison.OrdinalIgnoreCase)]
-    public partial class AgentId
+    public partial class AgentId : IEntity
     {
         public static AgentId Parse([JetBrains.Annotations.NotNull] string? value)
         {
@@ -37,5 +38,13 @@ namespace Milou.Deployer.Web.Agent
 
             return true;
         }
+
+        private AgentId() : base ("N/A")
+        {
+        }
+
+        public EntityContext Context => new(Value, nameof(Agent));
+
+        public static AgentId Empty { get; } = new();
     }
 }

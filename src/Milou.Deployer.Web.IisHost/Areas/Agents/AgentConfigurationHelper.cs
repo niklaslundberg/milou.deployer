@@ -41,11 +41,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
 
             var symmetricSecurityKey = new SymmetricSecurityKey(bytes);
 
+            string lowerInvariant = request.AgentId.Value.ToLowerInvariant();
+
             var claims = new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, request.AgentId.Value),
-                new(ClaimTypes.Name, request.AgentId.Value),
-                new("milou_agent", request.AgentId.Value)
+                new(ClaimTypes.NameIdentifier, lowerInvariant),
+                new(ClaimTypes.Name, lowerInvariant),
+                new("milou_agent", lowerInvariant)
             };
 
             var securityTokenDescriptor = new SecurityTokenDescriptor

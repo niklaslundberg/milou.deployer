@@ -60,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents.Pools
 
                 foreach (var assignedAgentsAssignedAgent in assignedAgents.AssignedAgents)
                 {
-                    if (assignedAgentsAssignedAgent.Value.Contains(agent.Id))
+                    if (assignedAgentsAssignedAgent.Value.Contains(agent.AgentId))
                     {
                         assigned = true;
 
@@ -70,7 +70,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents.Pools
 
                 if (!assigned)
                 {
-                    await _mediator.Send(new AssignAgentToPool(agentPoolId, agent.Id), cancellationToken);
+                    await _mediator.Send(new AssignAgentToPool(agentPoolId, agent.AgentId), cancellationToken);
                 }
             }
         }

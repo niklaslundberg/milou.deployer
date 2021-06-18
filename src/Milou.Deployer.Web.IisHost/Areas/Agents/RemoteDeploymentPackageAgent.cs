@@ -33,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
-            var agent = _agentsData.Agents.SingleOrDefault(current => current.Id.Equals(AgentId));
+            var agent = _agentsData.Agents.SingleOrDefault(current => current.AgentId.Equals(AgentId));
 
             if (agent is null)
             {

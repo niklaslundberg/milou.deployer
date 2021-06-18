@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Serilog.Core;
 using Serilog.Events;

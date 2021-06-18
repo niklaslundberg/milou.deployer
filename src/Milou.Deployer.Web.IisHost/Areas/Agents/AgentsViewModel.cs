@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
             ConnectedAgents = connectedAgents;
 
             DisconnectedAgents = agents
-                                .Where(agent => !connectedAgents.Any(connectedAgent => connectedAgent.Id == agent.Id))
+                                .Where(agent => !connectedAgents.Any(connectedAgent => connectedAgent.AgentId == agent.AgentId))
                                 .ToImmutableArray();
 
             Agents = agents;

@@ -42,7 +42,8 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<CreateEnvironment, CreateEnvironmentResult>, IRequestHandler<CreateDeploymentTaskPackage, Unit>,
         IRequestHandler<GetAgentPoolsQuery, AgentPoolListResult>,
         IRequestHandler<CreateAgentPool, CreateAgentPoolResult>,
-        IRequestHandler<AssignTargetToPool, AssignTargetToPoolResult>, IRequestHandler<GetAgentRequest, AgentInfo?>,
+        IRequestHandler<AssignTargetToPool, AssignTargetToPoolResult>,
+        IRequestHandler<GetAgentRequest, AgentQueryResult>,
         IRequestHandler<AssignAgentToPool, AssignAgentToPoolResult>,
         IRequestHandler<GetAgentsInPoolQuery, AgentsInPoolResult>, IRequestHandler<GetAgentsQuery, AgentsQueryResult>,
         IRequestHandler<ResetAgentToken, ResetAgentTokenResult>
@@ -440,7 +441,7 @@ namespace Milou.Deployer.Web.Marten
             return new AgentPoolListResult(items.Select(MapAgentPool).ToImmutableArray());
         }
 
-        public async Task<AgentInfo?> Handle(GetAgentRequest request, CancellationToken cancellationToken)
+        public async Task<AgentQueryResult?> Handle(GetAgentRequest request, CancellationToken cancellationToken)
         {
             using var documentSession = _documentStore.QuerySession();
 
@@ -451,7 +452,7 @@ namespace Milou.Deployer.Web.Marten
                 return null;
             }
 
-            return MapAgentData(agentData);
+            return new AgentQueryResult((await _mediator.Send(new GetAgentRequest(request.AgentId), cancellationToken)).Result);
         }
 
         public async Task<AgentsInPoolResult> Handle(GetAgentsInPoolQuery request, CancellationToken cancellationToken)

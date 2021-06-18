@@ -20,7 +20,7 @@
     <h2>Connected</h2>
     @foreach (var agent in Model.ConnectedAgents)
     {
-        <h3>@agent.Id</h3>
+        <h3>@agent.AgentId</h3>
         <p>Connected at: @agent.ConnectedAt.ToLocalDateTimeFormat(_clock)</p>
         @if (agent.CurrentDeploymentTaskId is { })
         {
@@ -37,12 +37,12 @@
 
                 @foreach (var pool in Model.AgentPools)
                 {
-                    <option value="@pool.AgentPoolId" @((Model.CurrentPool(agent.Id) == pool.AgentPoolId).Selected())>@pool.Name</option>
+                    <option value="@pool.AgentPoolId" @((Model.CurrentPool(agent.AgentId) == pool.AgentPoolId).Selected())>@pool.Name</option>
                 }
 
             </select>
 
-            <input type="hidden" value="@agent.Id.Value" name="agentId"/>
+            <input type="hidden" value="@agent.AgentId.Value" name="agentId"/>
 
             <button type="submit">Assign agent to pool</button>
 
@@ -51,7 +51,7 @@
         <form method="post" action="@Url.RouteUrl(AgentsController.ClearAgentWorkTasksRouteName)">
             @Html.AntiForgeryToken()
 
-            <input type="hidden" value="@agent.Id.Value" name="agentId"/>
+            <input type="hidden" value="@agent.AgentId.Value" name="agentId"/>
 
             <button type="submit">Clear work tasks for agent</button>
 
@@ -75,7 +75,7 @@ else if (Model.DisconnectedAgents.Any())
     <h2>Disconnected</h2>
     @foreach (var agent in Model.DisconnectedAgents)
     {
-        <h3>@agent.Id</h3>
+        <h3>@agent.AgentId</h3>
     }
 }
 

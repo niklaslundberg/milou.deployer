@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core.Agents.Commands;
+using Milou.Deployer.Web.Core.Agents.Queries;
 using Milou.Deployer.Web.Marten.Agents;
 
 namespace Milou.Deployer.Web.Marten

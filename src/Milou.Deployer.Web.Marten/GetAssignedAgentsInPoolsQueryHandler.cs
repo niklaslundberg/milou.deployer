@@ -9,6 +9,7 @@ using Marten;
 using MediatR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents.Pools;
+using Milou.Deployer.Web.Core.Agents.Queries;
 using Milou.Deployer.Web.Marten.Agents;
 
 namespace Milou.Deployer.Web.Marten

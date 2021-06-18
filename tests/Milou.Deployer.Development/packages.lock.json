@@ -51,8 +51,8 @@
       },
       "Arbor.App.Extensions": {
         "type": "Transitive",
-        "resolved": "0.9.0-build.1620909921",
-        "contentHash": "nHVHjgwa+76EBaDnU71plYzaTjrOr8EdBTbC2HsgaiZFTV9Gb5wDSLCqh+FuuaP0BRgntVXnwnkDjOZm1MwcUQ==",
+        "resolved": "0.9.0-build.1623440620",
+        "contentHash": "ZaETu9XM6khf56o72ZHergQVuWTMQ63YN7/E6erTtIbja9UL7Knb8fytQvYODQW0VZqoP8hSnfjrT8B/GgMOpA==",
         "dependencies": {
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema": "1.2.0",
@@ -76,10 +76,10 @@
       },
       "Arbor.AspNetCore.Host": {
         "type": "Transitive",
-        "resolved": "0.10.0-build.1620911475",
-        "contentHash": "iH1+w5+62isjSe75BuFbFkQisvYmLr41WdmGjt0+BVByGoyGHxNtPEFYVDMi//lom2fDOG5GXCwPVqUONSFNBA==",
+        "resolved": "0.10.0-build.1623787187",
+        "contentHash": "5F16VnX9GxgW97iEGjnnSaJHnvo78V+lOoI2uakWUyBaJhZqC+XP+gFpYrNpIauUlwo3AaEgqRMWZGfK1lw58A==",
         "dependencies": {
-          "Arbor.App.Extensions": "0.9.0-build.1620909921",
+          "Arbor.App.Extensions": "0.9.0-build.1623440620",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "1.0.0",
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.DependencyInjection": "1.2.0",
@@ -88,20 +88,20 @@
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
           "Arbor.KVConfiguration.UserConfiguration": "1.2.0",
-          "Arbor.ModelBinding": "2.0.0",
-          "Arbor.ModelBinding.NewtonsoftJson": "2.0.0",
+          "Arbor.ModelBinding": "2.1.0-build.1623440927",
+          "Arbor.ModelBinding.NewtonsoftJson": "2.1.0-build.1623440927",
           "Arbor.Processing": "0.6.0",
-          "Cronos": "0.7.0",
+          "Cronos": "0.7.1",
           "JetBrains.Annotations": "2021.1.0",
           "Marten.Analyzers": "1.5.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "9.0.0",
-          "Microsoft.AspNetCore.Authentication.OpenIdConnect": "5.0.6",
-          "Microsoft.AspNetCore.Hosting.WindowsServices": "5.0.5",
-          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "5.0.6",
-          "Microsoft.CodeAnalysis.CSharp": "3.9.0",
+          "Microsoft.AspNetCore.Authentication.OpenIdConnect": "5.0.7",
+          "Microsoft.AspNetCore.Hosting.WindowsServices": "5.0.7",
+          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "5.0.7",
+          "Microsoft.CodeAnalysis.CSharp": "3.10.0",
           "Microsoft.Extensions.Configuration": "5.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
-          "Microsoft.Extensions.Diagnostics.HealthChecks": "5.0.6",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "5.0.7",
           "Microsoft.Extensions.Hosting.WindowsServices": "5.0.1",
           "Microsoft.Extensions.Http": "5.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
@@ -137,6 +137,14 @@
           "JetBrains.Annotations": "2020.3.0",
           "Serilog": "2.10.0",
           "System.Collections.Immutable": "5.0.0"
+        }
+      },
+      "Arbor.Hypermedia": {
+        "type": "Transitive",
+        "resolved": "0.1.0",
+        "contentHash": "8RYeKLCchLJpk1qtAGJUXZBqfgIfVVv7wuU4tXiJcAbnOoBn7PTGsSjbrnsXXdk6GLbTFjHQek7KdC6eNjrw8Q==",
+        "dependencies": {
+          "Arbor.App.Extensions": "0.8.0"
         }
       },
       "Arbor.KVConfiguration.Core": {
@@ -220,26 +228,26 @@
       },
       "Arbor.ModelBinding": {
         "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "WiHEdURYTlo9fl/vun1d5fnbvqjv5MZaqkYX1XxBrGz7CN0JmQdCaerNpEurWIVLKbWo8uri3vPVDE8oD9UMEQ==",
+        "resolved": "2.1.0-build.1623440927",
+        "contentHash": "zq53hadlM5srBI0GrCoY0VFDYpplcmpEEVjWuteFDrscLGi9236ZD1ECiO0oz/41libmYHd+TBfEBrOiiWeTdQ==",
         "dependencies": {
           "Microsoft.Extensions.Primitives": "5.0.1"
         }
       },
       "Arbor.ModelBinding.NewtonsoftJson": {
         "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "XEfnFkeG50exlFMyBh5HfYeh/vl4YWgmtfoLtBRNgM/fTNCSGMYJ1o0tJtUfFg1M78D5sPyz/+TrYXcT+qUthA==",
+        "resolved": "2.1.0-build.1623440927",
+        "contentHash": "rtcg/qxRMF17+mZq/ufQkO6dJdNayg+9Lr6tz3mpMQ5GorhmVVvl63JBzT7c9CTgSfIaYKY8rZeighJO8V1pQw==",
         "dependencies": {
-          "Arbor.ModelBinding": "2.0.0",
+          "Arbor.ModelBinding": "2.1.0-build.1623440927",
           "Microsoft.Extensions.Primitives": "5.0.1",
           "Newtonsoft.Json": "13.0.1"
         }
       },
       "Arbor.ModelBinding.Primitives": {
         "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "0V/JkW9T/aiyNR1hwW+KLoNIr+rU7tm/hfzG6qdm9qxPblXsktQevT5LuIGIImtkuKJbLCAOzeq9uHtgqVKsYw==",
+        "resolved": "2.1.0-build.1623440927",
+        "contentHash": "BNHLMR9ZeLu2cDYuOYjb3oeQCcLJ541x0GAVMjl0+H0KqhCyShHD56DAfI6pjXvaexsMUBhFkVw9N4Vq7mcr7g==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1",
           "System.Text.Json": "5.0.2"
@@ -260,8 +268,8 @@
       },
       "Arbor.Tooler": {
         "type": "Transitive",
-        "resolved": "0.15.0-build.1620064855",
-        "contentHash": "KCUIrACkmjiJZn1v/LkQz9L8/r1YVj2AeCQuKqCQBizv7Kg/zc0ACJJPBJx6DnDo3JxHjbDBVYM2fmdH+Bs4Rg==",
+        "resolved": "0.15.0-build.1624015671",
+        "contentHash": "G6/bCatWpV0SMmuwuHdaPnFUXRNbNjZ2dLc3ooHLR6r8R9xNFh0Ye37/FKwWPWlMu+8fpKw86OyrjkxXDrfr0w==",
         "dependencies": {
           "Arbor.Processing": "0.6.0",
           "NewtonSoft.Json": "12.0.1",
@@ -278,23 +286,23 @@
       },
       "Cronos": {
         "type": "Transitive",
-        "resolved": "0.7.0",
-        "contentHash": "r7bwVGU2Kkh95cbXB88BtOtZyUOE/DDX+Shhe9SXgcsHV+LFPulygdoVxGLTqTpibwGw4B09WTNqQgFr3QrP9g=="
+        "resolved": "0.7.1",
+        "contentHash": "aa2DY3qGBnwX7/jW4c17PyRlIeAtc5nYTlAPekc0113jcbBuz9vQkQaQ9NG+TNGlAj4esFxh8OuKUv4vmAODbw=="
       },
       "DotNext": {
         "type": "Transitive",
-        "resolved": "3.1.0",
-        "contentHash": "QdpwK+3mSfvzOIYy8bLMerhBPdvJSOP+h1E5RgCNC3wym59Emrv90Jsgqz70bsP0+WM0bQ/muyL1M8BN9GxBYg==",
+        "resolved": "3.2.1",
+        "contentHash": "WoB/O7b5Y6YvrQPxSZNSK4DnNpiP9kj7xp/5zK9xybsdb2NT1ujq+PLq8rgaAjCNRjzMkv/DhREnYBq6epaN1g==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "5.0.0"
         }
       },
       "DotNext.Threading": {
         "type": "Transitive",
-        "resolved": "3.1.0",
-        "contentHash": "IR53Cd2azqV5Lx79UExyW3AlhcChY7kdDUmF4C1NRGz/Rhcm1Z9GKNcIGnQ30fO0KDCD6FAJMZP6XI4ZEZww5A==",
+        "resolved": "3.2.1",
+        "contentHash": "iV4Jc7pc47pvVbUChDhVD5oP9mvuJeQ4F5mMns55kixeC2ce8XjpVfyjrtIhTEjezSrk8M8UolURWCvMVNr8JA==",
         "dependencies": {
-          "DotNext": "[3.1.0, 4.0.0)",
+          "DotNext": "[3.2.1, 4.0.0)",
           "System.Threading.Channels": "5.0.0"
         }
       },
@@ -323,10 +331,10 @@
       },
       "MailKit": {
         "type": "Transitive",
-        "resolved": "2.12.0",
-        "contentHash": "YGjG1rHqTiyPZO3J/gWcBI1tOIMmSEALiEjf5i2YCUDkR4F+AEOyx/hNMP/99vPmpB6rxUdh/budN/tb3CcbCw==",
+        "resolved": "2.13.0",
+        "contentHash": "h+2fxPnB/gb+8nniTwetvooM8r9nmbWVF116uXZn8d4+k6V+mf+IOA4Gqb7nwHcZooale0s/v13O7B/6StRHJA==",
         "dependencies": {
-          "MimeKit": "2.12.0"
+          "MimeKit": "2.13.0"
         }
       },
       "Marten": {
@@ -375,58 +383,58 @@
       },
       "Microsoft.AspNetCore.Authentication.JwtBearer": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "m69AyXr3RgSufAdfPxpCFi4DPNPfbTDwamZYQvaU9o/3ii1tAK/J2CaLPWnbYtvPfkiyFOYRk3EqTzdy51XDcA==",
+        "resolved": "5.0.7",
+        "contentHash": "80zYklKE6CZZswm5zjCUNbDx2Pavt45qfmVWLY1Heoe7GiJsPGGs9odgmsUFZ75bq4D6F4ZwK0LOam1TGUlHCg==",
         "dependencies": {
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "6.7.1"
         }
       },
       "Microsoft.AspNetCore.Authentication.OpenIdConnect": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "llB1zNAcdQka1PgHP/rNoDEQNdAhFgtKjPsLvmf6UCUWFdK9KPIi4kWGdwLzwQ1JxrfKiLO0hK3EjaBR8/jghg==",
+        "resolved": "5.0.7",
+        "contentHash": "pHhfYB92bZhENXFFrQ42Ru/BCWkhWOP4tuyQN3rOCZ2yw3rsiPApPbxMHvUUKF2QaudgBlI64BkTzupc085cMA==",
         "dependencies": {
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "6.7.1"
         }
       },
       "Microsoft.AspNetCore.Connections.Abstractions": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "dqtwdQL7cUdWHiyCkVB/0LIpBtdhwnhh9AMCOf+0eBb3wCF5/YvKMU0oVtMJViy+PFSxwjM8RyaVyC9G0Gl4Rg==",
+        "resolved": "5.0.7",
+        "contentHash": "Pbz+mgVDRLX+7xPsJwmUi+rOetvyCEgID+jX2E8LxxjBxg6fCNXgLfO8x8Sb9zNz/rB3NYyyfdhvSbo14H6GiA==",
         "dependencies": {
-          "Microsoft.AspNetCore.Http.Features": "5.0.6"
+          "Microsoft.AspNetCore.Http.Features": "5.0.7"
         }
       },
       "Microsoft.AspNetCore.Hosting.WindowsServices": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "1lcykbfNucML6CEXYL0pUnB6D7bYCKicpmO5geOoAHJo/rODaHJnp8nSS1K7wcb7m24R4PxfT55QcZAL15iPag==",
+        "resolved": "5.0.7",
+        "contentHash": "OHwUAJVqfgTqXb/byg9IqP3HaJreTW1xM9LUJWRhBrXN1F4r7sGILZ0+ZNX6aGTFDupkpz/n4ECWhf5+fJX7jA==",
         "dependencies": {
           "System.ServiceProcess.ServiceController": "5.0.0"
         }
       },
       "Microsoft.AspNetCore.Http.Connections.Client": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "PchO5EMTZmOd/z13NrQXDQjifCIj5+wewe+/UENRakVPIPl+oKcnyFF0xTeJRBWc8DbIm4OdAr/ET/fqpUgKOg==",
+        "resolved": "5.0.7",
+        "contentHash": "llxn72pbxHt+vwrzk+wDuwrnbJ6U6vpy/5BLonLamkYqafo7+isCNuEvKQvI9zwubPWzVRydR7tPtrXtXSoP9Q==",
         "dependencies": {
-          "Microsoft.AspNetCore.Http.Connections.Common": "5.0.6",
+          "Microsoft.AspNetCore.Http.Connections.Common": "5.0.7",
           "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
           "Microsoft.Extensions.Options": "5.0.0"
         }
       },
       "Microsoft.AspNetCore.Http.Connections.Common": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "9V35MkPVkKhFfhtc/tEROmyQ0k94qjZz97sia0rRDy5zxZuu2OTzQst+9oW+iujoQotpWAjZD+gRu3S04uetjQ==",
+        "resolved": "5.0.7",
+        "contentHash": "oNXjybrU8e8ftfG8RB5dIbnIKMfgefEGt2pFIEVkPuUeNd3dq08zMIcri+Rn2yWbBe6w2JMmABYprVLtMtPoHQ==",
         "dependencies": {
-          "Microsoft.AspNetCore.Connections.Abstractions": "5.0.6"
+          "Microsoft.AspNetCore.Connections.Abstractions": "5.0.7"
         }
       },
       "Microsoft.AspNetCore.Http.Features": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "MfpLQRQK/iBZLiaRgPd4dNq4REVbycYH9apU0i18UWQsqZt2Oa0+gZRnz8j4eDCzzCwQSoVXtuCtuCdEnIk9vg==",
+        "resolved": "5.0.7",
+        "contentHash": "bF4sJrrHHFooGKjGMCU+qqEz0gTRSHDieYXCgn18ci8gV3VS5wIOP2d0WEXV5WmjDzXxfCLoQpBJIl4rogdSdA==",
         "dependencies": {
           "Microsoft.Extensions.Primitives": "5.0.1",
           "System.IO.Pipelines": "5.0.1"
@@ -434,8 +442,8 @@
       },
       "Microsoft.AspNetCore.JsonPatch": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "mLVtFR/wxJaWeHxBm7S+WoDGcYfE3Q9Tkf6m/BWzaZn2fWuTl3ojY3m6rDIBkPj2hGcgBvCnVmyYH5R2fkN+Aw==",
+        "resolved": "5.0.7",
+        "contentHash": "IMindTqVCOLpY8uoDuZTOlzJyTDKMt8p6OAdlXMC9XFcGn80BW5VS3t+729p/+tW/lafxAS0cnrrklM59QfdYg==",
         "dependencies": {
           "Microsoft.CSharp": "4.7.0",
           "Newtonsoft.Json": "12.0.2"
@@ -443,54 +451,54 @@
       },
       "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "q4Z1EiWGJP8TYXU26sUX6NoBoUXK0FIwKS00I1kNt1B3mYCtSyEvxE8bbjxNfa0psFhVpbNrr0M0hS5sHMgQ6A==",
+        "resolved": "5.0.7",
+        "contentHash": "iEiVcGFcj8GZUB9dLoVg2/Z4B5kORXyE6cdoo5EVPao0h0laZltcw5rSx0LwfLLBR253HjMGz3SYeiGZ5bC2Xw==",
         "dependencies": {
-          "Microsoft.AspNetCore.JsonPatch": "5.0.6",
+          "Microsoft.AspNetCore.JsonPatch": "5.0.7",
           "Newtonsoft.Json": "12.0.2",
           "Newtonsoft.Json.Bson": "1.0.2"
         }
       },
       "Microsoft.AspNetCore.Mvc.Razor.Extensions": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "yygv2vC+GejwDytyW+AfX3zXb4/j1+980S5IoIVvidPh967yDfI5ZSy04O/0KAI72BdsLCchNfM6LFx4bCC27A==",
+        "resolved": "5.0.7",
+        "contentHash": "kg5RDNGHq9WRsJOE5AiEg0UaT0qGdlChqzLkpbq+kN65ZBUT5q23mje6n44tECdGnK5BVPZzwwD69CLnpC0fsg==",
         "dependencies": {
-          "Microsoft.AspNetCore.Razor.Language": "5.0.6",
-          "Microsoft.CodeAnalysis.Razor": "5.0.6"
+          "Microsoft.AspNetCore.Razor.Language": "5.0.7",
+          "Microsoft.CodeAnalysis.Razor": "5.0.7"
         }
       },
       "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "TvAUI37XKXCBJc17bCWJLFa7ljA9w1wT4mdr+l9t+r76HYL6j4pNX/4UCbkAryqh4htJlbOBQRUFNZK2PUqhhg==",
+        "resolved": "5.0.7",
+        "contentHash": "XaReWUymXpJLy8t37ZmIrvtfJKBZ99qTByRBv1SmUqfHzZdq71XEYqp4F9zoa6jG1OoXvKegThiUbqEPPBeoaw==",
         "dependencies": {
-          "Microsoft.AspNetCore.Mvc.Razor.Extensions": "5.0.6",
-          "Microsoft.CodeAnalysis.Razor": "5.0.6",
+          "Microsoft.AspNetCore.Mvc.Razor.Extensions": "5.0.7",
+          "Microsoft.CodeAnalysis.Razor": "5.0.7",
           "Microsoft.Extensions.DependencyModel": "5.0.0"
         }
       },
       "Microsoft.AspNetCore.Razor.Language": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "nrkAnHCRt6DrxCJ7DwZX+PjBJffR8GAL6IkXcZIAlJ61rBKC2vzobk5STDhnL0PU7PwpRZMShilmTqWOvPxFbQ=="
+        "resolved": "5.0.7",
+        "contentHash": "U5lqzXIbvS31gPWYgRbJtbPVIlJaLYVjCOpOo0QnhhMDuCv0kxLXjAq30OCUMzq+2gmaa4XsLYHs9n7hXYRLWA=="
       },
       "Microsoft.AspNetCore.SignalR.Client": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "MgY6tg5iVaFwMRcwAQiUAp+BC+h1iGWb72SFBaIvryOc6tmCz/JrXzcS7P993W0mznhs+vHh+p2Nf+jo+dNLpw==",
+        "resolved": "5.0.7",
+        "contentHash": "jp9nZtsX1WUIPKttMb2Vk6yCao93fBm3RKEcSc8xu70gyfbB2uTzxiTUL0l3SZymztGAulZW9UHes3+h6ZPQUg==",
         "dependencies": {
-          "Microsoft.AspNetCore.Http.Connections.Client": "5.0.6",
-          "Microsoft.AspNetCore.SignalR.Client.Core": "5.0.6"
+          "Microsoft.AspNetCore.Http.Connections.Client": "5.0.7",
+          "Microsoft.AspNetCore.SignalR.Client.Core": "5.0.7"
         }
       },
       "Microsoft.AspNetCore.SignalR.Client.Core": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "J2kWDD1xnHDYMNLVxZ5MarqAg/lygYYKwYoqPobAWDlCF1wpXbmO/dAgby0NScTrvzSd6+NdyHp7dgxz/whLnw==",
+        "resolved": "5.0.7",
+        "contentHash": "k/wMUucPnk4VnnJjGNA4G7V0Q2tDVOyJDuux+qYjbIJwvWlnAhf7hL7YkWiXcqbW/zg/KOVTjIbA7Dvddl6PuQ==",
         "dependencies": {
-          "Microsoft.AspNetCore.SignalR.Common": "5.0.6",
-          "Microsoft.AspNetCore.SignalR.Protocols.Json": "5.0.6",
+          "Microsoft.AspNetCore.SignalR.Common": "5.0.7",
+          "Microsoft.AspNetCore.SignalR.Protocols.Json": "5.0.7",
           "Microsoft.Extensions.DependencyInjection": "5.0.1",
           "Microsoft.Extensions.Logging": "5.0.0",
           "System.Threading.Channels": "5.0.0"
@@ -498,32 +506,32 @@
       },
       "Microsoft.AspNetCore.SignalR.Common": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "x10OXN4vP8dB7SaqEU+Te2tbKy5HAFMRfhbpHSijY16S3JDfp6HqzdWjAKjinmzEoawtCegedTJ4b3/eslQbOQ==",
+        "resolved": "5.0.7",
+        "contentHash": "AfVcUeDvLNIGhEwiW7WLDl7j9RgG8bpb24G1e6mGeHbdHkRfED3YAWYoPME9taZFR5Q3opfL4M1AhfqpepCsWw==",
         "dependencies": {
-          "Microsoft.AspNetCore.Connections.Abstractions": "5.0.6",
+          "Microsoft.AspNetCore.Connections.Abstractions": "5.0.7",
           "Microsoft.Extensions.Options": "5.0.0"
         }
       },
       "Microsoft.AspNetCore.SignalR.Protocols.Json": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "fFwax6INapN++2DGfxriYJm4lFDTXNyeoBa1qi2ppJqosQATLI2JpErDHIjZwSWqHLL3umxGNWGpQPDzSkIkVg==",
+        "resolved": "5.0.7",
+        "contentHash": "WmY5jlqyTe9oU25VXmh2zKBzWwKniNliNUtAJeXfP7UTnXT/4eAVguIBNDhwVxI7ZGWcuJm2jjvrFiBZBHUQWw==",
         "dependencies": {
-          "Microsoft.AspNetCore.SignalR.Common": "5.0.6"
+          "Microsoft.AspNetCore.SignalR.Common": "5.0.7"
         }
       },
       "Microsoft.CodeAnalysis.Analyzers": {
         "type": "Transitive",
-        "resolved": "3.0.0",
-        "contentHash": "ojG5pGAhTPmjxRGTNvuszO3H8XPZqksDwr9xLd4Ae/JBjZZdl6GuoLk7uLMf+o7yl5wO0TAqoWcEKkEWqrZE5g=="
+        "resolved": "3.3.2",
+        "contentHash": "7xt6zTlIEizUgEsYAIgm37EbdkiMmr6fP6J9pDoKEpiGM4pi32BCPGr/IczmSJI9Zzp0a6HOzpr9OvpMP+2veA=="
       },
       "Microsoft.CodeAnalysis.Common": {
         "type": "Transitive",
-        "resolved": "3.9.0",
-        "contentHash": "HiWjF7PNIEngmFg2Xk8cZ/83lRIRkk9v+5ibbY5B7VvjNGdClGAMuWtZER9F5rGRR41VbJLco9ah73jFTh4vPw==",
+        "resolved": "3.10.0",
+        "contentHash": "Htsk5pJmKjTgUwAP5oyuIODX/b6Zl4RD0tpM62NEncxne/LiQvP50j9g8h+qFtp4lS4AmAYTVPBbXgBuC5zcQA==",
         "dependencies": {
-          "Microsoft.CodeAnalysis.Analyzers": "3.0.0",
+          "Microsoft.CodeAnalysis.Analyzers": "3.3.2",
           "System.Collections.Immutable": "5.0.0",
           "System.Memory": "4.5.4",
           "System.Reflection.Metadata": "5.0.0",
@@ -534,18 +542,18 @@
       },
       "Microsoft.CodeAnalysis.CSharp": {
         "type": "Transitive",
-        "resolved": "3.9.0",
-        "contentHash": "NTsiK3fnoZGemy4dBHrILwg9rL+jDnOJ7aixFu4EOWM1r6MZMrNCIhT2tO4AmIMdfICLPwj910uZRRLpbMnqHg==",
+        "resolved": "3.10.0",
+        "contentHash": "GM83V29l0zsOLReyxpFs32Ujss3wkrVbWFTVjGANXxceycWmi7aLBNL4TQ3r3ZiG4m2b+/LIqwIVkDvZpjOnuw==",
         "dependencies": {
-          "Microsoft.CodeAnalysis.Common": "[3.9.0]"
+          "Microsoft.CodeAnalysis.Common": "[3.10.0]"
         }
       },
       "Microsoft.CodeAnalysis.Razor": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "gY95qNMQarYTokEB4q5hYkXcwIziqdjhzsweuYw0TSYZ3rpN5OmduGXpCNQ6JU5Z3dWxWHy6dRqeO2b83OHYmw==",
+        "resolved": "5.0.7",
+        "contentHash": "tZ/oTpkhHmSSMJ1crrcUPQGw6nNypn+AEqm3rJ4hAudC/E4ztG+gqV+koCOrQhOmqGPPyjQCudky/JmatkQjgA==",
         "dependencies": {
-          "Microsoft.AspNetCore.Razor.Language": "5.0.6",
+          "Microsoft.AspNetCore.Razor.Language": "5.0.7",
           "Microsoft.CodeAnalysis.CSharp": "3.8.0",
           "Microsoft.CodeAnalysis.Common": "3.8.0"
         }
@@ -670,10 +678,10 @@
       },
       "Microsoft.Extensions.Diagnostics.HealthChecks": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "86G6tWW2DSwhd8FxMVVH2P1ljSedLaALlWmf6KI1pN0GdJdh63YyAyXtogmzk0fthPVxFd+ZU9y5XvMrcrRDZw==",
+        "resolved": "5.0.7",
+        "contentHash": "RA3owjJcV+XPLITxpu5oNDWx+pWtErmuM64gL9P9rs6zOAcydD97Es9CHlmohNTIyALNrfD5nobBHIC1ZkfOAw==",
         "dependencies": {
-          "Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions": "5.0.6",
+          "Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions": "5.0.7",
           "Microsoft.Extensions.Hosting.Abstractions": "5.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
           "Microsoft.Extensions.Options": "5.0.0"
@@ -681,8 +689,8 @@
       },
       "Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions": {
         "type": "Transitive",
-        "resolved": "5.0.6",
-        "contentHash": "ogc8BDkcxM4q7Jya1ZN6AmkyrYm3K2AFg2h3CT8SmvtVIB12fzIwU5Q1WM6mixqq8XrnTiCL8aZCzCEqSPXfCw=="
+        "resolved": "5.0.7",
+        "contentHash": "ZPFZd4r7rsOGzGIo5vRF/zVL3hGOPaPeroN5h/wUGsh5sUWiykI9SJLMpqCsLAfYZYRP+wiZffmaYoFsWXOrBg=="
       },
       "Microsoft.Extensions.FileProviders.Abstractions": {
         "type": "Transitive",
@@ -883,16 +891,16 @@
       },
       "Microsoft.IdentityModel.JsonWebTokens": {
         "type": "Transitive",
-        "resolved": "6.11.0",
-        "contentHash": "qSLfRLk19E1+Gt2gdPzp5Y4YAlXi1KueXpMJpt0qug6h4PtxbnGnxFBM6bdCIJqoN75LTPztqKdpjla2NIltmA==",
+        "resolved": "6.11.1",
+        "contentHash": "WviaeOAlwxxDXMBj9GN4dKvKXHqEPqN7LtQdwjMdNvd/NR1ry43BpqIMk4MyHBhgwBCcXlq8079CzHhGxb3Prw==",
         "dependencies": {
-          "Microsoft.IdentityModel.Tokens": "6.11.0"
+          "Microsoft.IdentityModel.Tokens": "6.11.1"
         }
       },
       "Microsoft.IdentityModel.Logging": {
         "type": "Transitive",
-        "resolved": "6.11.0",
-        "contentHash": "81votFg2SzidAB8frGlDV+jCCzfBWWtnKASZTddAziHuB8fT/82s1x7Kty+u01XKtKcrPdfpvbWrIUHdc/C9pw=="
+        "resolved": "6.11.1",
+        "contentHash": "8G/kXAoKVCvTJyB4Ld8me4oDV/E9uWD+Rk86JBy7nfYpzVsrxvqG5svSlwaIltQFjVD5VOHwq1o+9kMw3Q7tGg=="
       },
       "Microsoft.IdentityModel.Protocols": {
         "type": "Transitive",
@@ -914,11 +922,11 @@
       },
       "Microsoft.IdentityModel.Tokens": {
         "type": "Transitive",
-        "resolved": "6.11.0",
-        "contentHash": "zm0aBLKCDybRQwOinG0cDXobjfcJgXIcJfB5n7gA8KHjswELcET8BiNx54j6n4VF8w6+UxUIdEtO3RMIXQZkfg==",
+        "resolved": "6.11.1",
+        "contentHash": "B7vWX+WevuluZDjsf4Br2Zb7k20ps1D3RMX/J8DKsrkzJ4F3fcsLIEknI98JNYKPlN9VcqEZ1qeeEKEuwU3XcA==",
         "dependencies": {
           "Microsoft.CSharp": "4.5.0",
-          "Microsoft.IdentityModel.Logging": "6.11.0",
+          "Microsoft.IdentityModel.Logging": "6.11.1",
           "System.Security.Cryptography.Cng": "4.5.0"
         }
       },
@@ -971,8 +979,8 @@
       },
       "MimeKit": {
         "type": "Transitive",
-        "resolved": "2.12.0",
-        "contentHash": "OB0sU/wk/Z0w8JBdtfdSme/trw0J7yWLivz+j/dO8KvfqQICkHL7oZVBRitFTlsTD68U62RNoUzrQ7zEiNtEoA==",
+        "resolved": "2.13.0",
+        "contentHash": "wkHUQzy/sAtWCifZfNDq24DB/xshYoc+QeynSCJPSNeeA51DzZWjVaRslyix/9OEGhdSsUtvisL66dpGp0THjw==",
         "dependencies": {
           "Portable.BouncyCastle": "1.8.10",
           "System.Buffers": "4.5.1",
@@ -1059,58 +1067,58 @@
       },
       "NuGet.Common": {
         "type": "Transitive",
-        "resolved": "5.9.1",
-        "contentHash": "BRX0V8k8QXcEWL33V2HcBU1+eu/Qp5LDJlheYFSZ03hKjlHVHFfLquvUUYLgSNO7tiBxCFe7pTSgO4XanyzteQ==",
+        "resolved": "5.10.0",
+        "contentHash": "4smIAbuLTCRVrsD2qjI1UdEreDmeCaptmB37Vps/uHMiI+17QrrGvnRbRy8spL6CAwlWUij5npxBrqixKIAsVg==",
         "dependencies": {
-          "NuGet.Frameworks": "5.9.1"
+          "NuGet.Frameworks": "5.10.0"
         }
       },
       "NuGet.Configuration": {
         "type": "Transitive",
-        "resolved": "5.9.1",
-        "contentHash": "dpjLDYEuhR1J8L3s9c1qVHEBaWqFI2/x3qRmhqVYDLB5B9ETVe1jVkxLkFQreQVgh+N5cVgtZWx1jGuArj7QaQ==",
+        "resolved": "5.10.0",
+        "contentHash": "3RYeMEIdqUIrmG8Btv0eXkHT8jZD+I9qB5rLAfm3ItC2IavnGPPdwe6s/L2OWMB/jfGDhwsxmfAV/nFhQvu0og==",
         "dependencies": {
-          "NuGet.Common": "5.9.1",
+          "NuGet.Common": "5.10.0",
           "System.Security.Cryptography.ProtectedData": "4.4.0"
         }
       },
       "NuGet.Frameworks": {
         "type": "Transitive",
-        "resolved": "5.9.1",
-        "contentHash": "LuJA875MQpPMdik6KUsDUnEDSXWX+T/sExFikA0A5zGFkEW37weP5b6NxljWlrw4UNOWTgmTeumm802Jwz20sw=="
+        "resolved": "5.10.0",
+        "contentHash": "RaXCqj2ZImTVV0DhlwMkE7S7EoOxqkdpmg4YNeZc5DnFpMMC7HYj6TbNTufK25JN/QhKfftuiWf/oqaYkZhnAA=="
       },
       "NuGet.Packaging": {
         "type": "Transitive",
-        "resolved": "5.9.1",
-        "contentHash": "deaGBf7KGllJxXZ0u2gQkoQuvMhbJhntUwJZcmlA5fZdAhw6SsDgaRG0bW4x4dX4K09Bxqhh8pfow/0AP0ke7Q==",
+        "resolved": "5.10.0",
+        "contentHash": "3CRJ22SxT/5TvYuyC4ePM9tb4PuB6baIqxdHvN3Z7+gVYBwZzNSkVwSZ4pmAnsXbEGh5dClYYr8A8v9ky2T8+A==",
         "dependencies": {
           "Newtonsoft.Json": "9.0.1",
-          "NuGet.Configuration": "5.9.1",
-          "NuGet.Versioning": "5.9.1",
+          "NuGet.Configuration": "5.10.0",
+          "NuGet.Versioning": "5.10.0",
           "System.Security.Cryptography.Cng": "5.0.0",
           "System.Security.Cryptography.Pkcs": "5.0.0"
         }
       },
       "NuGet.Packaging.Core": {
         "type": "Transitive",
-        "resolved": "5.9.1",
-        "contentHash": "/zhF4uIxy85lBvHvltGJ7kut1/XPTPbWp4V8Bqsrc6nFdHl2pJWM6aw5ocrOqTL1HlbA7dQUb/fChgowvowk+A==",
+        "resolved": "5.10.0",
+        "contentHash": "L4TAr4CJqAsVlc1kIVgB+Wl0HJI6Xao6BcjBSazPoJ0uSXuo0p2q1IWH0tAEcdsNaoRGbODrIhQUtwRjRylbUQ==",
         "dependencies": {
-          "NuGet.Packaging": "5.9.1"
+          "NuGet.Packaging": "5.10.0"
         }
       },
       "NuGet.Protocol": {
         "type": "Transitive",
-        "resolved": "5.9.1",
-        "contentHash": "0FeZZ5Qd6I2Qfr5qtNk0YUQwisttMHvCgE1MfC9viib7zuSZmTfUskl34d9w5mUZLAKl764AXxCNklgQHL0NzA==",
+        "resolved": "5.10.0",
+        "contentHash": "NdzDinga3rvIODnEhlyFBLznAP+iajQs0zkcSYgNqht7iFyx0VhZgM5o3kN/sguFVT59HrFsSccxXvvOq38iyw==",
         "dependencies": {
-          "NuGet.Packaging": "5.9.1"
+          "NuGet.Packaging": "5.10.0"
         }
       },
       "NuGet.Versioning": {
         "type": "Transitive",
-        "resolved": "5.9.1",
-        "contentHash": "I/2Z/dAcV6tz8Bri9lYbcMoq6R9J1J8Vv23gDCAnWjwrIdwunhmnWgiZx/b7cmlEXaD1r0kxen18fXYoyqs4rg=="
+        "resolved": "5.10.0",
+        "contentHash": "kXB4moY6JVjvv8InTlrDFpPEGZYLlK7e3bVrSn8NPbtrWhEdU3MlPagPjE2zsbjL7Oq80RNEnogNv6QkdUB+Rw=="
       },
       "Pipelines.Sockets.Unofficial": {
         "type": "Transitive",
@@ -1507,11 +1515,11 @@
       },
       "System.IdentityModel.Tokens.Jwt": {
         "type": "Transitive",
-        "resolved": "6.11.0",
-        "contentHash": "j57TBY3Xf989vFUt2C25DpDqM8P4Re1bi4GL3U6L6VVgJr+AZIWmA1SMEOKyaIwSP0rHWimQh4jGxzycidGflQ==",
+        "resolved": "6.11.1",
+        "contentHash": "xh6/P+XdsUZoTbN1MgRg1zONdHTVfH8TDFSnPwXF4p8qhKvmUdXtE6UmTDN8HLe8jveY7Bjdjr+YP7sm2l7ufA==",
         "dependencies": {
-          "Microsoft.IdentityModel.JsonWebTokens": "6.11.0",
-          "Microsoft.IdentityModel.Tokens": "6.11.0"
+          "Microsoft.IdentityModel.JsonWebTokens": "6.11.1",
+          "Microsoft.IdentityModel.Tokens": "6.11.1"
         }
       },
       "System.IO": {
@@ -2204,16 +2212,16 @@
       "milou.deployer.bootstrapper.common": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.9.0-build.1620909921",
+          "Arbor.App.Extensions": "0.9.0-build.1623440620",
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema": "1.2.0",
           "Arbor.Tooler": "0.15.0-build.1620064855",
           "JetBrains.Annotations": "2021.1.0",
-          "Microsoft.CodeAnalysis.CSharp": "3.9.0",
+          "Microsoft.CodeAnalysis.CSharp": "3.10.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
           "Milou.Deployer.Core": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
-          "NuGet.Versioning": "5.9.1",
+          "NuGet.Versioning": "5.10.0",
           "Serilog": "2.10.0",
           "Serilog.Sinks.Console": "3.1.1",
           "System.Collections.Immutable": "5.0.0"
@@ -2222,23 +2230,23 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.9.0-build.1620909921",
+          "Arbor.App.Extensions": "0.9.0-build.1623440620",
           "Arbor.KVConfiguration.Core": "1.2.0",
           "Arbor.KVConfiguration.Schema.Json": "1.2.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
-          "Arbor.ModelBinding.Primitives": "2.0.0",
+          "Arbor.ModelBinding.Primitives": "2.1.0-build.1623440927",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.15.0-build.1620064855",
           "JetBrains.Annotations": "2021.1.0",
           "MediatR": "9.0.0",
-          "Microsoft.CodeAnalysis.CSharp": "3.9.0",
+          "Microsoft.CodeAnalysis.CSharp": "3.10.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
           "Microsoft.Web.Xdt": "3.1.0",
           "Newtonsoft.Json": "13.0.1",
-          "NuGet.Configuration": "5.9.1",
-          "NuGet.Packaging": "5.9.1",
-          "NuGet.Protocol": "5.9.1",
-          "NuGet.Versioning": "5.9.1",
+          "NuGet.Configuration": "5.10.0",
+          "NuGet.Packaging": "5.10.0",
+          "NuGet.Protocol": "5.10.0",
+          "NuGet.Versioning": "5.10.0",
           "Serilog": "2.10.0",
           "System.Collections.Immutable": "5.0.0"
         }
@@ -2298,20 +2306,21 @@
       "milou.deployer.web.agent": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.9.0-build.1620909921",
+          "Arbor.App.Extensions": "0.9.0-build.1623440620",
+          "Arbor.Hypermedia": "0.1.0",
           "Arbor.KVConfiguration.Urns": "1.2.0",
-          "Arbor.ModelBinding.Primitives": "2.0.0",
+          "Arbor.ModelBinding.Primitives": "2.1.0-build.1623440927",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.15.0-build.1620064855",
           "JetBrains.Annotations": "2021.1.0",
-          "Microsoft.AspNetCore.SignalR.Client": "5.0.6",
-          "Microsoft.CodeAnalysis.CSharp": "3.9.0",
+          "Microsoft.AspNetCore.SignalR.Client": "5.0.7",
+          "Microsoft.CodeAnalysis.CSharp": "3.10.0",
           "Microsoft.Extensions.Hosting.Abstractions": "5.0.0",
           "Microsoft.Extensions.Http": "5.0.0",
           "Microsoft.Extensions.Http.Polly": "0.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
-          "NuGet.Versioning": "5.9.1",
+          "NuGet.Versioning": "5.10.0",
           "Polly.Extensions.Http": "3.0.0",
           "Serilog": "2.10.0",
           "Serilog.AspNetCore": "4.1.0",
@@ -2328,7 +2337,7 @@
           "Arbor.Tooler": "0.15.0-build.1620064855",
           "JetBrains.Annotations": "2021.1.0",
           "Microsoft.AspNet.WebApi.Client": "5.2.7",
-          "Microsoft.AspNetCore.SignalR.Client": "5.0.6",
+          "Microsoft.AspNetCore.SignalR.Client": "5.0.7",
           "Microsoft.Extensions.Configuration": "5.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
           "Microsoft.Extensions.Hosting": "5.0.0",
@@ -2346,24 +2355,25 @@
           "Serilog.Sinks.Http": "7.2.0",
           "Serilog.Sinks.Seq": "5.0.1",
           "System.Collections.Immutable": "5.0.0",
-          "System.IdentityModel.Tokens.Jwt": "6.11.0"
+          "System.IdentityModel.Tokens.Jwt": "6.11.1"
         }
       },
       "milou.deployer.web.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.9.0-build.1620909921",
-          "Arbor.AspNetCore.Host": "0.10.0-build.1620911475",
-          "Arbor.ModelBinding": "2.0.0",
+          "Arbor.App.Extensions": "0.9.0-build.1623440620",
+          "Arbor.AspNetCore.Host": "0.10.0-build.1623787187",
+          "Arbor.ModelBinding": "2.1.0-build.1623440927",
+          "Arbor.ModelBinding.Primitives": "2.1.0-build.1623440927",
           "Arbor.Processing": "0.6.0",
           "Arbor.Tooler": "0.15.0-build.1620064855",
-          "DotNext.Threading": "3.1.0",
+          "DotNext.Threading": "3.2.1",
           "JetBrains.Annotations": "2021.1.0",
-          "MailKit": "2.12.0",
+          "MailKit": "2.13.0",
           "Marten": "3.13.4",
           "MediatR": "9.0.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "9.0.0",
-          "Microsoft.CodeAnalysis.CSharp": "3.9.0",
+          "Microsoft.CodeAnalysis.CSharp": "3.10.0",
           "Microsoft.Extensions.Caching.Abstractions": "5.0.0",
           "Microsoft.Extensions.DependencyModel": "5.0.0",
           "Microsoft.Extensions.Hosting.Abstractions": "5.0.0",
@@ -2374,10 +2384,10 @@
           "Milou.Deployer.Core": "1.0.0",
           "Milou.Deployer.Web.Agent": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
-          "NuGet.Frameworks": "5.9.1",
-          "NuGet.Packaging": "5.9.1",
-          "NuGet.Packaging.Core": "5.9.1",
-          "NuGet.Versioning": "5.9.1",
+          "NuGet.Frameworks": "5.10.0",
+          "NuGet.Packaging": "5.10.0",
+          "NuGet.Packaging.Core": "5.10.0",
+          "NuGet.Versioning": "5.10.0",
           "Serilog": "2.10.0",
           "Serilog.Sinks.Console": "3.1.1",
           "Serilog.Sinks.Debug": "2.0.0",
@@ -2390,8 +2400,8 @@
       "milou.deployer.web.iishost": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.0.0-0",
-          "Arbor.AspNetCore.Host": "0.0.0-0",
+          "Arbor.App.Extensions": "0.9.0-build.1623440620",
+          "Arbor.AspNetCore.Host": "0.10.0-build.1623787187",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.0.0",
           "Arbor.Docker": "0.6.0",
           "Arbor.Processing": "0.6.0",
@@ -2401,23 +2411,23 @@
           "Marten.Analyzers": "1.5.0",
           "MediatR": "9.0.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "9.0.0",
-          "Microsoft.AspNetCore.Authentication.JwtBearer": "5.0.6",
-          "Microsoft.AspNetCore.Authentication.OpenIdConnect": "5.0.6",
-          "Microsoft.AspNetCore.Hosting.WindowsServices": "5.0.6",
-          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "5.0.6",
-          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "5.0.6",
-          "Microsoft.CodeAnalysis.CSharp": "3.9.0",
+          "Microsoft.AspNetCore.Authentication.JwtBearer": "5.0.7",
+          "Microsoft.AspNetCore.Authentication.OpenIdConnect": "5.0.7",
+          "Microsoft.AspNetCore.Hosting.WindowsServices": "5.0.7",
+          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "5.0.7",
+          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "5.0.7",
+          "Microsoft.CodeAnalysis.CSharp": "3.10.0",
           "Microsoft.Extensions.Caching.StackExchangeRedis": "5.0.1",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
-          "Microsoft.Extensions.Diagnostics.HealthChecks": "5.0.6",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "5.0.7",
           "Microsoft.Extensions.Http": "5.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
           "Milou.Deployer.Web.Core": "1.0.0",
           "Milou.Deployer.Web.Marten": "1.0.0",
           "Newtonsoft.Json": "0.0.0",
-          "NuGet.Packaging": "5.9.1",
-          "NuGet.Versioning": "5.9.1",
+          "NuGet.Packaging": "5.10.0",
+          "NuGet.Versioning": "5.10.0",
           "Serilog": "2.10.0",
           "Serilog.AspNetCore": "4.1.0",
           "Serilog.Sinks.Console": "3.1.1",
@@ -2434,23 +2444,23 @@
         "dependencies": {
           "JetBrains.Annotations": "2021.1.0",
           "Marten": "3.13.4",
-          "Microsoft.CodeAnalysis.CSharp": "3.9.0",
+          "Microsoft.CodeAnalysis.CSharp": "3.10.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
           "Milou.Deployer.Web.Core": "1.0.0",
           "Milou.Deployer.Web.Marten.Abstractions": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
-          "NuGet.Packaging": "5.9.1",
-          "NuGet.Versioning": "5.9.1",
+          "NuGet.Packaging": "5.10.0",
+          "NuGet.Versioning": "5.10.0",
           "System.Collections.Immutable": "5.0.0"
         }
       },
       "milou.deployer.web.marten.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.9.0-build.1620909921",
+          "Arbor.App.Extensions": "0.9.0-build.1623440620",
           "Arbor.KVConfiguration.Urns": "1.2.0",
           "JetBrains.Annotations": "2021.1.0",
-          "Microsoft.CodeAnalysis.CSharp": "3.9.0",
+          "Microsoft.CodeAnalysis.CSharp": "3.10.0",
           "Microsoft.Extensions.Primitives": "5.0.1",
           "Newtonsoft.Json": "0.0.0",
           "System.Collections.Immutable": "5.0.0"

@@ -1,12 +1,6 @@
-﻿using Arbor.App.Extensions.Messaging;
-using Milou.Deployer.Web.Agent;
-
-namespace Milou.Deployer.Web.Core.Agents.Commands
+﻿namespace Milou.Deployer.Web.Core.Agents.Commands
 {
-    public class ClearAgentWorkTasksResult : ICommandResult
+    public record ClearAgentWorkTasksResult(Queries.Agent Result) : ICommandResult<Queries.Agent>
     {
-        public ClearAgentWorkTasksResult(AgentId agentId) => AgentId = agentId;
-
-        public AgentId AgentId { get; }
     }
 }

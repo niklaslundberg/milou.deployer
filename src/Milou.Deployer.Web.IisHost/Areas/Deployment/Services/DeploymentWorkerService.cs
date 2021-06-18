@@ -14,6 +14,7 @@ using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Agents.Commands;
 using Milou.Deployer.Web.Core.Agents.Events;
+using Milou.Deployer.Web.Core.Agents.Queries;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
@@ -208,13 +209,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        public Task<ClearAgentWorkTasksResult> Handle(ClearAgentWorkTasks request, CancellationToken cancellationToken)
+        public async Task<ClearAgentWorkTasksResult> Handle(ClearAgentWorkTasks request, CancellationToken cancellationToken)
         {
-            var foundAgent = _agents.Agents.SingleOrDefault(agent => request.AgentId == agent.Id);
+            var foundAgent = _agents.Agents.SingleOrDefault(a => request.AgentId == a.AgentId);
 
             if (foundAgent?.CurrentDeploymentTargetId is { } deploymentTargetId &&
                 foundAgent.CurrentDeploymentTaskId is { } taskId &&
-                foundAgent.Id is { } agentId)
+                foundAgent.AgentId is { } agentId)
             {
                 var workerByTargetId = GetWorkerByTargetId(deploymentTargetId);
 
@@ -231,7 +232,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             _agents.AgentDone(request.AgentId);
 
-            return Task.FromResult(new ClearAgentWorkTasksResult(request.AgentId));
+            var agent = await _mediator.Send(new GetAgentRequest(request.AgentId), cancellationToken);
+
+            return new ClearAgentWorkTasksResult(agent.Result);
         }
 
         public Task<Unit> Handle(StartWorker request, CancellationToken cancellationToken)
