@@ -13,13 +13,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         //[ValidateAntiForgeryToken]
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Route(Core.Agents.Commands.DisableAgent.RouteTemplate, Name = Core.Agents.Commands.DisableAgent.RouteName)]
-        public async Task<IActionResult> DisableAgent([FromRoute] AgentId agentId,
-            [FromServices] IMediator mediator,
-            [FromServices] HyperMediaResult hyperMediaResult)
+        public async Task<ActionResult> DisableAgent([FromRoute] AgentId agentId,
+            [FromServices] IMediator mediator)
         {
             var result = await mediator.Send(new DisableAgent(agentId));
 
-            return await hyperMediaResult.ToHyperMediaResult(this, result.Result);
+            return Ok(result);
         }
     }
 }

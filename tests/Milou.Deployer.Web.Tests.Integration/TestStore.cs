@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 using Marten;
 using Marten.Events;
+using Marten.Events.Daemon;
 using Marten.Events.Projections;
-using Marten.Events.Projections.Async;
 using Marten.Schema;
 using Marten.Services;
 using Marten.Storage;
-using Marten.Transforms;
+using Microsoft.Extensions.Logging;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
     public sealed class TestStore : IDocumentStore
     {
+        private AdvancedOperations _advanced;
+
         public void Dispose()
         {
             // in-memory
@@ -27,6 +31,19 @@ namespace Milou.Deployer.Web.Tests.Integration
             IReadOnlyCollection<T> documents,
             BulkInsertMode mode = BulkInsertMode.InsertsOnly,
             int batchSize = 1000) => throw new NotSupportedException();
+
+        public Task BulkInsertAsync<T>(IReadOnlyCollection<T> documents,
+            BulkInsertMode mode = BulkInsertMode.InsertsOnly,
+            int batchSize = 1000,
+            CancellationToken cancellation = new CancellationToken()) =>
+            throw new NotImplementedException();
+
+        public Task BulkInsertAsync<T>(string tenantId,
+            IReadOnlyCollection<T> documents,
+            BulkInsertMode mode = BulkInsertMode.InsertsOnly,
+            int batchSize = 1000,
+            CancellationToken cancellation = new CancellationToken()) =>
+            throw new NotImplementedException();
 
         public IDocumentSession OpenSession(DocumentTracking tracking = DocumentTracking.IdentityOnly,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted) => new TestDocumentSession();
@@ -64,18 +81,30 @@ namespace Milou.Deployer.Web.Tests.Integration
             BulkInsertMode mode = BulkInsertMode.InsertsOnly,
             int batchSize = 1000) => throw new NotSupportedException();
 
-        public IDaemon BuildProjectionDaemon(Type[]? viewTypes = null,
-            IDaemonLogger? logger = null,
-            DaemonSettings? settings = null,
-            IProjection[]? projections = null) => throw new NotSupportedException();
+        public Task BulkInsertDocumentsAsync(IEnumerable<object> documents,
+            BulkInsertMode mode = BulkInsertMode.InsertsOnly,
+            int batchSize = 1000,
+            CancellationToken cancellation = new CancellationToken()) =>
+            throw new NotImplementedException();
+
+        public Task BulkInsertDocumentsAsync(string tenantId,
+            IEnumerable<object> documents,
+            BulkInsertMode mode = BulkInsertMode.InsertsOnly,
+            int batchSize = 1000,
+            CancellationToken cancellation = new CancellationToken()) =>
+            throw new NotImplementedException();
+
+        public IProjectionDaemon BuildProjectionDaemon(ILogger? logger = null) => throw new NotImplementedException();
+
+        public IReadOnlyStoreOptions Options { get; }
 
         public IDocumentSchema Schema { get; } = default!;
+
+        AdvancedOperations IDocumentStore.Advanced => _advanced;
 
         public AdvancedOptions Advanced { get; } = default!;
 
         public IDiagnostics Diagnostics { get; } = default!;
-
-        public IDocumentTransforms Transform { get; } = default!;
 
         public EventGraph Events { get; } = default!;
 

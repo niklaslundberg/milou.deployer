@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackAsTool>true</PackAsTool>
     <PackageId>Milou.Deployer.Bootstrapper.GlobalTool</PackageId>
     <OutputType>Exe</OutputType>
@@ -10,12 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NuGet.Versioning" Version="5.10.0" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="5.0.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="*" />
+    <PackageReference Include="System.Collections.Immutable" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
+    <PackageReference Include="Newtonsoft.Json" Version="*" />
+    <PackageReference Include="NuGet.Versioning" Version="*" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="*" />
   </ItemGroup>
 
   <ItemGroup>

@@ -15,12 +15,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         [Route(Core.Agents.Commands.ClearAgentWorkTasks.RouteTemplate,
             Name = Core.Agents.Commands.ClearAgentWorkTasks.RouteName)]
         public async Task<IActionResult> ClearAgentWorkTasks([FromRoute] AgentId agentId,
-            [FromServices] IMediator mediator,
-            [FromServices] HyperMediaResult hyperMediaResult)
+            [FromServices] IMediator mediator)
         {
             var result = await mediator.Send(new ClearAgentWorkTasks(agentId));
 
-            return await hyperMediaResult.ToHyperMediaResult(this, result.Result);
+            return Ok(result);
         }
     }
 }

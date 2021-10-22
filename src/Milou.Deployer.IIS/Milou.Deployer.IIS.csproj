@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
-    <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
+    <PackageReference Include="Microsoft.Web.Administration" Version="*" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="*" />
+    <PackageReference Include="Serilog" Version="*" />
+    <PackageReference Include="System.Collections.Immutable" Version="*" />
   </ItemGroup>
 
   <ItemGroup>

@@ -17,14 +17,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         [Route(GetAgentRequest.RouteTemplate, Name = GetAgentRequest.RouteName)]
         public async Task<IActionResult> GetAgent(
             [FromRoute] AgentId agentId,
-            [FromServices] IMediator mediator,
-            [FromServices] HyperMediaResult hyperMediaResult)
+            [FromServices] IMediator mediator)
         {
             var getAgentRequest = new GetAgentRequest(agentId);
 
             var queryResult = await mediator.Send(getAgentRequest);
 
-            return await hyperMediaResult.ToHyperMediaResult(this, queryResult.Result);
+            return Ok(queryResult);
         }
     }
 }
