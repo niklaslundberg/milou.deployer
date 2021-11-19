@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.DependencyInjection;
-using Arbor.App.Extensions.Time;
+﻿using Arbor.AppModel.DependencyInjection;
+using Arbor.AppModel.Time;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 

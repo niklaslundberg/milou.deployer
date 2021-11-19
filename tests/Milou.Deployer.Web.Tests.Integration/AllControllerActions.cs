@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Arbor.App.Extensions.Application;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.Application;
+using Arbor.AppModel.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;

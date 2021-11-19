@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Messaging;
+﻿using Arbor.AppModel.Messaging;
 using Arbor.Hypermedia;
 using Milou.Deployer.Web.Agent;
 

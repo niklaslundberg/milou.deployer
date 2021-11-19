@@ -1,5 +1,5 @@
 ﻿using System;
-using Arbor.App.Extensions;
+using Arbor.AppModel;
 using Arbor.ModelBinding.Primitives;
 
 namespace Milou.Deployer.Web.Agent

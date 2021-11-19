@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Configuration;
+﻿using Arbor.AppModel.Configuration;
 using Arbor.KVConfiguration.Urns;
 
 namespace Milou.Deployer.Web.Core.Caching

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Core.Deployment

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Arbor.App.Extensions;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel;
+using Arbor.AppModel.ExtensionMethods;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;

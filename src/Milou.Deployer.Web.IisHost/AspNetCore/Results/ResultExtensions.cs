@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Messaging;
+﻿using Arbor.AppModel.Messaging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

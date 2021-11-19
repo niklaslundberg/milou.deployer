@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.ExtensionMethods;
-using Arbor.App.Extensions.Messaging;
+﻿using Arbor.AppModel.ExtensionMethods;
+using Arbor.AppModel.Messaging;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {

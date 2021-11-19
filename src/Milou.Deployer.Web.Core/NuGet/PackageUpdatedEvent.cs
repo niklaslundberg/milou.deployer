@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Messaging;
+﻿using Arbor.AppModel.Messaging;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 
 namespace Milou.Deployer.Web.Core.NuGet

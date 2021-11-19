@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Arbor.App.Extensions;
+using Arbor.AppModel;
 using Milou.Deployer.Tests.Integration;
 using Xunit;
 using Xunit.Abstractions;

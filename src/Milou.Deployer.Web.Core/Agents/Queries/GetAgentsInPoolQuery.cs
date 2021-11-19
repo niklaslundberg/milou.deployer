@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Messaging;
+﻿using Arbor.AppModel.Messaging;
 using Milou.Deployer.Web.Core.Agents.Pools;
 
 namespace Milou.Deployer.Web.Core.Agents.Queries

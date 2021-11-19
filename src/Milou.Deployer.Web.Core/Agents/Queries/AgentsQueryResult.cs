@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using Arbor.App.Extensions.Messaging;
+using Arbor.AppModel.Messaging;
 
 namespace Milou.Deployer.Web.Core.Agents.Queries
 {

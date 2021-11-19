@@ -1,4 +1,4 @@
-﻿using Arbor.AspNetCore.Host.Startup;
+﻿using Arbor.AppModel.Startup;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

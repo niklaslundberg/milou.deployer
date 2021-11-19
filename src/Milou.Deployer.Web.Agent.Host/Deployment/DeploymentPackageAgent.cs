@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.ExtensionMethods;
-using Arbor.App.Extensions.Time;
+using Arbor.AppModel.ExtensionMethods;
+using Arbor.AppModel.Time;
 using Arbor.Processing;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Milou.Deployer.Web.Agent.Host.Logging;

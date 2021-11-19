@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.Tasks;
+using Arbor.AppModel.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;

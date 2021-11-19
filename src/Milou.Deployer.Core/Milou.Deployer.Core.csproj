@@ -5,25 +5,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="*-*" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="*-*" />
-    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="*-*" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="*-*" />
+    <PackageReference Include="Arbor.AppModel" Version="*-*" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="2.2.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="2.2.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="2.2.0" />
     <PackageReference Include="Arbor.Processing" Version="*" />
-    <PackageReference Include="Arbor.Tooler" Version="*-*" />
+    <PackageReference Include="Arbor.Tooler" Version="0.16.0" />
     <PackageReference Include="MediatR" Version="*" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
     <PackageReference Include="Microsoft.Web.Xdt" Version="*" />
-    <PackageReference Include="JetBrains.Annotations" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
-    <PackageReference Include="NuGet.Configuration" Version="*" />
-    <PackageReference Include="NuGet.Packaging" Version="*" />
-    <PackageReference Include="NuGet.Protocol" Version="*" />
-    <PackageReference Include="NuGet.Versioning" Version="*" />
+    <PackageReference Include="NuGet.Configuration" Version="6.0.0" />
+    <PackageReference Include="NuGet.Packaging" Version="6.0.0" />
+    <PackageReference Include="NuGet.Protocol" Version="6.0.0" />
+    <PackageReference Include="NuGet.Versioning" Version="6.0.0" />
     <PackageReference Include="Serilog" Version="*" />
-    <PackageReference Include="System.Collections.Immutable" Version="*" />
-    <PackageReference Include="Arbor.ModelBinding.Primitives" Version="*-*" />
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
+    <PackageReference Include="Arbor.ModelBinding.Primitives" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>

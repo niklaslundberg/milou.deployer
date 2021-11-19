@@ -1,6 +1,6 @@
-﻿using Arbor.App.Extensions.Configuration;
-using Arbor.App.Extensions.DependencyInjection;
-using Arbor.App.Extensions.Time;
+﻿using Arbor.AppModel.Configuration;
+using Arbor.AppModel.DependencyInjection;
+using Arbor.AppModel.Time;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Agent.Host.Deployment;

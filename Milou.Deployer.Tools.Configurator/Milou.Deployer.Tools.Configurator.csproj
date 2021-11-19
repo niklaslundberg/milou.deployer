@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="*-*" />
+    <PackageReference Include="Arbor.AppModel" Version="*-*" />
     <PackageReference Include="JetBrains.Annotations" Version="*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="*" PrivateAssets="all" />

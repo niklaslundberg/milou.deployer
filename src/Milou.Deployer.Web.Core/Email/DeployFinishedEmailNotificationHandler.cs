@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.ExtensionMethods;
-using Arbor.App.Extensions.Time;
+using Arbor.AppModel.ExtensionMethods;
+using Arbor.AppModel.Time;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Messages;

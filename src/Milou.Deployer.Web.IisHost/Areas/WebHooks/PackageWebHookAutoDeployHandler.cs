@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;

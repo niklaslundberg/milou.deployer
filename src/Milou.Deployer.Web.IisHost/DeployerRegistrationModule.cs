@@ -1,7 +1,7 @@
-﻿using Arbor.App.Extensions.Application;
-using Arbor.App.Extensions.Http;
-using Arbor.AspNetCore.Host;
-using Arbor.AspNetCore.Host.Hosting;
+﻿using Arbor.AppModel.Application;
+using Arbor.AppModel.Http;
+using Arbor.AppModel;
+using Arbor.AppModel.Hosting;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;

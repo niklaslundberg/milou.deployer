@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Configuration;
+﻿using Arbor.AppModel.Configuration;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit

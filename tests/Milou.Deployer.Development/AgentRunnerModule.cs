@@ -1,6 +1,6 @@
 using System.Linq;
-using Arbor.App.Extensions.Application;
-using Arbor.App.Extensions.DependencyInjection;
+using Arbor.AppModel.Application;
+using Arbor.AppModel.DependencyInjection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Agent.Host.Configuration;

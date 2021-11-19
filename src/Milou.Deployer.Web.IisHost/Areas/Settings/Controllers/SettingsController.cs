@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

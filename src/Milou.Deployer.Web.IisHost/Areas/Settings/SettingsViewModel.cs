@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Arbor.App.Extensions.Application;
-using Arbor.App.Extensions.Messaging;
-using Arbor.AspNetCore.Host.Hosting;
+using Arbor.AppModel.Application;
+using Arbor.AppModel.Messaging;
+using Arbor.AppModel.Hosting;
 using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;

@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Logging;
+﻿using Arbor.AppModel.Logging;
 using JetBrains.Annotations;
 using Serilog;
 using Serilog.Core;

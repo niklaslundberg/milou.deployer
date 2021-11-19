@@ -14,7 +14,7 @@
     <PackageReference Include="Arbor.Aesculus" Version="*" />
     <PackageReference Include="Arbor.Docker" Version="*" />
     <PackageReference Include="Arbor.Docker.Xunit" Version="*" />
-    <PackageReference Include="Arbor.App.Extensions" Version="*-*" />
+    <PackageReference Include="Arbor.AppModel" Version="*-*" />
     <PackageReference Include="Arbor.Processing" Version="*" />
     <PackageReference Include="AspNetCore.Authentication.Basic" Version="*" />
     <PackageReference Include="FluentAssertions" Version="*" />

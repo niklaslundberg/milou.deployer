@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net.Http;
-using Arbor.App.Extensions.DependencyInjection;
+using Arbor.AppModel.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Agent.Host.Deployment;
 using Polly;

@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Linq;
-using Arbor.App.Extensions.Configuration;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.Configuration;
+using Arbor.AppModel.ExtensionMethods;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 

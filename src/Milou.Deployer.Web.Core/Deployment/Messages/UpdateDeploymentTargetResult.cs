@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using Arbor.App.Extensions.Messaging;
+using Arbor.AppModel.Messaging;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Agent;

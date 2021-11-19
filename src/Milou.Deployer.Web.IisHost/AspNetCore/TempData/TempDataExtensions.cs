@@ -1,5 +1,5 @@
 ﻿using System;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json;

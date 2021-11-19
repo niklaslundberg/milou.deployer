@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Arbor.Processing" Version="*" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="2.2.0" />
     <PackageReference Include="Arbor.Tooler" Version="*-*" />
     <PackageReference Include="JetBrains.Annotations" Version="*" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="*" />

@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Messaging;
+﻿using Arbor.AppModel.Messaging;
 using Serilog.Events;
 
 namespace Milou.Deployer.Web.Agent

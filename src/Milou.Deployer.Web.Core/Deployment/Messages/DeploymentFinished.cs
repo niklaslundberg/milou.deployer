@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
-using Arbor.App.Extensions.Messaging;
+using Arbor.AppModel.Messaging;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;

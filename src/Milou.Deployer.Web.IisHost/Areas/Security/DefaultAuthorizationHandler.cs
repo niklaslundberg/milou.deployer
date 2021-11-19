@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authorization;

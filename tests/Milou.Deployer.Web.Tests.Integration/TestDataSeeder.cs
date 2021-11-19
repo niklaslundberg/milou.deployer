@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.Configuration;
-using Arbor.App.Extensions.ExtensionMethods;
-using Arbor.AspNetCore.Host;
+using Arbor.AppModel.Configuration;
+using Arbor.AppModel.ExtensionMethods;
+using Arbor.AppModel;
 using Arbor.KVConfiguration.Core;
 using Arbor.Primitives;
 using JetBrains.Annotations;

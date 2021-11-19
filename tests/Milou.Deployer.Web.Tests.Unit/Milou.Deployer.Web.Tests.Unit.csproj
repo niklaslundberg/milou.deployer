@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
     <PackageReference Include="NuGet.Packaging" Version="*" />
     <PackageReference Include="Serilog" Version="*" />

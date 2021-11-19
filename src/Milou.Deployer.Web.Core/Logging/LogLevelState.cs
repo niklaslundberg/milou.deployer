@@ -1,5 +1,5 @@
 ﻿using System;
-using Arbor.App.Extensions.Time;
+using Arbor.AppModel.Time;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;

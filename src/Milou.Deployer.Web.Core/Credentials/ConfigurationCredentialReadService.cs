@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
-using Arbor.App.Extensions;
-using Arbor.App.Extensions.Configuration;
+using Arbor.AppModel;
+using Arbor.AppModel.Configuration;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Serilog;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using Arbor.Processing;
 using Arbor.Tooler;
 using Milou.Deployer.Core.Cli;

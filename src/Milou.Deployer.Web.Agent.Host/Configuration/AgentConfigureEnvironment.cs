@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.Application;
-using Arbor.App.Extensions.Configuration;
+﻿using Arbor.AppModel.Application;
+using Arbor.AppModel.Configuration;
 
 namespace Milou.Deployer.Web.Agent.Host.Configuration
 {

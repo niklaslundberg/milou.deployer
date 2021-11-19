@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Application;
+﻿using Arbor.AppModel.Application;
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Tests.Unit

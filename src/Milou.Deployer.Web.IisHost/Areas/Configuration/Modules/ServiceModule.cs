@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.Caching;
-using Arbor.App.Extensions.DependencyInjection;
+﻿using Arbor.AppModel.Caching;
+using Arbor.AppModel.DependencyInjection;
 using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 using JetBrains.Annotations;

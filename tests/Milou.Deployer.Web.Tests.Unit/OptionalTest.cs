@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Arbor.App.Extensions.Configuration;
+using Arbor.AppModel.Configuration;
 using Arbor.KVConfiguration.Urns;
 using Xunit;
 

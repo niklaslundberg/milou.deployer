@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.Configuration;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.Configuration;
+using Arbor.AppModel.ExtensionMethods;
 using JetBrains.Annotations;
 using Xunit;
 using Xunit.Abstractions;

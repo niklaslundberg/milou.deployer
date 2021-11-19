@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arbor.App.Extensions.Application;
+using Arbor.AppModel.Application;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers;
 using Xunit;

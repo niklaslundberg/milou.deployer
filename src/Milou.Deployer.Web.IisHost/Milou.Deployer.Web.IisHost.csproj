@@ -17,7 +17,8 @@
   </ItemGroup>
   <ItemGroup>
 
-    <PackageReference Include="Arbor.App.Extensions" Version="*-*" />
+    <PackageReference Include="Arbor.AppModel" Version="*-*" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="2.2.0" />
     <PackageReference Include="Arbor.AspNetCore.Host" Version="*-*" />
     <PackageReference Include="Arbor.Docker" Version="*" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="Flurl" Version="*" />

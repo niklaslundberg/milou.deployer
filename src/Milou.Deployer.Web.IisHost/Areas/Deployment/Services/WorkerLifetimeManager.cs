@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.Time;
+using Arbor.AppModel.Time;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;

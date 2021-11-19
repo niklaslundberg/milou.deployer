@@ -2,8 +2,8 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Arbor.App.Extensions.ExtensionMethods;
-using Arbor.App.Extensions.IO;
+using Arbor.AppModel.ExtensionMethods;
+using Arbor.AppModel.IO;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.XmlTransformation;
 using Serilog;

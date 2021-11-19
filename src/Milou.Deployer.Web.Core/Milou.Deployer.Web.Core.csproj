@@ -3,8 +3,8 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="*-*" />
-    <PackageReference Include="Arbor.AspNetCore.Host" Version="*-*" />
+    <PackageReference Include="Arbor.AppModel" Version="*-*" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="2.2.0" />
     <PackageReference Include="Arbor.ModelBinding.Generators" Version="*-*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

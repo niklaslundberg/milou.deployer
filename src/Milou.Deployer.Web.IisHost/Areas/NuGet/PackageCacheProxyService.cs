@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.Caching;
+using Arbor.AppModel.Caching;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
 using Milou.Deployer.Web.Core.Deployment.Packages;

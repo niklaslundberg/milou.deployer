@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Arbor.AspNetCore.Host.Startup;
+using Arbor.AppModel.Startup;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Milou.Deployer.Web.Agent;

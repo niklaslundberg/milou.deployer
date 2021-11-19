@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Arbor.App.Extensions.Messaging;
+using Arbor.AppModel.Messaging;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {

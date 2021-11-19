@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.Application;
+using Arbor.AppModel.Application;
 using FluentAssertions;
 using Marten;
 using MediatR;

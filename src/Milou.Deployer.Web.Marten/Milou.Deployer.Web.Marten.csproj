@@ -9,6 +9,7 @@
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
     <PackageReference Include="Marten" Version="*" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="*" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
     <PackageReference Include="NuGet.Packaging" Version="*" />
     <PackageReference Include="NuGet.Versioning" Version="*" />

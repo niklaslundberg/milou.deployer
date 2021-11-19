@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.DependencyInjection;
-using Arbor.App.Extensions.IO;
+﻿using Arbor.AppModel.DependencyInjection;
+using Arbor.AppModel.IO;
 using Arbor.KVConfiguration.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;

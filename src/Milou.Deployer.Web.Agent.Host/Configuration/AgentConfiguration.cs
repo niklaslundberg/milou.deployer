@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Arbor.App.Extensions.Configuration;
+using Arbor.AppModel.Configuration;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 

@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.IO;
+using Arbor.AppModel.IO;
 using Arbor.Processing;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Deployment;

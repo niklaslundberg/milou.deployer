@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using FluentAssertions;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.IisHost.Areas.Agents;

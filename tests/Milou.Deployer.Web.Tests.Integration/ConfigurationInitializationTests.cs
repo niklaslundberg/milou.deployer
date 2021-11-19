@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Arbor.AspNetCore.Host.Configuration;
+using Arbor.AppModel.Configuration;
 using Arbor.KVConfiguration.Core;
 using Xunit;
 

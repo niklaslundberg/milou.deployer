@@ -6,7 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;

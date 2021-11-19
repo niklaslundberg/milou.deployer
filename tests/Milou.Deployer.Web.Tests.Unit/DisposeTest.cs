@@ -1,5 +1,5 @@
 ﻿using System;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit

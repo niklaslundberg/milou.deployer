@@ -1,5 +1,5 @@
 ﻿using System;
-using Arbor.App.Extensions.Time;
+using Arbor.AppModel.Time;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit

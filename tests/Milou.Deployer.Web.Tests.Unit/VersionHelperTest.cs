@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Application;
+﻿using Arbor.AppModel.Application;
 using Xunit;
 using Xunit.Abstractions;
 

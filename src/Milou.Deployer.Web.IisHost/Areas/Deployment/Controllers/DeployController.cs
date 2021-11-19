@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment.Packages;

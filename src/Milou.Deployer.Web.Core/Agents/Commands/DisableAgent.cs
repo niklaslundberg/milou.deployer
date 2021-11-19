@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Messaging;
+﻿using Arbor.AppModel.Messaging;
 using Arbor.Hypermedia;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;

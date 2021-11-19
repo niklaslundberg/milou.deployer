@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Arbor.App.Extensions.Configuration;
+using Arbor.AppModel.Configuration;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 {

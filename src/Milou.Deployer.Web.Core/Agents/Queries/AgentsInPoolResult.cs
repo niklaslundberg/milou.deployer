@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using Arbor.App.Extensions.Messaging;
+using Arbor.AppModel.Messaging;
 using Milou.Deployer.Web.Agent;
 
 namespace Milou.Deployer.Web.Core.Agents.Queries

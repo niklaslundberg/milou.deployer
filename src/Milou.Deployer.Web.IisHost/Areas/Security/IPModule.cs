@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.DependencyInjection;
+﻿using Arbor.AppModel.DependencyInjection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 

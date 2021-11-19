@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.Configuration;
+using Arbor.AppModel.Configuration;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Milou.Deployer.Web.Core;

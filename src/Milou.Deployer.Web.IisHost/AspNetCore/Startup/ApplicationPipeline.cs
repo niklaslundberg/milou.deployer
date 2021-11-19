@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.Application;
-using Arbor.AspNetCore.Host.Logging;
+﻿using Arbor.AppModel.Application;
+using Arbor.AppModel.Logging;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;

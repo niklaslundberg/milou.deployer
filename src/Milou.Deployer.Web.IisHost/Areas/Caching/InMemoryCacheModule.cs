@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.Caching;
-using Arbor.App.Extensions.DependencyInjection;
+﻿using Arbor.AppModel.Caching;
+using Arbor.AppModel.DependencyInjection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;

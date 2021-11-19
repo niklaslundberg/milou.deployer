@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;

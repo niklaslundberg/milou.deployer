@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;

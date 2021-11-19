@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Arbor.App.Extensions.ExtensionMethods;
-using Arbor.App.Extensions.IO;
-using Arbor.App.Extensions.Time;
+using Arbor.AppModel.ExtensionMethods;
+using Arbor.AppModel.IO;
+using Arbor.AppModel.Time;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using DotNext.Threading;
@@ -562,7 +562,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         {
             if (!string.IsNullOrWhiteSpace(deploymentTarget.PackageId) &&
                 !deploymentTarget.PackageId.Equals(packageId, StringComparison.OrdinalIgnoreCase) &&
-                !deploymentTarget.PackageId.Equals(Arbor.App.Extensions.Constants.NotAvailable,
+                !deploymentTarget.PackageId.Equals(Arbor.AppModel.Constants.NotAvailable,
                     StringComparison.OrdinalIgnoreCase))
             {
                 throw new DeployerAppException(

@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="*" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema.Json" Version="2.2.0" />
     <PackageReference Include="JetBrains.Annotations" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
     <PackageReference Include="System.Collections.Immutable" Version="*" />

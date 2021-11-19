@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arbor.App.Extensions.Application;
-using Arbor.App.Extensions.Messaging;
+using Arbor.AppModel.Application;
+using Arbor.AppModel.Messaging;
 using MediatR;
 using Xunit;
 using Xunit.Abstractions;

@@ -1,5 +1,5 @@
 ﻿using System;
-using Arbor.AspNetCore.Host;
+using Arbor.AppModel;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 
 namespace Milou.Deployer.Web.Tests.Integration

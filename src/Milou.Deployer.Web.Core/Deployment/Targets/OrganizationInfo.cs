@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets

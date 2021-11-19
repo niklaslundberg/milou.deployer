@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions.Application;
+using Arbor.AppModel.Application;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;

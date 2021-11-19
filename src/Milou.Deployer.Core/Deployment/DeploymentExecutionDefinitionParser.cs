@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
-using Arbor.App.Extensions.ExtensionMethods;
+using Arbor.AppModel.ExtensionMethods;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NuGet.Versioning;

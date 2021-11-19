@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.Logging;
+﻿using Arbor.AppModel.Logging;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Serilog;
 

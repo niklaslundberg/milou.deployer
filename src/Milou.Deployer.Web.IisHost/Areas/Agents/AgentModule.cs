@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.DependencyInjection;
+﻿using Arbor.AppModel.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;

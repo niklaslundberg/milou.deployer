@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Arbor.App.Extensions.Configuration;
-using Arbor.App.Extensions.DependencyInjection;
+using Arbor.AppModel.Configuration;
+using Arbor.AppModel.DependencyInjection;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;

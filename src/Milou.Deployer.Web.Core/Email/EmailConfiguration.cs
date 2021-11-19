@@ -1,4 +1,4 @@
-﻿using Arbor.App.Extensions.ExtensionMethods;
+﻿using Arbor.AppModel.ExtensionMethods;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;

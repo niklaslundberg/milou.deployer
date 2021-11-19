@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.AspNetCore.Host.Startup;
+using Arbor.AppModel.Startup;
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Development

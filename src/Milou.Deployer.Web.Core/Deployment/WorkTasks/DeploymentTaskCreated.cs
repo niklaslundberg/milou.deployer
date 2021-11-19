@@ -1,5 +1,5 @@
 ﻿using System;
-using Arbor.App.Extensions.Messaging;
+using Arbor.AppModel.Messaging;
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Deployment.WorkTasks

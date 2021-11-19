@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.Application;
-using Arbor.App.Extensions.Configuration;
+﻿using Arbor.AppModel.Application;
+using Arbor.AppModel.Configuration;
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Configuration

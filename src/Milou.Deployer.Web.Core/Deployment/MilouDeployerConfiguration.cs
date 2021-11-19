@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.Configuration;
-using Arbor.App.Extensions.ExtensionMethods;
+﻿using Arbor.AppModel.Configuration;
+using Arbor.AppModel.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using Serilog.Events;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.AspNetCore.Host;
+using Arbor.AppModel;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Settings;
 

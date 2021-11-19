@@ -1,5 +1,5 @@
-﻿using Arbor.App.Extensions.Cli;
-using Arbor.App.Extensions.Configuration;
+﻿using Arbor.AppModel.Cli;
+using Arbor.AppModel.Configuration;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit

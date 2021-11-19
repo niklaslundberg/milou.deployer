@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="*-*" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="*" />
+    <PackageReference Include="Arbor.AppModel" Version="*-*" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="2.2.0" />
     <PackageReference Include="JetBrains.Annotations" Version="*" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
