@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.AppModel" Version="*-*" />
+    <PackageReference Include="Arbor.AppModel" Version="0.12.0-build.1641561930" />
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="2.2.0" />
     <PackageReference Include="Arbor.KVConfiguration.Schema" Version="2.2.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.16.0" />

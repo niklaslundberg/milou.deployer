@@ -7,6 +7,7 @@
     <PackageReference Include="FluentAssertions" Version="*" />
     <PackageReference Include="JetBrains.Annotations" Version="*" />
     <PackageReference Include="MailKit" Version="*" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="*" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="*">
       <PrivateAssets>all</PrivateAssets>

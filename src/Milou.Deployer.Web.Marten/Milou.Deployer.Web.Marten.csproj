@@ -13,6 +13,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="*" />
     <PackageReference Include="NuGet.Packaging" Version="*" />
     <PackageReference Include="NuGet.Versioning" Version="*" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="System.Collections.Immutable" Version="*" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="*">
       <PrivateAssets>all</PrivateAssets>

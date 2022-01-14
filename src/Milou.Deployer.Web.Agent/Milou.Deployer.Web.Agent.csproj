@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.AppModel" Version="*-*" />
-    <PackageReference Include="Arbor.Hypermedia" Version="0.3.0" />
+    <PackageReference Include="Arbor.AppModel" Version="0.12.0-build.1641561930" />
+    <PackageReference Include="Arbor.Hypermedia" Version="0.4.0-build.1641839337" />
     <PackageReference Include="Arbor.ModelBinding.Generators" Version="2.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,7 +16,7 @@
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="2.2.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.16.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
@@ -26,9 +26,9 @@
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
     <PackageReference Include="Serilog" Version="*" />
     <PackageReference Include="Serilog.AspNetCore" Version="*" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="5.1.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="5.1.1" />
     <PackageReference Include="Polly.Extensions.Http" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.1" />
   </ItemGroup>
 
   <PropertyGroup>
