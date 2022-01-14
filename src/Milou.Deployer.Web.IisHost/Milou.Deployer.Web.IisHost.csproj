@@ -4,6 +4,7 @@
     <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="packages.lock.json" />
     <Content Remove="wwwroot\applicationmetadata.json" />
     <Content Remove="wwwroot\unpkg.json" />
   </ItemGroup>
@@ -60,6 +61,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.lock.json" />
     <None Include="wwwroot\applicationmetadata.json" />
     <None Include="wwwroot\unpkg.json" />
   </ItemGroup>

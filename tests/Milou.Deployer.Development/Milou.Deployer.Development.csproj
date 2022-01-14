@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="packages.lock.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Arbor.Aesculus" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
     <PackageReference Include="Serilog" Version="*" />
@@ -62,6 +66,10 @@
     <Content Include="..\..\src\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\signalr.js" Link="wwwroot\scripts\Libs\signalr.js" />
     <Content Include="..\..\src\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\signalr.js.map" Link="wwwroot\scripts\Libs\signalr.js.map" />
     <Content Include="..\..\src\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Site.js" Link="wwwroot\scripts\Site.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="packages.lock.json" />
   </ItemGroup>
 
 </Project>

@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="packages.lock.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="..\Milou.Deployer.Web.IisHost\Program.cs" Link="Program.cs" />
   </ItemGroup>
 
@@ -46,6 +50,10 @@
     <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\signalr.js" Link="wwwroot\scripts\Libs\signalr.js" />
     <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Libs\signalr.js.map" Link="wwwroot\scripts\Libs\signalr.js.map" />
     <Content Include="..\Milou.Deployer.Web.IisHost\wwwroot\Scripts\Site.js" Link="wwwroot\scripts\Site.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="packages.lock.json" />
   </ItemGroup>
 
   <ItemGroup>
