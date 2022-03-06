@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Arbor.AppModel" Version="0.12.0-build.1641561930" />
-    <PackageReference Include="Arbor.Hypermedia" Version="0.4.0-build.1641839337" />
+    <PackageReference Include="Arbor.Hypermedia" Version="0.4.0-build.1643038694" />
     <PackageReference Include="Arbor.ModelBinding.Generators" Version="2.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

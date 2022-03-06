@@ -21,5 +21,7 @@ namespace Milou.Deployer.Core.Deployment.Configuration
         public TimeSpan DefaultWaitTimeAfterAppOffline { get; set; } = TimeSpan.FromSeconds(3);
 
         public bool StopStartIisWebSiteEnabled { get; set; }
+
+        public bool StopStartIisWebSiteAppPoolEnabled { get; set; }
     }
 }

@@ -8,6 +8,10 @@ namespace Milou.Deployer.Core.Configuration
         public const string StopStartIisWebSiteEnabled = "urn:milou:deployer:stop-start-iis-website:enabled";
 
         [Metadata]
+
+        public const string StopStartIisWebSiteAppPoolEnabled = "urn:milou:deployer:stop-start-iis-website:app-pool:enabled";
+
+        [Metadata]
         public const string KeyValueConfigurationFile = "urn:milou:deployer:configuration-file";
 
         [Metadata]

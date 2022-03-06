@@ -188,6 +188,10 @@ namespace Milou.Deployer.DeployerApp
                     NuGetSource = nugetSource.WithDefault(configuration[ConfigurationKeys.NuGetSource]),
                     AllowPreReleaseEnabled = allowPreReleaseEnabled,
                     StopStartIisWebSiteEnabled = configuration[ConfigurationKeys.StopStartIisWebSiteEnabled]
+                       .ParseAsBooleanOrDefault(true),
+
+
+                    StopStartIisWebSiteAppPoolEnabled = configuration[ConfigurationKeys.StopStartIisWebSiteAppPoolEnabled]
                        .ParseAsBooleanOrDefault(true)
                 };
 

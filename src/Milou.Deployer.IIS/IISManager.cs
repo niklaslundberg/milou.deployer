@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Arbor.AppModel.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.Web.Administration;
@@ -16,8 +18,9 @@ namespace Milou.Deployer.IIS
         private readonly DeploymentExecutionDefinitionV1 _deploymentExecutionDefinitionV1;
         private readonly ILogger _logger;
         private ObjectState _previousSiteState;
-        private ServerManager _serverManager;
-        private Site _site;
+        private ServerManager? _serverManager;
+        private Site? _site;
+        private readonly Dictionary<ApplicationPool, ObjectState> _appPools = new (2);
 
         private IisManager(ServerManager serverManager,
             DeployerConfiguration configuration,
@@ -43,7 +46,7 @@ namespace Milou.Deployer.IIS
             {
                 _logger.Debug(
                     "Restored iis site state to {State} for site {SiteName} defined in deployment execution definition {DeploymentExecutionDefinition}",
-                    _site.State,
+                    _site!.State,
                     _deploymentExecutionDefinitionV1.IisSiteName,
                     _deploymentExecutionDefinitionV1);
             }
@@ -122,6 +125,22 @@ namespace Milou.Deployer.IIS
 
                     var objectState = _site.Stop();
 
+                    string[] appPoolNames = _site.Applications.Select(app => app.ApplicationPoolName).Distinct().ToArray();
+
+                    if (_configuration.StopStartIisWebSiteAppPoolEnabled)
+                    {
+                        foreach (string? appPoolName in appPoolNames)
+                        {
+                            var appPool = _serverManager.ApplicationPools[appPoolName];
+
+                            if (appPool.State is ObjectState.Started or ObjectState.Starting)
+                            {
+                                _appPools.Add(appPool, appPool.State);
+                            }
+
+                        }
+                    }
+
                     if (objectState == ObjectState.Stopped && _logger.IsEnabled(LogEventLevel.Debug))
                     {
                         _logger.Debug("Stopped IIS site '{IISSiteName}'", _site.Name);
@@ -130,6 +149,11 @@ namespace Milou.Deployer.IIS
                     if (objectState == ObjectState.Stopping && _logger.IsEnabled(LogEventLevel.Debug))
                     {
                         _logger.Debug("Stopping IIS site '{IISSiteName}'", _site.Name);
+                    }
+
+                    foreach (var appPool in _appPools)
+                    {
+                        appPool.Key.Stop();
                     }
                 }
             }
@@ -143,9 +167,9 @@ namespace Milou.Deployer.IIS
             return true;
         }
 
-        public static IisManager Create([NotNull] DeployerConfiguration configuration,
-            [NotNull] ILogger logger,
-            [NotNull] DeploymentExecutionDefinitionV1 deploymentExecutionDefinition)
+        public static IisManager Create(DeployerConfiguration configuration,
+            ILogger logger,
+            DeploymentExecutionDefinitionV1 deploymentExecutionDefinition)
         {
             if (configuration is null)
             {
@@ -176,6 +200,14 @@ namespace Milou.Deployer.IIS
                     return false;
                 }
 
+                if (_serverManager is { } && _appPools.Any())
+                {
+                    foreach (var appPool in _appPools)
+                    {
+                        appPool.Key.Start();
+                    }
+                }
+
                 if (_serverManager is { } &&
                     _site is { } &&
                     _site.State != ObjectState.Starting &&
@@ -202,7 +234,7 @@ namespace Milou.Deployer.IIS
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                _logger.Error(ex, "Could not restart site {IISSiteName}", _site.Name);
+                _logger.Error(ex, "Could not restart site {IISSiteName}", _site!.Name);
             }
             finally
             {
