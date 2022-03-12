@@ -27,21 +27,21 @@
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="2.2.0" />
     <PackageReference Include="JetBrains.Annotations" Version="*" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="*" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="*" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
     <PackageReference Include="Polly.Extensions.Http" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.3" />
     <PackageReference Include="Serilog" Version="*" />
     <PackageReference Include="Serilog.AspNetCore" Version="*" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="*" />
     <PackageReference Include="Serilog.Sinks.Http" Version="*" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="*" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.0" />
     <PackageReference Include="System.Collections.Immutable" Version="*" />
   </ItemGroup>
 

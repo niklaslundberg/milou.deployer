@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
     <PackageReference Include="NCrunch.Framework" Version="*" />
-    <PackageReference Include="NuGet.Versioning" Version="*" />
+    <PackageReference Include="NuGet.Versioning" Version="6.1.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="*" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="*" />
     <PackageReference Include="System.Collections.Immutable" Version="*" />

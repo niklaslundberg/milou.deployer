@@ -9,7 +9,7 @@
     <PackageReference Include="JetBrains.Annotations" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
-    <PackageReference Include="NuGet.Versioning" Version="*" />
+    <PackageReference Include="NuGet.Versioning" Version="6.1.0" />
     <PackageReference Include="System.Collections.Immutable" Version="*" />
   </ItemGroup>
 

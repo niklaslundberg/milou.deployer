@@ -44,12 +44,12 @@
       },
       "System.IdentityModel.Tokens.Jwt": {
         "type": "Direct",
-        "requested": "[6.15.0, )",
-        "resolved": "6.15.0",
-        "contentHash": "lzJaeRZE4dvPmH9U65J8z9wsrWghlosNYEqwCTjOh5o/gCHHcTV6P6EcYj7xC22AHPYavYh8IUtIqH5MszW1rA==",
+        "requested": "[6.16.0, )",
+        "resolved": "6.16.0",
+        "contentHash": "QnZUawkmLkzEhwgvlqcm2YNAoRgz27zVY+2LzMBMWMcfFhl2Sv8aavZOeuFMofmYJsST9h7BilOn7MzFSUMihQ==",
         "dependencies": {
-          "Microsoft.IdentityModel.JsonWebTokens": "6.15.0",
-          "Microsoft.IdentityModel.Tokens": "6.15.0"
+          "Microsoft.IdentityModel.JsonWebTokens": "6.16.0",
+          "Microsoft.IdentityModel.Tokens": "6.16.0"
         }
       },
       "Arbor.KVConfiguration.Core": {
@@ -68,24 +68,24 @@
       },
       "Microsoft.IdentityModel.JsonWebTokens": {
         "type": "Transitive",
-        "resolved": "6.15.0",
-        "contentHash": "IRFqTyIKV7dxIdFS7B6OYEIq6UweeZgpgHjZSjh8m9zZkBTwR9CIJ3wPalpAmJnkFsVdrUs/wprfCM7yyyd/Zg==",
+        "resolved": "6.16.0",
+        "contentHash": "FJtXVXvjoza64VPFOPBxqnhe0yyQ5B/7A09+RpTXIzowr5+A4xcX42patsLrNGmFUvXZAHhS2u/6ojTzhYatpg==",
         "dependencies": {
-          "Microsoft.IdentityModel.Tokens": "6.15.0"
+          "Microsoft.IdentityModel.Tokens": "6.16.0"
         }
       },
       "Microsoft.IdentityModel.Logging": {
         "type": "Transitive",
-        "resolved": "6.15.0",
-        "contentHash": "C6ipogdUEjMew1pVAqilUARrwIfVafDHD7fSxNacB9CypLDiAa7Sl+sWsJOHYp2mhwo3G5ADhaMueR9uByCeXw=="
+        "resolved": "6.16.0",
+        "contentHash": "Fuo5SpYUpFRw90hBM3PDA1uQsrHmbIaxvwkldJcfi0O51gz/qjSFMe8136NFRoKA3NxZZScpz/47oFkRU2WA/A=="
       },
       "Microsoft.IdentityModel.Tokens": {
         "type": "Transitive",
-        "resolved": "6.15.0",
-        "contentHash": "KC7d+0ma56r7XTP6J7WAGaFRiYMLED9qH/Q3TWwpJzvGzAx8afvk/sTWhaquxipTZB/KBIVO6uxpiepcVBd6RA==",
+        "resolved": "6.16.0",
+        "contentHash": "dL7r4bdRbDG0RmyYGw9cpO/pA3GVaxV+lI1ConYuQuRiAxd1ONFlxHue1o8wR8+lEB972cekzfj45WSNaq3+xA==",
         "dependencies": {
           "Microsoft.CSharp": "4.5.0",
-          "Microsoft.IdentityModel.Logging": "6.15.0",
+          "Microsoft.IdentityModel.Logging": "6.16.0",
           "System.Security.Cryptography.Cng": "4.5.0"
         }
       },

@@ -15,11 +15,11 @@
     <PackageReference Include="Arbor.Docker" Version="*" />
     <PackageReference Include="Arbor.Docker.Xunit" Version="*" />
     <PackageReference Include="Arbor.AppModel" Version="0.12.0-build.1641561930" />
-    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="MediatR" Version="10.0.1" />
     <PackageReference Include="Arbor.Processing" Version="*" />
     <PackageReference Include="AspNetCore.Authentication.Basic" Version="*" />
     <PackageReference Include="FluentAssertions" Version="*" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="*" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="*" />
@@ -31,12 +31,12 @@
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
     <PackageReference Include="JetBrains.Annotations" Version="*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="*" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="*" />
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="*" />
     <PackageReference Include="NCrunch.Framework" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
-    <PackageReference Include="NuGet.Packaging" Version="6.1.0" />
+    <PackageReference Include="NuGet.Packaging" Version="*" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="*" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="*" />
     <PackageReference Include="System.Collections.Immutable" Version="*" />

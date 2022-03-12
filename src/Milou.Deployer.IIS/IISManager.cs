@@ -118,10 +118,7 @@ namespace Milou.Deployer.IIS
 
                 if (_previousSiteState == ObjectState.Starting || _previousSiteState == ObjectState.Started)
                 {
-                    if (_logger.IsEnabled(LogEventLevel.Debug))
-                    {
-                        _logger.Debug("Running stop IIS site '{IISSiteName}'", _site.Name);
-                    }
+                    _logger.Information("Stopping IIS site '{IISSiteName}'", _site.Name);
 
                     var objectState = _site.Stop();
 
@@ -141,19 +138,21 @@ namespace Milou.Deployer.IIS
                         }
                     }
 
-                    if (objectState == ObjectState.Stopped && _logger.IsEnabled(LogEventLevel.Debug))
+                    if (objectState == ObjectState.Stopped)
                     {
-                        _logger.Debug("Stopped IIS site '{IISSiteName}'", _site.Name);
+                        _logger.Information("Stopped IIS site '{IISSiteName}'", _site.Name);
                     }
 
-                    if (objectState == ObjectState.Stopping && _logger.IsEnabled(LogEventLevel.Debug))
+                    if (objectState == ObjectState.Stopping)
                     {
-                        _logger.Debug("Stopping IIS site '{IISSiteName}'", _site.Name);
+                        _logger.Information("Stopping IIS site '{IISSiteName}'", _site.Name);
                     }
 
                     foreach (var appPool in _appPools)
                     {
+                        _logger.Information("Stopping application pool {ApplicationPool}", appPool.Key.Name);
                         appPool.Key.Stop();
+                        _logger.Information("Stopped application pool {ApplicationPool}", appPool.Key.Name);
                     }
                 }
             }
@@ -204,7 +203,9 @@ namespace Milou.Deployer.IIS
                 {
                     foreach (var appPool in _appPools)
                     {
+                        _logger.Information("Starting application pool {ApplicationPool}", appPool.Key.Name);
                         appPool.Key.Start();
+                        _logger.Information("Started application pool {ApplicationPool}", appPool.Key.Name);
                     }
                 }
 
@@ -214,21 +215,18 @@ namespace Milou.Deployer.IIS
                     _site.State != ObjectState.Started &&
                     (_previousSiteState == ObjectState.Starting || _previousSiteState == ObjectState.Started))
                 {
-                    if (_logger.IsEnabled(LogEventLevel.Debug))
-                    {
-                        _logger.Debug("Running start IIS site '{IISSiteName}'", _site.Name);
-                    }
+                    _logger.Information("Starting IIS site '{IISSiteName}'", _site.Name);
 
                     var objectState = _site.Start();
 
-                    if (objectState == ObjectState.Started && _logger.IsEnabled(LogEventLevel.Debug))
+                    if (objectState == ObjectState.Started)
                     {
-                        _logger.Debug("Started IIS site '{IISSiteName}'", _site.Name);
+                        _logger.Information("Started IIS site '{IISSiteName}'", _site.Name);
                     }
 
-                    if (objectState == ObjectState.Starting && _logger.IsEnabled(LogEventLevel.Debug))
+                    if (objectState == ObjectState.Starting)
                     {
-                        _logger.Debug("Starting IIS site '{IISSiteName}'", _site.Name);
+                        _logger.Information("Starting IIS site is in progress'{IISSiteName}'", _site.Name);
                     }
                 }
             }
