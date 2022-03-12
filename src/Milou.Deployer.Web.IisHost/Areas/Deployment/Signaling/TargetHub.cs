@@ -15,7 +15,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         public const string TargetsWithUpdates = "targetsWithUpdates";
         private readonly IMediator _mediator;
 
-        public TargetHub([NotNull] IMediator mediator) =>
+        public TargetHub(IMediator mediator) =>
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         public override async Task OnDisconnectedAsync(Exception? exception)

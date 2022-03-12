@@ -7,7 +7,6 @@ namespace Milou.Deployer.Core.Cli
 {
     public static class ArgExtensions
     {
-        [CanBeNull]
         public static string? GetArgumentValueOrDefault(this IEnumerable<string> args, string argumentName)
         {
             if (args is null)

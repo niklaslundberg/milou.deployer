@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
             "-" +
             projectName.Replace("-", "_", StringComparison.InvariantCulture);
 
-        public static bool IsNameValid([NotNull] string name)
+        public static bool IsNameValid(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {

@@ -29,8 +29,8 @@ namespace Milou.Deployer.Ftp
         private readonly ILogger _logger;
 
         [PublicAPI]
-        public FtpHandler([NotNull] FtpClient ftpClient,
-            [CanBeNull] ILogger? logger = default,
+        public FtpHandler(FtpClient ftpClient,
+            ILogger? logger = default,
             FtpSettings? ftpSettings = null)
         {
             _ftpSettings = ftpSettings ?? new FtpSettings();
@@ -237,8 +237,8 @@ namespace Milou.Deployer.Ftp
             return new FtpHandler(ftpClient, logger, ftpSettings);
         }
 
-        public static async Task<FtpHandler> CreateWithPublishSettings([NotNull] string publishSettingsFile,
-            [NotNull] FtpSettings ftpSettings,
+        public static async Task<FtpHandler> CreateWithPublishSettings(string publishSettingsFile,
+            FtpSettings ftpSettings,
             ILogger? logger = default)
         {
             if (ftpSettings is null)
@@ -269,7 +269,7 @@ namespace Milou.Deployer.Ftp
             return await Create(fullUri, ftpSettings, credentials, logger);
         }
 
-        private async Task CreateDirectoryInternalAsync([NotNull] FtpPath directoryPath,
+        private async Task CreateDirectoryInternalAsync(FtpPath directoryPath,
             CancellationToken cancellationToken)
         {
             try
@@ -282,7 +282,7 @@ namespace Milou.Deployer.Ftp
             }
         }
 
-        private async Task DeleteDirectoryInternalAsync([NotNull] FtpPath path, CancellationToken cancellationToken)
+        private async Task DeleteDirectoryInternalAsync(FtpPath path, CancellationToken cancellationToken)
         {
             try
             {
@@ -296,7 +296,7 @@ namespace Milou.Deployer.Ftp
             }
         }
 
-        private async Task DeleteFileInternalAsync([NotNull] FtpPath filePath, CancellationToken cancellationToken)
+        private async Task DeleteFileInternalAsync(FtpPath filePath, CancellationToken cancellationToken)
         {
             int attempt = 1;
             const int maxAttempts = 5;
@@ -378,7 +378,7 @@ namespace Milou.Deployer.Ftp
             }
         }
 
-        private async Task<bool> FileExistsInternalAsync([NotNull] FtpPath filePath,
+        private async Task<bool> FileExistsInternalAsync(FtpPath filePath,
             CancellationToken cancellationToken)
         {
             try
@@ -456,7 +456,7 @@ namespace Milou.Deployer.Ftp
             return false;
         }
 
-        private async Task<ImmutableArray<FtpPath>> ListDirectoryInternalAsync([NotNull] FtpPath path,
+        private async Task<ImmutableArray<FtpPath>> ListDirectoryInternalAsync(FtpPath path,
             CancellationToken cancellationToken)
         {
             try
@@ -477,8 +477,8 @@ namespace Milou.Deployer.Ftp
             }
         }
 
-        private async Task<DeploySummary> PublishInternalAsync([NotNull] RuleConfiguration ruleConfiguration,
-            [NotNull] DirectoryInfo sourceDirectory,
+        private async Task<DeploySummary> PublishInternalAsync(RuleConfiguration ruleConfiguration,
+            DirectoryInfo sourceDirectory,
             CancellationToken cancellationToken)
         {
             var deploymentChangeSummary = new DeploySummary();
@@ -583,8 +583,8 @@ namespace Milou.Deployer.Ftp
             return deploymentChangeSummary;
         }
 
-        private async Task<DeploySummary> UploadDirectoryInternalAsync([NotNull] DirectoryInfo sourceDirectory,
-            [NotNull] DirectoryInfo baseDirectory,
+        private async Task<DeploySummary> UploadDirectoryInternalAsync(DirectoryInfo sourceDirectory,
+            DirectoryInfo baseDirectory,
             FtpPath basePath,
             CancellationToken cancellationToken)
         {
@@ -609,8 +609,8 @@ namespace Milou.Deployer.Ftp
             return summary;
         }
 
-        private async Task UploadFileInternalAsync([NotNull] FtpPath filePath,
-            [NotNull] FileInfo sourceFile,
+        private async Task UploadFileInternalAsync(FtpPath filePath,
+            FileInfo sourceFile,
             CancellationToken cancellationToken = default)
         {
             _logger.Debug("Settings file content upload length to {Length} bytes for file '{Path}'",

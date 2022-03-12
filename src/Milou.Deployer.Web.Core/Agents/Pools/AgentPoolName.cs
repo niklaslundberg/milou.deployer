@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Core.Agents.Pools
     [JsonConverter(typeof(AgentPoolNameConverter))]
     public record AgentPoolName
     {
-        public AgentPoolName([JetBrains.Annotations.NotNull] string value)
+        public AgentPoolName(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {

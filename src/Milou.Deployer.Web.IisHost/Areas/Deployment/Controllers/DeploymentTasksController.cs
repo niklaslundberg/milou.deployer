@@ -64,7 +64,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [HttpGet]
         [Route(AgentConstants.DeploymentTaskPackageRoute, Name = AgentConstants.DeploymentTaskPackageRouteName)]
-        public async Task<IActionResult> DeploymentTaskPackage([NotNull] string deploymentTaskId,
+        public async Task<IActionResult> DeploymentTaskPackage(string deploymentTaskId,
             [FromServices] IDeploymentTaskPackageStore deploymentTaskPackageStore)
         {
             if (string.IsNullOrWhiteSpace(deploymentTaskId))

@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.Core.Logging
     {
         private readonly ILogger _logger;
 
-        public LoggingModule([NotNull] ILogger logger) =>
+        public LoggingModule(ILogger logger) =>
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         public IServiceCollection Register(IServiceCollection builder) => builder.AddSingleton(_logger, this);

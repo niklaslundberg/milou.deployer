@@ -244,7 +244,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.FromResult(Unit.Value);
         }
 
-        public async Task Enqueue([NotNull] DeploymentTask deploymentTask)
+        public async Task Enqueue(DeploymentTask deploymentTask)
         {
             if (_stoppingToken.IsCancellationRequested)
             {
@@ -329,7 +329,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             await Task.WhenAll(_tasks.Values.Where(task => !task.IsCompleted));
         }
 
-        private DeploymentTargetWorker? GetWorkerByTargetId([NotNull] DeploymentTargetId targetId)
+        private DeploymentTargetWorker? GetWorkerByTargetId(DeploymentTargetId targetId)
         {
             if (!_configurationInstanceHolder.TryGet(targetId.TargetId, out DeploymentTargetWorker? worker))
             {

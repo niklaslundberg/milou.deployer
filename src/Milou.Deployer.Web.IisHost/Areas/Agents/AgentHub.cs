@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
 
-        public AgentHub([NotNull] IMediator mediator, ILogger logger)
+        public AgentHub(IMediator mediator, ILogger logger)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _logger = logger;

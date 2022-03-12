@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     {
         private static readonly ConcurrentTwoWaySingleValueMap<string, IPAddress> IpAddressMap = new();
 
-        public AllowedIpAddressHandler([NotNull] IEnumerable<AllowedHostName> hostNames, [NotNull] ILogger logger)
+        public AllowedIpAddressHandler(IEnumerable<AllowedHostName> hostNames, ILogger logger)
         {
             if (hostNames is null)
             {
@@ -37,7 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
         public static ImmutableArray<IPAddress> IpAddresses => IpAddressMap.ReverseKeys;
 
-        public static bool SetDomainIp([NotNull] string domain, [NotNull] IPAddress ipAddress)
+        public static bool SetDomainIp(string domain, IPAddress ipAddress)
         {
             if (ipAddress is null)
             {

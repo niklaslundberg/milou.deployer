@@ -6,7 +6,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public static class PathHelper
     {
-        public static string RelativePath([NotNull] FileInfo fileInfo, [NotNull] DirectoryInfo baseDirectory)
+        public static string RelativePath(FileInfo fileInfo, DirectoryInfo baseDirectory)
         {
             if (fileInfo is null)
             {
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             return GetRelative(fullName, baseFullName);
         }
 
-        public static string RelativePath([NotNull] DirectoryInfo directoryInfo, [NotNull] DirectoryInfo baseDirectory)
+        public static string RelativePath(DirectoryInfo directoryInfo, DirectoryInfo baseDirectory)
         {
             if (directoryInfo is null)
             {

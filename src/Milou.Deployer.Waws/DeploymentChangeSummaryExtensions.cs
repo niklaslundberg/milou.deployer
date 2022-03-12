@@ -7,7 +7,7 @@ namespace Milou.Deployer.Waws
 {
     public static class DeploymentChangeSummaryExtensions
     {
-        public static string ToDisplayValue([NotNull] this DeploySummary summary)
+        public static string ToDisplayValue(this DeploySummary summary)
         {
             if (summary is null)
             {

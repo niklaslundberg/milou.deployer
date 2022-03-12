@@ -6,7 +6,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 {
     public class DeploymentTaskCreated : IEvent
     {
-        public DeploymentTaskCreated([NotNull] DeploymentTask deploymentTask)
+        public DeploymentTaskCreated(DeploymentTask deploymentTask)
         {
             if (deploymentTask is null)
             {

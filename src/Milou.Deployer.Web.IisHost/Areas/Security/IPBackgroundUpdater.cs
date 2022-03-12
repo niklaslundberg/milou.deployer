@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     {
         private readonly ILogger _logger;
 
-        public IpBackgroundUpdater([NotNull] ILogger logger) =>
+        public IpBackgroundUpdater(ILogger logger) =>
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

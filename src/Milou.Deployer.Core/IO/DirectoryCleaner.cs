@@ -14,7 +14,7 @@ namespace Milou.Deployer.Core.IO
     {
         private readonly ILogger _logger;
 
-        public DirectoryCleaner([NotNull] ILogger logger) =>
+        public DirectoryCleaner(ILogger logger) =>
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         public async Task CleanDirectoriesAsync(IList<DirectoryInfo> directoriesToClean, int attempt = 0)
@@ -81,7 +81,7 @@ namespace Milou.Deployer.Core.IO
             }
         }
 
-        public async Task CleanFilesAsync([NotNull] IList<string> files, int attempt = 0)
+        public async Task CleanFilesAsync(IList<string> files, int attempt = 0)
         {
             if (files is null)
             {

@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         private readonly ITestOutputHelper? _testOutputHelper;
 
-        public XunitAppLoggingConfiguration([NotNull] LoggingLevelSwitch levelSwitch,
+        public XunitAppLoggingConfiguration(LoggingLevelSwitch levelSwitch,
             ITestOutputHelper? testOutputHelper = null)
         {
             if (levelSwitch is null)
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             _testOutputHelper = testOutputHelper;
         }
 
-        public LoggerConfiguration Handle([NotNull] LoggerConfiguration loggerConfiguration)
+        public LoggerConfiguration Handle(LoggerConfiguration loggerConfiguration)
         {
             if (loggerConfiguration is null)
             {

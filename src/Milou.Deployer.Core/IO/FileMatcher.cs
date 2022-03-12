@@ -16,7 +16,7 @@ namespace Milou.Deployer.Core.IO
 
         public FileMatcher(ILogger logger) => _logger = logger;
 
-        public ImmutableArray<FileInfo> Matches([NotNull] FileMatch fileMatch, [NotNull] DirectoryInfo rootDirectory)
+        public ImmutableArray<FileInfo> Matches(FileMatch fileMatch, DirectoryInfo rootDirectory)
         {
             if (fileMatch is null)
             {

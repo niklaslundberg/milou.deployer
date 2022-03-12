@@ -36,12 +36,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         private readonly IPackageService _packageService;
         private readonly TimeoutHelper _timeoutHelper;
 
-        public AutoDeployBackgroundService([NotNull] IDeploymentTargetReadService deploymentTargetReadService,
-            [NotNull] MonitoringService monitoringService,
-            [NotNull] DeploymentWorkerService deploymentWorkerService,
-            [NotNull] AutoDeployConfiguration autoDeployConfiguration,
-            [NotNull] ILogger logger,
-            [NotNull] IPackageService packageService,
+        public AutoDeployBackgroundService(IDeploymentTargetReadService deploymentTargetReadService,
+            MonitoringService monitoringService,
+            DeploymentWorkerService deploymentWorkerService,
+            AutoDeployConfiguration autoDeployConfiguration,
+            ILogger logger,
+            IPackageService packageService,
             TimeoutHelper timeoutHelper,
             IApplicationSettingsStore applicationSettingsStore,
             IMediator mediator)

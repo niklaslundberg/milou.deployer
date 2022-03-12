@@ -11,13 +11,12 @@ namespace Milou.Deployer.Web.Core.Credentials
     [UsedImplicitly]
     public class ConfigurationCredentialReadService : ICredentialReadService
     {
-        [NotNull]
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
         private readonly ILogger _logger;
 
-        public ConfigurationCredentialReadService([NotNull] IKeyValueConfiguration keyValueConfiguration,
-            [NotNull] ILogger logger)
+        public ConfigurationCredentialReadService(IKeyValueConfiguration keyValueConfiguration,
+            ILogger logger)
         {
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
@@ -25,8 +24,8 @@ namespace Milou.Deployer.Web.Core.Credentials
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public string GetSecret([NotNull] string id,
-            [NotNull] string secretKey,
+        public string GetSecret(string id,
+            string secretKey,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(id))

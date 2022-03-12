@@ -22,9 +22,9 @@ namespace Milou.Deployer.Web.Core.Email
         private readonly IDeploymentTargetReadService _targetSource;
         private readonly TimeoutHelper _timeoutHelper;
 
-        public DeployFinishedEmailNotificationHandler([NotNull] ISmtpService smtpService,
-            [NotNull] IDeploymentTargetReadService targetSource,
-            [NotNull] ILogger logger,
+        public DeployFinishedEmailNotificationHandler(ISmtpService smtpService,
+            IDeploymentTargetReadService targetSource,
+            ILogger logger,
             TimeoutHelper timeoutHelper,
             EmailConfiguration? emailConfiguration = null)
         {

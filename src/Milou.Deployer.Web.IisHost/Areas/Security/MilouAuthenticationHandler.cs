@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     {
         private readonly ILogger _logger;
 
-        public MilouAuthenticationHandler([NotNull] ILogger logger,
+        public MilouAuthenticationHandler(ILogger logger,
             IOptionsMonitor<MilouAuthenticationOptions> options,
             ILoggerFactory loggerFactory,
             UrlEncoder encoder,

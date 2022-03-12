@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public abstract class TestBase<T> : IDisposable, IClassFixture<T>, IAsyncLifetime where T : class, IAppHost
     {
-        protected TestBase([NotNull] T webFixture, [NotNull] ITestOutputHelper output)
+        protected TestBase(T webFixture, ITestOutputHelper output)
         {
             Output = output ?? throw new ArgumentNullException(nameof(output));
             WebFixture = webFixture ?? throw new ArgumentNullException(nameof(webFixture));

@@ -7,8 +7,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
     [PublicAPI]
     public class ProjectInfo
     {
-        public ProjectInfo([NotNull] string organizationInvariantName,
-            [NotNull] string projectInvariantName,
+        public ProjectInfo(string organizationInvariantName,
+            string projectInvariantName,
             [CanBeNull] IEnumerable<DeploymentTarget> deploymentTargets)
         {
             if (string.IsNullOrWhiteSpace(projectInvariantName))

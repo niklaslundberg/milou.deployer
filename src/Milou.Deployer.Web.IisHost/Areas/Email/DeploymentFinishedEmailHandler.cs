@@ -17,8 +17,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
         private readonly EmailNotificationConfiguration _emailNotificationConfiguration;
         private readonly ISmtpService _smtpService;
 
-        public DeploymentFinishedEmailHandler([NotNull] ISmtpService smtpService,
-            [NotNull] EmailNotificationConfiguration emailNotificationConfiguration)
+        public DeploymentFinishedEmailHandler(ISmtpService smtpService,
+            EmailNotificationConfiguration emailNotificationConfiguration)
         {
             _smtpService = smtpService ?? throw new ArgumentNullException(nameof(smtpService));
 

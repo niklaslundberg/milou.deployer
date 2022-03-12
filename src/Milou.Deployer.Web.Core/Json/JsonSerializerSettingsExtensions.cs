@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.Core.Json
     public static class JsonSerializerSettingsExtensions
     {
         public static JsonSerializerSettings UseCustomConverters(
-            [NotNull] this JsonSerializerSettings serializerSettings)
+            this JsonSerializerSettings serializerSettings)
         {
             if (serializerSettings is null)
             {
@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.Core.Json
             return serializerSettings;
         }
 
-        public static JsonSerializer UseCustomConverters([NotNull] this JsonSerializer serializerSettings)
+        public static JsonSerializer UseCustomConverters(this JsonSerializer serializerSettings)
         {
             if (serializerSettings is null)
             {

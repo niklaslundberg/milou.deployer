@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     [UsedImplicitly]
     public class ClearAgentRequest : HttpRequestFixture
     {
-        public ClearAgentRequest([NotNull] IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink,
+        public ClearAgentRequest(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink,
             CreateRequest())
         {
         }

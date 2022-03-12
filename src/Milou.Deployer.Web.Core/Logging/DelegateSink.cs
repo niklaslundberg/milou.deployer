@@ -11,10 +11,10 @@ namespace Milou.Deployer.Web.Core.Logging
     {
         private readonly Action<string, LogEventLevel> _action;
 
-        public DelegateSink([NotNull] Action<string, LogEventLevel> action) =>
+        public DelegateSink(Action<string, LogEventLevel> action) =>
             _action = action ?? throw new ArgumentNullException(nameof(action));
 
-        public void Emit([NotNull] LogEvent logEvent)
+        public void Emit(LogEvent logEvent)
         {
             if (logEvent is null)
             {

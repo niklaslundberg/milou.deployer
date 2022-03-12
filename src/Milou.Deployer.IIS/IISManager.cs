@@ -166,7 +166,7 @@ namespace Milou.Deployer.IIS
             return true;
         }
 
-        public static IisManager Create(DeployerConfiguration configuration,
+        public static IisManager? Create(DeployerConfiguration configuration,
             ILogger logger,
             DeploymentExecutionDefinitionV1 deploymentExecutionDefinition)
         {
@@ -185,6 +185,12 @@ namespace Milou.Deployer.IIS
                 throw new ArgumentNullException(nameof(deploymentExecutionDefinition));
             }
 
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                logger.Warning("IIS operations are not supported on non-Windows platforms");
+                return null;
+            }
+
             return new IisManager(new ServerManager(), configuration, logger, deploymentExecutionDefinition);
         }
 
@@ -201,11 +207,11 @@ namespace Milou.Deployer.IIS
 
                 if (_serverManager is { } && _appPools.Any())
                 {
-                    foreach (var appPool in _appPools)
+                    foreach (var (appPool, _) in _appPools)
                     {
-                        _logger.Information("Starting application pool {ApplicationPool}", appPool.Key.Name);
-                        appPool.Key.Start();
-                        _logger.Information("Started application pool {ApplicationPool}", appPool.Key.Name);
+                        _logger.Information("Starting application pool {ApplicationPool}", appPool.Name);
+                        appPool.Start();
+                        _logger.Information("Started application pool {ApplicationPool}", appPool.Name);
                     }
                 }
 

@@ -8,8 +8,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
 {
     public class DeploymentTargetViewOutputModel
     {
-        public DeploymentTargetViewOutputModel([NotNull] DeploymentTarget target,
-            [NotNull] IReadOnlyCollection<StringPair> configurationPairs)
+        public DeploymentTargetViewOutputModel(DeploymentTarget target,
+            IReadOnlyCollection<StringPair> configurationPairs)
         {
             Target = target ?? throw new ArgumentNullException(nameof(target));
             ConfigurationPairs = configurationPairs ?? throw new ArgumentNullException(nameof(configurationPairs));

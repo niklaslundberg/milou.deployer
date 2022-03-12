@@ -35,7 +35,7 @@ namespace Milou.Deployer.Core.Deployment
 
         private readonly FileMatcher _fileMatcher;
         private readonly IFtpHandlerFactory _ftpHandlerFactory;
-        private readonly Func<DeploymentExecutionDefinitionV1, IIisManager> _iisManager;
+        private readonly Func<DeploymentExecutionDefinitionV1, IIisManager?> _iisManager;
 
         private readonly ILogger _logger;
         private readonly NuGetPackageInstaller _nugetPackageInstaller;
@@ -47,9 +47,9 @@ namespace Milou.Deployer.Core.Deployment
 
         public DeploymentService(DeployerConfiguration deployerConfiguration,
             ILogger logger,
-            [NotNull] IKeyValueConfiguration keyValueConfiguration,
+            IKeyValueConfiguration keyValueConfiguration,
             IWebDeployHelper webDeployHelper,
-            Func<DeploymentExecutionDefinitionV1, IIisManager> iisManager,
+            Func<DeploymentExecutionDefinitionV1, IIisManager?> iisManager,
             NuGetPackageInstaller nugetPackageInstaller,
             IFtpHandlerFactory ftpHandlerFactor)
         {
@@ -547,7 +547,7 @@ namespace Milou.Deployer.Core.Deployment
 
                         if (!File.Exists(sourceAppOffline) && !targetAppOffline.Exists)
                         {
-                            using FileStream _ = File.Create(targetAppOffline.FullName);
+                            await using FileStream _ = File.Create(targetAppOffline.FullName);
 
                             _logger.Debug("Created offline file '{File}'", targetAppOffline.FullName);
 

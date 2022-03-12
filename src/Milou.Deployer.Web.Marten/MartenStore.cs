@@ -55,7 +55,7 @@ namespace Milou.Deployer.Web.Marten
 
         private readonly IMediator _mediator;
 
-        public MartenStore([NotNull] IDocumentStore documentStore,
+        public MartenStore(IDocumentStore documentStore,
             ILogger logger,
             IMediator mediator,
             ICustomMemoryCache cache)
@@ -247,7 +247,7 @@ namespace Milou.Deployer.Web.Marten
             return Unit.Value;
         }
 
-        public async Task<CreateEnvironmentResult> Handle([NotNull] CreateEnvironment request,
+        public async Task<CreateEnvironmentResult> Handle(CreateEnvironment request,
             CancellationToken cancellationToken)
         {
             if (request is null)
@@ -275,7 +275,7 @@ namespace Milou.Deployer.Web.Marten
             return new CreateEnvironmentResult(data.Id, Result.Created);
         }
 
-        public async Task<CreateOrganizationResult> Handle([NotNull] CreateOrganization request,
+        public async Task<CreateOrganizationResult> Handle(CreateOrganization request,
             CancellationToken cancellationToken)
         {
             if (request is null)
@@ -288,7 +288,7 @@ namespace Milou.Deployer.Web.Marten
             return result;
         }
 
-        public Task<CreateProjectResult> Handle([NotNull] CreateProject request, CancellationToken cancellationToken)
+        public Task<CreateProjectResult> Handle(CreateProject request, CancellationToken cancellationToken)
         {
             if (request is null)
             {
@@ -298,7 +298,7 @@ namespace Milou.Deployer.Web.Marten
             return CreateProjectAsync(request, cancellationToken);
         }
 
-        public async Task<CreateTargetResult> Handle([NotNull] CreateTarget createTarget,
+        public async Task<CreateTargetResult> Handle(CreateTarget createTarget,
             CancellationToken cancellationToken)
         {
             if (createTarget is null)
@@ -385,7 +385,7 @@ namespace Milou.Deployer.Web.Marten
             return new DeploymentLogResponse(taskLog);
         }
 
-        public async Task<Unit> Handle([NotNull] DisableTarget request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DisableTarget request, CancellationToken cancellationToken)
         {
             if (request is null)
             {
@@ -488,7 +488,7 @@ namespace Milou.Deployer.Web.Marten
             return new AgentsQueryResult(agentsData.Select(MapAgentData).NotNull().ToImmutableArray());
         }
 
-        public async Task<Unit> Handle([NotNull] RemoveTarget request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(RemoveTarget request, CancellationToken cancellationToken)
         {
             if (request is null)
             {
@@ -548,7 +548,7 @@ namespace Milou.Deployer.Web.Marten
             return new ResetAgentTokenResult(agentInstallConfiguration.AccessToken);
         }
 
-        public async Task<UpdateDeploymentTargetResult> Handle([NotNull] UpdateDeploymentTarget request,
+        public async Task<UpdateDeploymentTargetResult> Handle(UpdateDeploymentTarget request,
             CancellationToken cancellationToken)
         {
             if (request is null)

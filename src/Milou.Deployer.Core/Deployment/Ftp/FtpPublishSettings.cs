@@ -14,7 +14,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
         private const string PublishUrlAttribute = "publishUrl";
         private const string PublishMethodAttribute = "publishMethod";
 
-        private FtpPublishSettings(string userName, string password, [NotNull] Uri ftpBaseUri)
+        private FtpPublishSettings(string userName, string password, Uri ftpBaseUri)
         {
             UserName = userName;
             Password = password;

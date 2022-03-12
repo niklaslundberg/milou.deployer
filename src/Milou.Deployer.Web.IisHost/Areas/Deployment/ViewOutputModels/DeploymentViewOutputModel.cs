@@ -10,8 +10,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
 {
     public class DeploymentViewOutputModel
     {
-        public DeploymentViewOutputModel([NotNull] IReadOnlyCollection<PackageVersion> packageVersions,
-            [NotNull] IReadOnlyCollection<DeploymentTarget> targets)
+        public DeploymentViewOutputModel(IReadOnlyCollection<PackageVersion> packageVersions,
+            IReadOnlyCollection<DeploymentTarget> targets)
         {
             if (packageVersions is null)
             {

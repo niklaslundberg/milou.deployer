@@ -13,7 +13,7 @@ namespace Milou.Deployer.Core.Deployment
         public static readonly PublishType Ftps = new(nameof(Ftps));
         public static readonly PublishType WebDeploy = new(nameof(WebDeploy));
 
-        private PublishType([NotNull] string name)
+        private PublishType(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {

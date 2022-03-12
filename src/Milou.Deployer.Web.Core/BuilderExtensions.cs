@@ -12,8 +12,8 @@ namespace Milou.Deployer.Web.Core
 {
     public static class BuilderExtensions
     {
-        public static IServiceCollection RegisterAssemblyTypes<T>([NotNull] this IServiceCollection serviceCollection,
-            [NotNull] IEnumerable<Assembly> assemblies,
+        public static IServiceCollection RegisterAssemblyTypes<T>(this IServiceCollection serviceCollection,
+            IEnumerable<Assembly> assemblies,
             ServiceLifetime lifetime,
             IModule? module = null) where T : class
         {

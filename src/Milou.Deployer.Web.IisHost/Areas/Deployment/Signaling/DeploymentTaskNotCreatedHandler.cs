@@ -16,7 +16,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         private readonly IHubContext<TargetHub> _hubContext;
         private readonly LogSubscribers _logSubscribers;
 
-        public DeploymentTaskNotCreatedHandler([NotNull] IHubContext<TargetHub> hubContext,
+        public DeploymentTaskNotCreatedHandler(IHubContext<TargetHub> hubContext,
             LogSubscribers logSubscribers)
         {
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));

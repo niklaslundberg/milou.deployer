@@ -14,7 +14,7 @@ namespace Milou.Deployer.Web.Core.Security
 
         public ImmutableArray<T2> ReverseKeys => _reverse.Keys.ToImmutableArray();
 
-        public bool TrySet([NotNull] T1 t1, [NotNull] T2 t2)
+        public bool TrySet(T1 t1, T2 t2)
         {
             if (t1 is null)
             {

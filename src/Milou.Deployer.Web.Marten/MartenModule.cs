@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Marten
     {
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
-        public MartenModule([NotNull] IKeyValueConfiguration keyValueConfiguration) => _keyValueConfiguration =
+        public MartenModule(IKeyValueConfiguration keyValueConfiguration) => _keyValueConfiguration =
             keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
 
         public IServiceCollection Register(IServiceCollection builder)

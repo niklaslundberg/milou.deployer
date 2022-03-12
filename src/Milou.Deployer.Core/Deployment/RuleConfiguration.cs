@@ -27,8 +27,8 @@ namespace Milou.Deployer.Core.Deployment
 
         public bool UseChecksumEnabled { get; set; }
 
-        public static RuleConfiguration Get([NotNull] DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
-            [NotNull] DeployerConfiguration deployerConfiguration,
+        public static RuleConfiguration Get(DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
+            DeployerConfiguration deployerConfiguration,
             ILogger logger)
         {
             if (deploymentExecutionDefinition is null)

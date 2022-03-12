@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class DeploymentMetadataLogged : IEvent
     {
-        public DeploymentMetadataLogged([NotNull] DeploymentTask deploymentTask, [NotNull] DeploymentTaskResult result)
+        public DeploymentMetadataLogged(DeploymentTask deploymentTask, DeploymentTaskResult result)
         {
             if (result is null)
             {
@@ -25,7 +25,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public DeploymentTask DeploymentTask { get; }
 
-        [NotNull]
         public DeploymentTaskResult Result { get; }
 
         public override string ToString() => $"{nameof(DeploymentTask)}: {DeploymentTask}, {nameof(Result)}: {Result}";

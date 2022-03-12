@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
     {
         private readonly IDeploymentTargetReadService _targetSource;
 
-        public TargetsController([NotNull] IDeploymentTargetReadService targetSource) =>
+        public TargetsController(IDeploymentTargetReadService targetSource) =>
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
 
         [Route(TargetConstants.CreateTargetGetRoute, Name = TargetConstants.CreateTargetGetRouteName)]

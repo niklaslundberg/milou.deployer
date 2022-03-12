@@ -29,7 +29,7 @@ namespace Milou.Deployer.Core.Deployment
 
         public int ExitCode { get; set; }
 
-        public void Add([NotNull] DeploySummary other)
+        public void Add(DeploySummary other)
         {
             if (other is null)
             {

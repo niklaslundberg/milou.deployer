@@ -38,10 +38,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly WorkerConfiguration _workerConfiguration;
         private bool _isDisposed;
 
-        public DeploymentTargetWorker([NotNull] DeploymentTargetId targetId,
-            [NotNull] ILogger logger,
-            [NotNull] IMediator mediator,
-            [NotNull] WorkerConfiguration workerConfiguration,
+        public DeploymentTargetWorker(DeploymentTargetId targetId,
+            ILogger logger,
+            IMediator mediator,
+            WorkerConfiguration workerConfiguration,
             TimeoutHelper timeoutHelper,
             ICustomClock clock,
             IServiceProvider serviceProvider)
@@ -276,7 +276,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        public bool TryEnqueue([NotNull] DeploymentTask deploymentTask, out string? message)
+        public bool TryEnqueue(DeploymentTask deploymentTask, out string? message)
         {
             CheckDisposed();
 

@@ -23,9 +23,9 @@ namespace Milou.Deployer.Web.Core.Health
         private readonly ILogger _logger;
         private readonly NuGetConfiguration _nuGetConfiguration;
 
-        public NuGetFeedsHealthCheck([NotNull] IHttpClientFactory httpClient,
-            [NotNull] ILogger logger,
-            [NotNull] NuGetConfiguration nuGetConfiguration)
+        public NuGetFeedsHealthCheck(IHttpClientFactory httpClient,
+            ILogger logger,
+            NuGetConfiguration nuGetConfiguration)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

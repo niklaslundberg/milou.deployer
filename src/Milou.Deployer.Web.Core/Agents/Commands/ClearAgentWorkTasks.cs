@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Core.Agents.Commands
 
         public record Metadata : EntityMetadata
         {
-            public Metadata([NotNull] AgentId identifiable) : base(identifiable,
+            public Metadata(AgentId identifiable) : base(identifiable,
                 ClearAgentWorkTasks.RouteName,
                 ClearAgentWorkTasks.RouteParameterName,
                 CustomHttpMethod.Delete)

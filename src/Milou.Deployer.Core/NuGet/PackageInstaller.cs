@@ -34,7 +34,6 @@ namespace Milou.Deployer.Core.NuGet
             _keyValueConfiguration = keyValueConfiguration;
         }
 
-        [ItemCanBeNull]
         public async Task<InstalledPackage?> InstallPackageAsync(
             DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
             DirectoryInfo tempDirectory,

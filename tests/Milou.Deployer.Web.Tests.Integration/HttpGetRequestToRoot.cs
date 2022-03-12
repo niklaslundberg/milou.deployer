@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     [UsedImplicitly]
     public class HttpGetRequestToRoot : HttpRequestFixture
     {
-        public HttpGetRequestToRoot([NotNull] IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink,
+        public HttpGetRequestToRoot(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink,
             CreateRequest())
         {
         }

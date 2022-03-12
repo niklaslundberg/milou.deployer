@@ -13,12 +13,11 @@ namespace Milou.Deployer.Web.Core.Email
     [UsedImplicitly]
     public class SmtpService : ISmtpService
     {
-        [NotNull]
         private readonly EmailConfiguration _emailConfiguration;
 
         private readonly ILogger _logger;
 
-        public SmtpService(EmailConfiguration emailConfiguration, [NotNull] ILogger logger)
+        public SmtpService(EmailConfiguration emailConfiguration, ILogger logger)
         {
             _emailConfiguration = emailConfiguration ??
                                   new EmailConfiguration(null, null, -1, false, null, null, 30, false);
@@ -26,7 +25,7 @@ namespace Milou.Deployer.Web.Core.Email
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task SendAsync([NotNull] MimeMessage mimeMessage, CancellationToken cancellationToken)
+        public async Task SendAsync(MimeMessage mimeMessage, CancellationToken cancellationToken)
         {
             if (!_emailConfiguration.IsValid)
             {

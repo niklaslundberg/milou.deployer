@@ -41,9 +41,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly IPackageService _packageService;
         private readonly TimeoutHelper _timeoutHelper;
 
-        public MonitoringService([NotNull] ILogger logger,
-            [NotNull] IHttpClientFactory httpClientFactory,
-            [NotNull] IPackageService packageService,
+        public MonitoringService(ILogger logger,
+            IHttpClientFactory httpClientFactory,
+            IPackageService packageService,
             TimeoutHelper timeoutHelper,
             NuGetListConfiguration nuGetListConfiguration,
             IApplicationSettingsStore applicationSettingsStore,
@@ -72,7 +72,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        public async Task<AppVersion?> GetAppMetadataAsync([NotNull] DeploymentTarget target,
+        public async Task<AppVersion?> GetAppMetadataAsync(DeploymentTarget target,
             CancellationToken cancellationToken)
         {
             if (target is null)

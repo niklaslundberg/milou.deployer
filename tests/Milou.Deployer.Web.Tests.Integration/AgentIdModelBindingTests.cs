@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public sealed class AgentIdModelBindingTests : HttpTest
     {
-        public AgentIdModelBindingTests([NotNull] ITestOutputHelper outputHelper) : base(outputHelper)
+        public AgentIdModelBindingTests(ITestOutputHelper outputHelper) : base(outputHelper)
         {
         }
 

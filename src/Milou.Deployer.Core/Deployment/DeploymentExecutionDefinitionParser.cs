@@ -9,7 +9,7 @@ namespace Milou.Deployer.Core.Deployment
 {
     public static class DeploymentExecutionDefinitionParser
     {
-        public static ImmutableArray<DeploymentExecutionDefinitionV1> Deserialize([NotNull] string data)
+        public static ImmutableArray<DeploymentExecutionDefinitionV1> Deserialize(string data)
         {
             if (string.IsNullOrWhiteSpace(data))
             {

@@ -7,7 +7,7 @@ namespace Milou.Deployer.Waws
     {
         public static readonly AuthenticationType Basic = new(nameof(Basic));
 
-        private AuthenticationType([NotNull] string name)
+        private AuthenticationType(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {

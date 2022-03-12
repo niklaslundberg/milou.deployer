@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
     public class OrganizationInfo
     {
-        public OrganizationInfo([NotNull] string organization, [CanBeNull] IEnumerable<ProjectInfo> projects)
+        public OrganizationInfo(string organization, [CanBeNull] IEnumerable<ProjectInfo> projects)
         {
             if (string.IsNullOrWhiteSpace(organization))
             {

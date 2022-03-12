@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
 
-        public MartenDeploymentFinishedLogHandler([NotNull] IDocumentStore documentStore, ILogger logger)
+        public MartenDeploymentFinishedLogHandler(IDocumentStore documentStore, ILogger logger)
         {
             _documentStore = documentStore ?? throw new ArgumentNullException(nameof(documentStore));
             _logger = logger;

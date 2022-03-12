@@ -39,7 +39,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly IDistributedCache _distributedCache;
 
-        [NotNull]
         private readonly EnvironmentConfiguration _environmentConfiguration;
 
         private readonly ILogger _logger;
@@ -51,11 +50,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         private readonly IApplicationSettingsStore _settingsStore;
 
-        public DiagnosticsViewHandler([NotNull] IDeploymentTargetReadService deploymentTargetReadService,
-            [NotNull] MultiSourceKeyValueConfiguration configuration,
-            [NotNull] IConfiguration aspNetConfiguration,
-            [NotNull] LoggingLevelSwitch loggingLevelSwitch,
-            [NotNull] EnvironmentConfiguration environmentConfiguration,
+        public DiagnosticsViewHandler(IDeploymentTargetReadService deploymentTargetReadService,
+            MultiSourceKeyValueConfiguration configuration,
+            IConfiguration aspNetConfiguration,
+            LoggingLevelSwitch loggingLevelSwitch,
+            EnvironmentConfiguration environmentConfiguration,
             IServiceProvider serviceProvider,
             ServiceDiagnostics serviceDiagnostics,
             ConfigurationInstanceHolder configurationInstanceHolder,

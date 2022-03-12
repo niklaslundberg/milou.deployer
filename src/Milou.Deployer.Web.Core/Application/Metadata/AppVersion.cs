@@ -15,8 +15,8 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
     [PublicAPI]
     public class AppVersion
     {
-        public AppVersion([NotNull] DeploymentTarget target,
-            [NotNull] IKeyValueConfiguration manifestProperties,
+        public AppVersion(DeploymentTarget target,
+            IKeyValueConfiguration manifestProperties,
             IReadOnlyCollection<PackageVersion> availablePackageVersions)
         {
             Properties = manifestProperties ?? throw new ArgumentNullException(nameof(manifestProperties));
@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
             Status = GetStatus();
         }
 
-        public AppVersion([NotNull] DeploymentTarget target,
+        public AppVersion(DeploymentTarget target,
             string message,
             IReadOnlyCollection<PackageVersion> availablePackages)
         {
@@ -39,10 +39,8 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
 
         public string Message { get; }
 
-        [NotNull]
         public IKeyValueConfiguration Properties { get; }
 
-        [NotNull]
         public DeploymentTarget Target { get; }
 
         public SemanticVersion? SemanticVersion
@@ -62,7 +60,6 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
         [CanBeNull]
         public string PackageId => Properties[DeployerAppConstants.PackageId];
 
-        [CanBeNull]
         public DateTime? DeployedAtUtc
         {
             get

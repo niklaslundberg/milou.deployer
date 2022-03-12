@@ -15,7 +15,7 @@ namespace Milou.Deployer.Core.IO
 
         public static void RecursiveCopy(DirectoryInfo sourceDirectoryInfo,
             DirectoryInfo targetDirectoryInfo,
-            [NotNull] ILogger logger,
+            ILogger logger,
             ImmutableArray<string> excludedFilePatterns)
         {
             if (sourceDirectoryInfo is null)
@@ -80,7 +80,7 @@ namespace Milou.Deployer.Core.IO
             }
         }
 
-        public static void RecursiveDelete(DirectoryInfo sourceDirectoryInfo, [NotNull] ILogger logger)
+        public static void RecursiveDelete(DirectoryInfo sourceDirectoryInfo, ILogger logger)
         {
             if (sourceDirectoryInfo is null)
             {

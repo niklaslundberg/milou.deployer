@@ -31,7 +31,7 @@ namespace Milou.Deployer.DeployerApp
 {
     public static class AppBuilder
     {
-        public static async Task<DeployerApp> BuildAppAsync([NotNull] string[] inputArgs,
+        public static async Task<DeployerApp> BuildAppAsync(string[] inputArgs,
             ILogger? logger = null,
             CancellationToken cancellationToken = default)
         {

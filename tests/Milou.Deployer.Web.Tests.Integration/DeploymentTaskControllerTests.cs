@@ -10,7 +10,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public sealed class DeploymentTaskControllerTests : HttpTest
     {
-        public DeploymentTaskControllerTests([NotNull] ITestOutputHelper outputHelper) : base(outputHelper)
+        public DeploymentTaskControllerTests(ITestOutputHelper outputHelper) : base(outputHelper)
         {
         }
 

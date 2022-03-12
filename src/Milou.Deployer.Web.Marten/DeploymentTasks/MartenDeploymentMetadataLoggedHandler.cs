@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Marten.DeploymentTasks
     {
         private readonly IDocumentStore _documentStore;
 
-        public MartenDeploymentMetadataLoggedHandler([NotNull] IDocumentStore documentStore) => _documentStore =
+        public MartenDeploymentMetadataLoggedHandler(IDocumentStore documentStore) => _documentStore =
             documentStore ?? throw new ArgumentNullException(nameof(documentStore));
 
         public async Task Handle(DeploymentMetadataLogged notification, CancellationToken cancellationToken)

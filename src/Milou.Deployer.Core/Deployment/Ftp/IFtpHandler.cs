@@ -9,28 +9,28 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public interface IFtpHandler : IDisposable
     {
-        Task CreateDirectoryAsync([NotNull] FtpPath directoryPath, CancellationToken cancellationToken);
-        Task DeleteDirectoryAsync([NotNull] FtpPath path, CancellationToken cancellationToken);
+        Task CreateDirectoryAsync(FtpPath directoryPath, CancellationToken cancellationToken);
+        Task DeleteDirectoryAsync(FtpPath path, CancellationToken cancellationToken);
 
-        Task DeleteFileAsync([NotNull] FtpPath filePath, CancellationToken cancellationToken);
-        Task<bool> DirectoryExistsAsync([NotNull] FtpPath dir, CancellationToken cancellationToken);
-        Task<bool> FileExistsAsync([NotNull] FtpPath filePath, CancellationToken cancellationToken);
+        Task DeleteFileAsync(FtpPath filePath, CancellationToken cancellationToken);
+        Task<bool> DirectoryExistsAsync(FtpPath dir, CancellationToken cancellationToken);
+        Task<bool> FileExistsAsync(FtpPath filePath, CancellationToken cancellationToken);
 
-        Task<ImmutableArray<FtpPath>> ListDirectoryAsync([NotNull] FtpPath path,
+        Task<ImmutableArray<FtpPath>> ListDirectoryAsync(FtpPath path,
             CancellationToken cancellationToken = default);
 
-        Task<DeploySummary> PublishAsync([NotNull] RuleConfiguration ruleConfiguration,
-            [NotNull] DirectoryInfo sourceDirectory,
+        Task<DeploySummary> PublishAsync(RuleConfiguration ruleConfiguration,
+            DirectoryInfo sourceDirectory,
             CancellationToken cancellationToken);
 
-        Task<DeploySummary> UploadDirectoryAsync([NotNull] RuleConfiguration ruleConfiguration,
-            [NotNull] DirectoryInfo sourceDirectory,
-            [NotNull] DirectoryInfo baseDirectory,
-            [NotNull] FtpPath basePath,
+        Task<DeploySummary> UploadDirectoryAsync(RuleConfiguration ruleConfiguration,
+            DirectoryInfo sourceDirectory,
+            DirectoryInfo baseDirectory,
+            FtpPath basePath,
             CancellationToken cancellationToken);
 
-        Task UploadFileAsync([NotNull] FtpPath filePath,
-            [NotNull] FileInfo sourceFile,
+        Task UploadFileAsync(FtpPath filePath,
+            FileInfo sourceFile,
             CancellationToken cancellationToken = default);
     }
 }

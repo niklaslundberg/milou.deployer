@@ -21,8 +21,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         public static readonly DeploymentTarget None =
             new(new DeploymentTargetId(Constants.NotAvailable), Constants.NotAvailable, Constants.NotAvailable);
 
-        public DeploymentTarget([NotNull] DeploymentTargetId id,
-            [NotNull] string name,
+        public DeploymentTarget(DeploymentTargetId id,
+            string name,
             string packageId,
             string? publishSettingsXml = null,
             bool allowExplicitPreRelease = false,

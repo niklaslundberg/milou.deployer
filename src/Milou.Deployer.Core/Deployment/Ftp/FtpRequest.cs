@@ -6,7 +6,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 {
     public class FtpRequest
     {
-        public FtpRequest([NotNull] FtpWebRequest request, [NotNull] FtpMethod method)
+        public FtpRequest(FtpWebRequest request, FtpMethod method)
         {
             Request = request ?? throw new ArgumentNullException(nameof(request));
             Method = method ?? throw new ArgumentNullException(nameof(method));

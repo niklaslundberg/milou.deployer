@@ -25,13 +25,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
     {
         private readonly IDeploymentTargetReadService _getTargets;
 
-        [NotNull]
         private readonly ILogger _logger;
 
         private readonly TimeoutHelper _timeoutHelper;
 
-        public DeploymentController([NotNull] ILogger logger,
-            [NotNull] IDeploymentTargetReadService getTargets,
+        public DeploymentController(ILogger logger,
+            IDeploymentTargetReadService getTargets,
             TimeoutHelper timeoutHelper)
         {
             _logger = logger;

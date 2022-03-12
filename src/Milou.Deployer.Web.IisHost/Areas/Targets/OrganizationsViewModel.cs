@@ -9,7 +9,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
 {
     public class OrganizationsViewModel
     {
-        public OrganizationsViewModel([NotNull] IReadOnlyCollection<OrganizationInfo> organizations)
+        public OrganizationsViewModel(IReadOnlyCollection<OrganizationInfo> organizations)
         {
             if (organizations is null)
             {

@@ -10,7 +10,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
 
         public static readonly FtpPath Root = new(RootPath, FileSystemType.Directory);
 
-        public FtpPath([NotNull] string path, FileSystemType type)
+        public FtpPath(string path, FileSystemType type)
         {
             CheckFileSystemTypeValue(type);
 
@@ -80,7 +80,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase) && Type == other.Type;
         }
 
-        public FtpPath Append([NotNull] FtpPath path)
+        public FtpPath Append(FtpPath path)
         {
             if (path is null)
             {
@@ -90,7 +90,7 @@ namespace Milou.Deployer.Core.Deployment.Ftp
             return new FtpPath(Path.TrimEnd('/') + path.Path, path.Type);
         }
 
-        public bool ContainsPath([NotNull] FtpPath excluded)
+        public bool ContainsPath(FtpPath excluded)
         {
             if (excluded is null)
             {

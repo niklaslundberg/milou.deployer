@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 {
     public class DeploymentTargetLogged : IEvent
     {
-        public DeploymentTargetLogged([NotNull] DeploymentTargetId deploymentTargetId, [NotNull] string message)
+        public DeploymentTargetLogged(DeploymentTargetId deploymentTargetId, string message)
         {
             if (string.IsNullOrWhiteSpace(message))
             {

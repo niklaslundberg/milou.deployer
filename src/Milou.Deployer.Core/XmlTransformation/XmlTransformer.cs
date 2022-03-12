@@ -23,10 +23,10 @@ namespace Milou.Deployer.Core.XmlTransformation
             _fileMatcher = fileMatcher;
         }
 
-        public ExitCode TransformFile([NotNull] FileInfo originalFile,
-            [NotNull] FileInfo transformationFile,
-            [NotNull] DirectoryInfo originalFileRootDirectory,
-            [NotNull] DirectoryInfo transformationFileRootDirectory)
+        public ExitCode TransformFile(FileInfo originalFile,
+            FileInfo transformationFile,
+            DirectoryInfo originalFileRootDirectory,
+            DirectoryInfo transformationFileRootDirectory)
         {
             if (originalFile is null)
             {

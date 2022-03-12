@@ -17,12 +17,12 @@ namespace Milou.Deployer.Core.ApplicationMetadata
 {
     public static class ApplicationMetadataCreator
     {
-        public static string SetVersionFile([NotNull] InstalledPackage installedPackage,
-            [NotNull] DirectoryInfo targetDirectoryInfo,
-            [NotNull] DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
-            [NotNull] IEnumerable<string> xmlTransformedFiles,
-            [NotNull] IEnumerable<string> replacedFiles,
-            [NotNull] EnvironmentPackageResult environmentPackageResult,
+        public static string SetVersionFile(InstalledPackage installedPackage,
+            DirectoryInfo targetDirectoryInfo,
+            DeploymentExecutionDefinitionV1 deploymentExecutionDefinition,
+            IEnumerable<string> xmlTransformedFiles,
+            IEnumerable<string> replacedFiles,
+            EnvironmentPackageResult environmentPackageResult,
             ILogger logger)
         {
             if (installedPackage is null)

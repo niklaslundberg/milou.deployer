@@ -61,11 +61,11 @@ namespace Milou.Deployer.Web.Core.Deployment
         private bool _isDisposing;
         private DeploymentTaskTempData? _tempData;
 
-        public DeploymentService([NotNull] ILogger logger,
-            [NotNull] IDeploymentTargetService targetSource,
-            [NotNull] IMediator mediator,
-            [NotNull] ICustomClock customClock,
-            [NotNull] LoggingLevelSwitch loggingLevelSwitch,
+        public DeploymentService(ILogger logger,
+            IDeploymentTargetService targetSource,
+            IMediator mediator,
+            ICustomClock customClock,
+            LoggingLevelSwitch loggingLevelSwitch,
             ICredentialReadService credentialReadService,
             IDeploymentTargetService deploymentTargetService,
             IAgentService agentService,
@@ -286,9 +286,9 @@ namespace Milou.Deployer.Web.Core.Deployment
             _isDisposed = true;
         }
 
-        public async Task<ExitCode> CreateDeploymentPackageAsync([NotNull] DeploymentTask deploymentTask,
+        public async Task<ExitCode> CreateDeploymentPackageAsync(DeploymentTask deploymentTask,
             ILogger jobLogger,
-            [NotNull] LoggingLevelSwitch loggingLevelSwitch,
+            LoggingLevelSwitch loggingLevelSwitch,
             CancellationToken cancellationToken = default)
         {
             if (deploymentTask == null)

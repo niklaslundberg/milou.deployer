@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {
     public interface IPackageService
     {
-        Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync([NotNull] string packageId,
+        Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(string packageId,
             bool useCache = true,
             bool includePreReleased = false,
             string? nugetPackageSource = null,

@@ -25,7 +25,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
     {
         private readonly NuGetListConfiguration _deploymentConfiguration;
 
-        [NotNull]
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
         private readonly ILogger _logger;
@@ -34,11 +33,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
         private readonly NuGetPackageInstaller _packageInstaller;
 
-        public PackageService([NotNull] NuGetListConfiguration deploymentConfiguration,
-            [NotNull] IKeyValueConfiguration keyValueConfiguration,
-            [NotNull] ILogger logger,
-            [NotNull] NuGetConfiguration nuGetConfiguration,
-            [NotNull] NuGetPackageInstaller packageInstaller)
+        public PackageService(NuGetListConfiguration deploymentConfiguration,
+            IKeyValueConfiguration keyValueConfiguration,
+            ILogger logger,
+            NuGetConfiguration nuGetConfiguration,
+            NuGetPackageInstaller packageInstaller)
         {
             _deploymentConfiguration = deploymentConfiguration ??
                                        throw new ArgumentNullException(nameof(deploymentConfiguration));

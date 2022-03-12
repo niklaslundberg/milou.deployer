@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
     {
         private readonly IMediator _mediator;
 
-        public ProjectsController([NotNull] IMediator mediator) =>
+        public ProjectsController(IMediator mediator) =>
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         [Route(ProjectConstants.ProjectsBaseRoute, Name = ProjectConstants.ProjectsBaseRouteName)]

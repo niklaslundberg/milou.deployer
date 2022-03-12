@@ -5,7 +5,7 @@ namespace Milou.Deployer.Core.Deployment.Configuration
 {
     public class DeployerConfiguration
     {
-        public DeployerConfiguration([NotNull] WebDeployConfig webDeployConfig) => WebDeploy =
+        public DeployerConfiguration(WebDeployConfig webDeployConfig) => WebDeploy =
             webDeployConfig ?? throw new ArgumentNullException(nameof(webDeployConfig));
 
         public WebDeployConfig WebDeploy { get; }
