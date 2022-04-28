@@ -3,7 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.AppModel" Version="0.13.0-build.1648754636" />
+    <PackageReference Include="Arbor.AppModel" Version="0.13.0" />
     <PackageReference Include="Arbor.KVConfiguration.Schema" Version="2.2.0" />
     <PackageReference Include="Arbor.ModelBinding.Generators" Version="*-*">
       <PrivateAssets>all</PrivateAssets>

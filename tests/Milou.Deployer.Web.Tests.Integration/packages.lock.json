@@ -10,9 +10,9 @@
       },
       "Arbor.AppModel": {
         "type": "Direct",
-        "requested": "[0.13.0-build.1648754636, )",
-        "resolved": "0.13.0-build.1648754636",
-        "contentHash": "Sf7wHCdC7EFvc5RuAQltp4O3rsTr7Es7VleZasAtdedjKd2GtRm4ZS/t6f3XDQRd6R6OtoNB2sLnbi5XRnS0wg==",
+        "requested": "[0.13.0, )",
+        "resolved": "0.13.0",
+        "contentHash": "OZS6IV7985+aJg6rt0FwKpFL4L3/4i6fjbMLDOgwsqZPBKSA/cUrLE/TJErYzoMsks93XCkFQSZZAhg5/2xmbw==",
         "dependencies": {
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "2.0.0",
           "Arbor.KVConfiguration.Core": "2.2.0",
@@ -25,21 +25,21 @@
           "Arbor.ModelBinding": "2.2.0",
           "Arbor.ModelBinding.NewtonsoftJson": "2.2.0",
           "Arbor.Processing": "0.6.0",
-          "JetBrains.Annotations": "2021.3.0",
+          "JetBrains.Annotations": "2022.1.0",
           "Marten.Analyzers": "1.5.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "10.0.1",
-          "Microsoft.AspNetCore.Authentication.OpenIdConnect": "6.0.3",
-          "Microsoft.AspNetCore.Hosting.WindowsServices": "6.0.3",
-          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "6.0.3",
+          "Microsoft.AspNetCore.Authentication.OpenIdConnect": "6.0.4",
+          "Microsoft.AspNetCore.Hosting.WindowsServices": "6.0.4",
+          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "6.0.4",
           "Microsoft.CodeAnalysis.CSharp": "4.1.0",
           "Microsoft.Extensions.Configuration": "6.0.1",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
-          "Microsoft.Extensions.Diagnostics.HealthChecks": "6.0.3",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "6.0.4",
           "Microsoft.Extensions.Hosting.WindowsServices": "6.0.0",
           "Microsoft.Extensions.Http": "6.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.1",
           "Microsoft.Extensions.Primitives": "6.0.0",
-          "Serilog": "2.10.0",
+          "Serilog": "2.11.0",
           "Serilog.AspNetCore": "5.0.0",
           "Serilog.Sinks.Console": "4.0.1",
           "Serilog.Sinks.File": "5.0.0",
@@ -346,13 +346,13 @@
       },
       "Arbor.Hypermedia": {
         "type": "Transitive",
-        "resolved": "0.4.0-build.1643038694",
-        "contentHash": "gPIvsGs3CYJd7z6+lvXDk1sr3vZk4y0X5EbxSzjYsbBAcPMLmbTxJDAHWovDDgJdYXD3RIiDC2mdX/FPPYFXHA==",
+        "resolved": "0.4.0",
+        "contentHash": "/9vaUXzr4PCf4d15/5h1G8S9N4El7mNow7JO5+wEdNz4Km1cK4RyMjSS9cy8mfK8/4jukovxew+lH0BiL1UkEw==",
         "dependencies": {
-          "Arbor.AppModel": "0.12.0-build.1641561930",
+          "Arbor.AppModel": "0.13.0",
           "Arbor.ModelBinding.Primitives": "2.2.0",
-          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "6.0.1",
-          "Microsoft.Extensions.FileProviders.Embedded": "6.0.1"
+          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "6.0.4",
+          "Microsoft.Extensions.FileProviders.Embedded": "6.0.4"
         }
       },
       "Arbor.KVConfiguration.Core": {
@@ -974,8 +974,8 @@
       },
       "Microsoft.Extensions.FileProviders.Embedded": {
         "type": "Transitive",
-        "resolved": "6.0.1",
-        "contentHash": "EKfRiel8SvFCs2rGVL5NxOEqWvo+ZXZE9VR6w6NsPJQVOB9rU8CQ9w6NjYTLMvMhCzu9XfX4OtPGxGpCRdbDqg==",
+        "resolved": "6.0.4",
+        "contentHash": "Ydzdq2WxGzKpQUUD4CxEDU+m2HPxR573IrQMk3pzsf3QCg5X06Td1hFRuK8+Tv0xZaLup71yQnbKN2AvNTjAYQ==",
         "dependencies": {
           "Microsoft.Extensions.FileProviders.Abstractions": "6.0.0"
         }
@@ -2767,7 +2767,7 @@
       "milou.deployer.bootstrapper.common": {
         "type": "Project",
         "dependencies": {
-          "Arbor.AppModel": "0.13.0-build.1648754636",
+          "Arbor.AppModel": "0.13.0",
           "Arbor.KVConfiguration.Core": "2.2.0",
           "Arbor.KVConfiguration.Schema": "2.2.0",
           "Arbor.Tooler": "0.16.0",
@@ -2785,7 +2785,7 @@
       "milou.deployer.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.AppModel": "0.13.0-build.1648754636",
+          "Arbor.AppModel": "0.13.0",
           "Arbor.KVConfiguration.Core": "2.2.0",
           "Arbor.KVConfiguration.Schema.Json": "2.2.0",
           "Arbor.KVConfiguration.Urns": "2.2.0",
@@ -2861,8 +2861,8 @@
       "milou.deployer.web.agent": {
         "type": "Project",
         "dependencies": {
-          "Arbor.AppModel": "0.13.0-build.1648754636",
-          "Arbor.Hypermedia": "0.4.0-build.1643038694",
+          "Arbor.AppModel": "0.13.0",
+          "Arbor.Hypermedia": "0.4.0",
           "Arbor.KVConfiguration.Urns": "2.2.0",
           "Arbor.ModelBinding.Primitives": "2.2.0",
           "Arbor.Processing": "0.0.0",
@@ -2886,7 +2886,7 @@
       "milou.deployer.web.agent.host": {
         "type": "Project",
         "dependencies": {
-          "Arbor.AppModel": "0.13.0-build.1648754636",
+          "Arbor.AppModel": "0.13.0",
           "Arbor.KVConfiguration.Urns": "2.2.0",
           "Arbor.Processing": "0.0.0",
           "Arbor.Tooler": "0.0.0-0",
@@ -2916,7 +2916,7 @@
       "milou.deployer.web.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.AppModel": "0.13.0-build.1648754636",
+          "Arbor.AppModel": "0.13.0",
           "Arbor.KVConfiguration.Schema": "2.2.0",
           "Arbor.ModelBinding": "0.0.0-0",
           "Arbor.ModelBinding.Primitives": "0.0.0-0",
@@ -2955,7 +2955,7 @@
       "milou.deployer.web.iishost": {
         "type": "Project",
         "dependencies": {
-          "Arbor.AppModel": "0.13.0-build.1648754636",
+          "Arbor.AppModel": "0.13.0",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.0.0",
           "Arbor.Docker": "0.0.0",
           "Arbor.KVConfiguration.Schema": "2.2.0",
@@ -3014,7 +3014,7 @@
       "milou.deployer.web.marten.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Arbor.AppModel": "0.13.0-build.1648754636",
+          "Arbor.AppModel": "0.13.0",
           "Arbor.KVConfiguration.Urns": "2.2.0",
           "JetBrains.Annotations": "2022.1.0",
           "Microsoft.CodeAnalysis.CSharp": "4.1.0",
