@@ -48,7 +48,7 @@
 
         </form>
 
-        <form method="post" action="@Url.RouteUrl(AgentsController.ClearAgentWorkTasksRouteName)">
+        <form method="post" action="@Url.RouteUrl(AgentsController.ClearAgentsWorkTasksRouteName)">
             @Html.AntiForgeryToken()
 
             <input type="hidden" value="@agent.AgentId.Value" name="agentId"/>

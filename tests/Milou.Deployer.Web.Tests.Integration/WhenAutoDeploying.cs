@@ -66,10 +66,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 lifeTime.ApplicationStopped.Register(() => Debug.WriteLine("Stop for app in test"));
 
-                while (!cancellationTokenSource.Token.IsCancellationRequested &&
-                       semanticVersion != expectedVersion &&
-                       !lifeTime.ApplicationStopped.IsCancellationRequested &&
-                       !WebFixture!.CancellationToken.IsCancellationRequested)
+                while (!cancellationTokenSource.Token.IsCancellationRequested
+                       && semanticVersion != expectedVersion
+                       && !lifeTime.ApplicationStopped.IsCancellationRequested
+                       && !WebFixture!.CancellationToken.IsCancellationRequested)
                 {
                     // ReSharper disable MethodSupportsCancellation
                     var startupTaskContext = WebFixture!.App!.Host!.Services.GetService<StartupTaskContext>();

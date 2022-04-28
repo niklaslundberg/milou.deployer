@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private bool _isDisposed;
         private bool _isDisposing;
         private CancellationToken _stoppingToken;
-        private List<DeploymentTargetWorker> _workers;
+        private List<DeploymentTargetWorker> _workers = new();
 
         public DeploymentWorkerService(ConfigurationInstanceHolder configurationInstanceHolder,
             ILogger logger,
@@ -63,6 +63,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
 
             _isDisposing = true;
+
+            if (_workers is null)
+            {
+                return;
+            }
 
             foreach (var deploymentTargetWorker in _workers)
             {
@@ -285,18 +290,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             stoppingToken.Register(() =>
             {
-                foreach (var cancellationTokenSource in _cancellations)
+                foreach (var (_, cancellationTokenSource) in _cancellations)
                 {
-                    if (!cancellationTokenSource.Value.IsCancellationRequested)
+                    if (!cancellationTokenSource.IsCancellationRequested)
                     {
-                        cancellationTokenSource.Value.Cancel();
+                        cancellationTokenSource.Cancel();
                     }
                 }
             });
 
             await Task.Yield();
 
-            _workers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values.NotNull().ToList();
+            _workers.AddRange(_configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values.NotNull());
 
             foreach (var deploymentTargetWorker in _workers)
             {

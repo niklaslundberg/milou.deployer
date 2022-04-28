@@ -216,10 +216,22 @@ namespace Milou.Deployer.Web.Core.Deployment
                 logger.Error(ex, "Error deploying");
             }
 
+            var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                logger.Error("Application is cancelling when handling deployment task id {DeploymentTaskId}", deploymentTask.DeploymentTaskId);
+                var deploymentTaskResult = new DeploymentTaskResult(deploymentTask.DeploymentTaskId,
+                    deploymentTask.DeploymentTargetId,
+                    result,
+                    start,
+                    finishedAtUtc);
+
+                return deploymentTaskResult;
+            }
+
             try
             {
-                var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
-
                 await _mediator.Publish(new DeploymentFinished(deploymentTask,
                         _tempData?.LogBuilder.ToArray() ?? Array.Empty<LogItem>(),
                         finishedAtUtc),

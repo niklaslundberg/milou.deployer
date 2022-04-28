@@ -673,17 +673,22 @@ namespace Milou.Deployer.Web.Marten
         private async Task<DeploymentTarget?> FindDeploymentTargetAsync(DeploymentTargetId deploymentTargetId,
             CancellationToken cancellationToken)
         {
-            using IQuerySession session = _documentStore.QuerySession();
+            await using IQuerySession session = _documentStore.QuerySession();
 
             try
             {
-                DeploymentTargetData deploymentTargetData = await session.Query<DeploymentTargetData>()
+                DeploymentTargetData? deploymentTargetData = await session.Query<DeploymentTargetData>()
                                                                          .SingleOrDefaultAsync(target =>
                                                                                   target.Id.Equals(
                                                                                       deploymentTargetId.TargetId,
                                                                                       StringComparison
                                                                                          .OrdinalIgnoreCase),
                                                                               cancellationToken);
+
+                if (deploymentTargetData is null)
+                {
+                    return null;
+                }
 
                 var environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken);
                 var deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);

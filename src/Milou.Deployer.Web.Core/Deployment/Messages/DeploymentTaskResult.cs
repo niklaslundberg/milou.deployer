@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             ExitCode exitCode,
             DateTime startedAtUtc,
             DateTime finishedAtUtc,
-            string metadata)
+            string? metadata = null)
         {
             DeploymentTaskId = deploymentTaskId;
             DeploymentTargetId = deploymentTargetId;
@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public DateTime FinishedAtUtc { get; }
 
-        public string Metadata { get; }
+        public string? Metadata { get; }
 
         public override string ToString() =>
             $"{nameof(DeploymentTaskId)}: {DeploymentTaskId}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(ExitCode)}: {ExitCode}, {nameof(StartedAtUtc)}: {StartedAtUtc}, {nameof(FinishedAtUtc)}: {FinishedAtUtc}, {nameof(Metadata)}: {Metadata}";

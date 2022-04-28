@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq.Expressions;
 using System.Threading;
@@ -44,11 +45,11 @@ namespace Milou.Deployer.Web.Tests.Integration
         public TOut Query<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query) => throw new NotSupportedException();
 
         public IReadOnlyList<T> Query<T>(string sql, params object[] parameters) => throw new NotSupportedException();
-        public Task<int> StreamJson<T>(Stream destination, CancellationToken token, string sql, params object[] parameters) => throw new NotImplementedException();
+        public Task<int> StreamJson<T>(Stream destination, CancellationToken token, string sql, params object[] parameters) => throw new NotSupportedException();
 
-        public Task<int> StreamJson<T>(Stream destination, string sql, params object[] parameters) => throw new NotImplementedException();
+        public Task<int> StreamJson<T>(Stream destination, string sql, params object[] parameters) => throw new NotSupportedException();
 
-        public Task<IReadOnlyList<T>> QueryAsync<T>(string sql, params object[] parameters) => throw new NotImplementedException();
+        public Task<IReadOnlyList<T>> QueryAsync<T>(string sql, params object[] parameters) => throw new NotSupportedException();
 
         public IBatchedQuery CreateBatchQuery() => throw new NotSupportedException();
 
@@ -62,16 +63,16 @@ namespace Milou.Deployer.Web.Tests.Integration
         public Task<bool> StreamJsonOne<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query,
             Stream destination,
             CancellationToken token = new CancellationToken()) =>
-            throw new NotImplementedException();
+            throw new NotSupportedException();
 
         public Task<int> StreamJsonMany<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query,
             Stream destination,
             CancellationToken token = new CancellationToken()) =>
-            throw new NotImplementedException();
+            throw new NotSupportedException();
 
-        public Task<string?> ToJsonOne<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query, CancellationToken token = new CancellationToken()) => throw new NotImplementedException();
+        public Task<string?> ToJsonOne<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query, CancellationToken token = new CancellationToken()) => throw new NotSupportedException();
 
-        public Task<string> ToJsonMany<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query, CancellationToken token = new CancellationToken()) => throw new NotImplementedException();
+        public Task<string> ToJsonMany<TDoc, TOut>(ICompiledQuery<TDoc, TOut> query, CancellationToken token = new CancellationToken()) => throw new NotSupportedException();
 
         public IReadOnlyList<T> LoadMany<T>(params string[] ids) => throw new NotSupportedException();
         public IReadOnlyList<T> LoadMany<T>(IEnumerable<string> ids) => throw new NotSupportedException();
@@ -151,15 +152,24 @@ namespace Milou.Deployer.Web.Tests.Integration
             string regConfig = "english",
             CancellationToken token = new()) => throw new NotSupportedException();
 
-        public DocumentMetadata? MetadataFor<T>(T entity) where T : notnull => throw new NotImplementedException();
+        public DocumentMetadata? MetadataFor<T>(T entity) where T : notnull => throw new NotSupportedException();
 
-        public Task<DocumentMetadata> MetadataForAsync<T>(T entity, CancellationToken token = new CancellationToken()) where T : notnull => throw new NotImplementedException();
+        public Task<DocumentMetadata> MetadataForAsync<T>(T entity, CancellationToken token = new CancellationToken()) where T : notnull => throw new NotSupportedException();
 
-        ITenantOperations IDocumentSession.ForTenant(string tenantId) => throw new NotImplementedException();
+        ITenantOperations IDocumentSession.ForTenant(string tenantId) => throw new NotSupportedException();
+        public void EjectAllPendingChanges() => throw new NotImplementedException();
 
-        public object? GetHeader(string key) => throw new NotImplementedException();
+        public Int32 Execute(NpgsqlCommand cmd) => throw new NotSupportedException();
+        public Task<int> ExecuteAsync(NpgsqlCommand command, CancellationToken token = new CancellationToken()) => throw new NotImplementedException();
 
-        ITenantQueryOperations IQuerySession.ForTenant(string tenantId) => throw new NotImplementedException();
+        public DbDataReader ExecuteReader(NpgsqlCommand command) => throw new NotSupportedException();
+        public Task<DbDataReader> ExecuteReaderAsync(NpgsqlCommand command, CancellationToken token = new CancellationToken()) => throw new NotImplementedException();
+
+        public IMartenDatabase Database { get; }
+
+        public object? GetHeader(string key) => throw new NotSupportedException();
+
+        ITenantQueryOperations IQuerySession.ForTenant(string tenantId) => throw new NotSupportedException();
 
         public NpgsqlConnection Connection { get; } = default!;
 
@@ -173,8 +183,6 @@ namespace Milou.Deployer.Web.Tests.Integration
         public IJsonLoader Json { get; } = default!;
         public string? CausationId { get; set; }
         public string? CorrelationId { get; set; }
-
-        public ITenant Tenant { get; } = default!;
 
         public ISerializer Serializer { get; } = default!;
 
@@ -205,7 +213,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void Store<T>(string tenantId, params T[] entities) => throw new NotSupportedException();
 
         public void Store<T>(T entity, Guid version) => throw new NotSupportedException();
-        public void QueueOperation(IStorageOperation storageOperation) => throw new NotImplementedException();
+        public void QueueOperation(IStorageOperation storageOperation) => throw new NotSupportedException();
 
         public void Insert<T>(IEnumerable<T> entities) => throw new NotSupportedException();
 
@@ -215,26 +223,26 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void Update<T>(params T[] entities) => throw new NotSupportedException();
 
         public void InsertObjects(IEnumerable<object> documents) => throw new NotSupportedException();
-        public void HardDelete<T>(T entity) where T : notnull => throw new NotImplementedException();
+        public void HardDelete<T>(T entity) where T : notnull => throw new NotSupportedException();
 
-        public void HardDelete<T>(int id) where T : notnull => throw new NotImplementedException();
+        public void HardDelete<T>(int id) where T : notnull => throw new NotSupportedException();
 
-        public void HardDelete<T>(long id) where T : notnull => throw new NotImplementedException();
+        public void HardDelete<T>(long id) where T : notnull => throw new NotSupportedException();
 
-        public void HardDelete<T>(Guid id) where T : notnull => throw new NotImplementedException();
+        public void HardDelete<T>(Guid id) where T : notnull => throw new NotSupportedException();
 
-        public void HardDelete<T>(string id) where T : notnull => throw new NotImplementedException();
+        public void HardDelete<T>(string id) where T : notnull => throw new NotSupportedException();
 
-        public void HardDeleteWhere<T>(Expression<Func<T, bool>> expression) where T : notnull => throw new NotImplementedException();
+        public void HardDeleteWhere<T>(Expression<Func<T, bool>> expression) where T : notnull => throw new NotSupportedException();
 
-        public void UndoDeleteWhere<T>(Expression<Func<T, bool>> expression) where T : notnull => throw new NotImplementedException();
+        public void UndoDeleteWhere<T>(Expression<Func<T, bool>> expression) where T : notnull => throw new NotSupportedException();
 
         public void StoreObjects(IEnumerable<object> documents) => throw new NotSupportedException();
 
         public void Eject<T>(T document) => throw new NotSupportedException();
 
         public void EjectAllOfType(Type type) => throw new NotSupportedException();
-        public void SetHeader(string key, object value) => throw new NotImplementedException();
+        public void SetHeader(string key, object value) => throw new NotSupportedException();
 
         public IUnitOfWork PendingChanges { get; } = default!;
 
@@ -245,6 +253,6 @@ namespace Milou.Deployer.Web.Tests.Integration
         public IList<IDocumentSessionListener> Listeners { get; } = default!;
         public string? LastModifiedBy { get; set; }
 
-        public ValueTask DisposeAsync() => throw new NotImplementedException();
+        public ValueTask DisposeAsync() => throw new NotSupportedException();
     }
 }

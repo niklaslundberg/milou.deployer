@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Milou.Deployer.Web.Agent.Host.Configuration;
@@ -37,6 +38,8 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
         {
             // interface method
         }
+
+        public Task<HttpResponseMessage> PostAsync(string requestUri, Stream contentStream) => throw new System.NotSupportedException();
 
         public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
         {
