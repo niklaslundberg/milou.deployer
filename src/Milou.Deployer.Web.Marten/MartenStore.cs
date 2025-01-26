@@ -452,7 +452,7 @@ namespace Milou.Deployer.Web.Marten
                 return null;
             }
 
-            return new AgentQueryResult((await _mediator.Send(new GetAgentRequest(request.AgentId), cancellationToken)).Result);
+            return new AgentQueryResult(new Core.Agents.Queries.Agent(_mediator, agentData));
         }
 
         public async Task<AgentsInPoolResult> Handle(GetAgentsInPoolQuery request, CancellationToken cancellationToken)

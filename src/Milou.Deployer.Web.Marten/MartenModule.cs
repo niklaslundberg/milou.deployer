@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Arbor.AppModel.Configuration;
 using Arbor.AppModel.DependencyInjection;
@@ -17,6 +18,7 @@ using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.Marten.Abstractions;
 using Milou.Deployer.Web.Marten.DeploymentTasks;
 using Milou.Deployer.Web.Marten.EnvironmentTypes;
+using Npgsql;
 
 namespace Milou.Deployer.Web.Marten
 {
@@ -89,9 +91,24 @@ namespace Milou.Deployer.Web.Marten
             return builder;
         }
 
+        NpgsqlConnection CreateConnection(string connectionString)
+        {
+            var npgsqlConnection = new NpgsqlConnection(connectionString)
+            {
+
+            };
+
+            if (Debugger.IsAttached)
+            {
+               
+            }
+
+            return npgsqlConnection;
+        }
+
         private void ConfigureMarten(StoreOptions options, string connectionString)
         {
-            options.Connection(connectionString);
+            options.Connection(() => CreateConnection(connectionString));
 
             var jsonNetSerializer = new JsonNetSerializer();
 

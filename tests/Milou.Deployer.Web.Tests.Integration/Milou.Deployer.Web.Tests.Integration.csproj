@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ArborPublishEnabled>false</ArborPublishEnabled>
     <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
     <ArborBuild_NuGetWebPackageEnabled>false</ArborBuild_NuGetWebPackageEnabled>
@@ -20,28 +20,29 @@
     <PackageReference Include="AspNetCore.Authentication.Basic" Version="*" />
     <PackageReference Include="FluentAssertions" Version="*" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="*" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="*" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="*">
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="7.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
-    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="7.0.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="*" />
     <PackageReference Include="NCrunch.Framework" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
-    <PackageReference Include="NuGet.Packaging" Version="6.1.0" />
+    <PackageReference Include="NuGet.Packaging" Version="6.*" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="*" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="*" />
-    <PackageReference Include="System.Collections.Immutable" Version="*" />
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="*" />
     <PackageReference Include="System.Runtime" Version="*" />
+    <PackageReference Include="Marten" Version="5.*" />
     <PackageReference Include="xunit" Version="*" />
     <PackageReference Include="xunit.analyzers" Version="*" />
     <PackageReference Include="xunit.runner.console" Version="*">

@@ -1,5 +1,8 @@
 ﻿<ProjectConfiguration>
   <Settings>
     <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
+    <IgnoredTests>
+      <AllTestsSelector />
+    </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

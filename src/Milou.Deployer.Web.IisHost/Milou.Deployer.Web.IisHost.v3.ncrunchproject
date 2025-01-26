@@ -1,5 +1,8 @@
 ﻿<ProjectConfiguration>
   <Settings>
+    <IgnoredTests>
+      <AllTestsSelector />
+    </IgnoredTests>
     <UseBuildConfiguration>release</UseBuildConfiguration>
   </Settings>
 </ProjectConfiguration>

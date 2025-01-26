@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Arbor.AppModel.Application;
 using Arbor.AppModel.Logging;
 using Arbor.Primitives;
+using Milou.Deployer.Core;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.IisHost;
@@ -22,7 +23,7 @@ namespace Milou.Deployer.Development
 
             byte[] key = TokenHelper.GenerateKey();
 
-            var agents = new List<string> {"Agent1"};
+            var agents = new List<string> {"agent1"};
 
             var devConfiguration = new DevConfiguration {ServerUrl = "http://localhost:34343", Key = new KeyData(key)};
 
@@ -46,7 +47,7 @@ namespace Milou.Deployer.Development
             variables.Add("urn:arbor:app:web:logging:serilog:default:consoleEnabled", "true");
             variables.Add(ConfigurationKeys.AllowPreReleaseEnvironmentVariable, "true");
 
-            using var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = CancellationHelper.CreateCancellationTokenSource();
             var commonAssemblies = ApplicationAssemblies.FilteredAssemblies(new[] {"Arbor", "Milou"});
 
             IReadOnlyCollection<Assembly> serverAssemblies = commonAssemblies

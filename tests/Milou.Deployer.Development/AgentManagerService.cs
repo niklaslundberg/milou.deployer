@@ -11,6 +11,7 @@ using Arbor.AppModel;
 using Arbor.AppModel.Startup;
 using Arbor.Primitives;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Core;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 
@@ -46,7 +47,7 @@ namespace Milou.Deployer.Development
                     await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
                 }
 
-                var cancellationTokenSource = new CancellationTokenSource();
+                var cancellationTokenSource = CancellationHelper.CreateCancellationTokenSource();
 
                 foreach (var devConfigurationAgent in _devConfiguration.Agents.Where(pair => pair.Value is { }))
                 {

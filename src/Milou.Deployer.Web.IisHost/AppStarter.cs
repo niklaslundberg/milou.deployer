@@ -17,6 +17,7 @@ using Arbor.AppModel;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Core;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog;
 using Serilog.Core;
@@ -52,7 +53,7 @@ namespace Milou.Deployer.Web.IisHost
                         out int intervalInSeconds) &&
                     intervalInSeconds > 0)
                 {
-                    cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
+                    cancellationTokenSource = CancellationHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
                 }
 
                 var types = new[] {typeof(IKeyValueConfiguration)};
@@ -79,7 +80,7 @@ namespace Milou.Deployer.Web.IisHost
                     }
                 }
 
-                cancellationTokenSource ??= new CancellationTokenSource();
+                cancellationTokenSource ??= CancellationHelper.CreateCancellationTokenSource();
 
                 cancellationTokenSource.Token.Register(() => TempLogger.WriteLine("App cancellation token triggered"));
 

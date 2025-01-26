@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,14 +10,14 @@
     <PackageReference Include="Arbor.Docker.Xunit" Version="*" />
     <PackageReference Include="FluentAssertions" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
-    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="7.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
     <PackageReference Include="NCrunch.Framework" Version="*" />
-    <PackageReference Include="NuGet.Versioning" Version="6.1.0" />
+    <PackageReference Include="NuGet.Versioning" Version="6.*" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="*" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="*" />
-    <PackageReference Include="System.Collections.Immutable" Version="*" />
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="*" />
     <PackageReference Include="xunit" Version="*" />
     <PackageReference Include="xunit.abstractions" Version="*" />

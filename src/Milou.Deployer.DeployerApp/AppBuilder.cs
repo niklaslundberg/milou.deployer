@@ -156,7 +156,7 @@ namespace Milou.Deployer.DeployerApp
                 {
                     logger.Debug("nuget.exe is not specified, downloading with {Tool}", nameof(NuGetDownloadClient));
 
-                    using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                    using (var cts = CancellationHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30)))
                     {
                         var nuGetDownloadClient = new NuGetDownloadClient();
                         NuGetDownloadResult nuGetDownloadResult;

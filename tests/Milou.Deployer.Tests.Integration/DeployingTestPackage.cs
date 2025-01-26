@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.AppModel.IO;
+using Milou.Deployer.Core;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.DeployerApp;
 using Newtonsoft.Json;
@@ -82,7 +83,7 @@ namespace Milou.Deployer.Tests.Integration
                 {
                     _output.WriteLine($"RUN {i}");
                     int exitCode;
-                    using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                    using var cancellationTokenSource = CancellationHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30));
                     using var testTargetDirectory = TempDirectory.CreateTempDirectory();
                     using TempFile tempFile = CreateTestManifestFile(testTargetDirectory.Directory, nugetConfig);
 

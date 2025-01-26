@@ -1,30 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Arbor.Processing" Version="*" />
     <PackageReference Include="FluentAssertions" Version="*" />
-    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
     <PackageReference Include="MailKit" Version="*" />
     <PackageReference Include="MediatR" Version="10.0.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.*" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="7.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
-    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="2.2.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Schema" Version="2.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
-    <PackageReference Include="NuGet.Packaging" Version="6.1.0" />
+    <PackageReference Include="NuGet.Packaging" Version="6.*" />
     <PackageReference Include="Serilog" Version="*" />
-    <PackageReference Include="System.Collections.Immutable" Version="*" />
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="*" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="*" />
     <PackageReference Include="System.Runtime" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
     <PackageReference Include="xunit.abstractions" Version="*" />
     <PackageReference Include="xunit.runner.console" Version="*">
       <PrivateAssets>all</PrivateAssets>

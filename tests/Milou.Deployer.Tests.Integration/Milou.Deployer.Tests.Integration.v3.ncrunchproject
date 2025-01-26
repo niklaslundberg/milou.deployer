@@ -1,6 +1,9 @@
 ﻿<ProjectConfiguration>
   <Settings>
     <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
+    <IgnoredTests>
+      <AllTestsSelector />
+    </IgnoredTests>
     <UseBuildConfiguration>release</UseBuildConfiguration>
   </Settings>
 </ProjectConfiguration>

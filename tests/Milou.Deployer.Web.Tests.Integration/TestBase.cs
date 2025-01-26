@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Arbor.AppModel.Configuration;
 using Arbor.AppModel.ExtensionMethods;
 using JetBrains.Annotations;
+using Milou.Deployer.Core;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,7 +18,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             WebFixture = webFixture ?? throw new ArgumentNullException(nameof(webFixture));
             webFixture.App?.ConfigurationInstanceHolder.AddInstance(output);
 
-            CancellationTokenSource = WebFixture.App?.CancellationTokenSource ?? new CancellationTokenSource();
+            CancellationTokenSource = WebFixture.App?.CancellationTokenSource ?? CancellationHelper.CreateCancellationTokenSource();
 
             if (webFixture.Exception is { })
             {

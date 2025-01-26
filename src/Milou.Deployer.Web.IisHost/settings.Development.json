@@ -19,7 +19,7 @@
     },
     {
       "key": "urn:milou:deployer:web:marten:singleton:connection-string",
-      "value": "host=localhost;port=5433;database=postgres;password=test;username=postgres"
+      "value": "host=localhost;port=5433;database=postgres;password=test;username=postgres;timeout=60;command timeout=30"
     },
     {
       "key": "urn:arbor:app:web:log:level",

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Marten;
 using Marten.Events;
 using Marten.Events.Daemon;
@@ -12,6 +12,7 @@ using Marten.Services;
 using Marten.Storage;
 using Microsoft.Extensions.Logging;
 using Weasel.Core.Migrations;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
@@ -29,6 +30,10 @@ namespace Milou.Deployer.Web.Tests.Integration
             BulkInsertMode mode = BulkInsertMode.InsertsOnly,
             int batchSize = 1000) => throw new NotSupportedException();
 
+        public void BulkInsertEnlistTransaction<T>(IReadOnlyCollection<T> documents, Transaction transaction,
+            BulkInsertMode mode = BulkInsertMode.InsertsOnly, int batchSize = 1000) =>
+            throw new NotImplementedException();
+
         public void BulkInsert<T>(string tenantId,
             IReadOnlyCollection<T> documents,
             BulkInsertMode mode = BulkInsertMode.InsertsOnly,
@@ -39,6 +44,10 @@ namespace Milou.Deployer.Web.Tests.Integration
             int batchSize = 1000,
             CancellationToken cancellation = new CancellationToken()) =>
             throw new NotSupportedException();
+
+        public Task BulkInsertEnlistTransactionAsync<T>(IReadOnlyCollection<T> documents, Transaction transaction,
+            BulkInsertMode mode = BulkInsertMode.InsertsOnly, int batchSize = 1000, CancellationToken cancellation = new CancellationToken()) =>
+            throw new NotImplementedException();
 
         public Task BulkInsertAsync<T>(string tenantId,
             IReadOnlyCollection<T> documents,

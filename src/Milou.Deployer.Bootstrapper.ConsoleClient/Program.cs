@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Arbor.Tooler;
 using JetBrains.Annotations;
 using Milou.Deployer.Bootstrapper.Common;
+using Milou.Deployer.Core;
 
 namespace Milou.Deployer.Bootstrapper.ConsoleClient
 {
@@ -33,7 +34,7 @@ namespace Milou.Deployer.Bootstrapper.ConsoleClient
 
             using (BootstrapperApp bootstrapperApp = await BootstrapperApp.CreateAsync(args).ConfigureAwait(false))
             {
-                using var cts = new CancellationTokenSource(GetTimeout(args));
+                using var cts = CancellationHelper.CreateCancellationTokenSource(GetTimeout(args));
 
                 NuGetPackageInstallResult nuGetPackageInstallResult =
                     await bootstrapperApp.ExecuteAsync(args.ToImmutableArray(), cts.Token).ConfigureAwait(false);

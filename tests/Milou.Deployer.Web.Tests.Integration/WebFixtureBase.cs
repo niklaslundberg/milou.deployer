@@ -20,6 +20,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Core;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Configuration;
@@ -131,7 +132,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 finally
                 {
                     _cancellationTokenSource =
-                        new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
+                        CancellationHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
                 }
 
                 string connStr = string.Format(CultureInfo.InvariantCulture,

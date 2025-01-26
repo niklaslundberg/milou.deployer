@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Docker;
 using Arbor.Docker.Xunit;
+using Milou.Deployer.Core;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Ftp;
@@ -39,7 +40,7 @@ namespace Milou.Deployer.Tests.Integration
             var sourceDirectory = new DirectoryInfo(source);
             var ruleConfiguration = new RuleConfiguration {AppOfflineEnabled = true};
 
-            using var initialCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(50));
+            using var initialCancellationTokenSource = CancellationHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(50));
 
             DeploySummary initialSummary = await handler.PublishAsync(ruleConfiguration,
                 deployTargetDirectory,
@@ -47,7 +48,7 @@ namespace Milou.Deployer.Tests.Integration
 
             logger.Information("Initial: {Initial}", initialSummary.ToDisplayValue());
 
-            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(50));
+            using var cancellationTokenSource = CancellationHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(50));
 
             DeploySummary summary = await handler.PublishAsync(
                 ruleConfiguration,

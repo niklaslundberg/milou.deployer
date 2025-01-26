@@ -178,6 +178,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         public int RequestCount { get; } = default!;
 
         public IDocumentStore DocumentStore { get; } = default!;
+        public void QueueSqlCommand(string sql, params object[] parameterValues) => throw new NotImplementedException();
+
         IQueryEventStore IQuerySession.Events => Events;
 
         public IJsonLoader Json { get; } = default!;
@@ -197,6 +199,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void Delete<T>(string id) => throw new NotSupportedException();
 
         public void DeleteWhere<T>(Expression<Func<T, bool>> expression) => throw new NotSupportedException();
+        public void DeleteObjects(IEnumerable<object> documents) => throw new NotImplementedException();
 
         public void SaveChanges() => throw new NotSupportedException();
 

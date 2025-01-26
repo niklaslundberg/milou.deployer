@@ -12,6 +12,7 @@ using Arbor.KVConfiguration.Urns;
 using Arbor.Primitives;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Core;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Agent.Host.Configuration;
 using Milou.Deployer.Web.Core.Agents.Commands;
@@ -65,7 +66,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _testConfiguration.AgentToken = createAgentResult.AccessToken;
 
-            _agentCancellationTokenSource = new CancellationTokenSource();
+            _agentCancellationTokenSource = CancellationHelper.CreateCancellationTokenSource();
 
             _agentCancellationTokenSource.Token.Register(() => Console.WriteLine("Agent is cancelled"));
 
